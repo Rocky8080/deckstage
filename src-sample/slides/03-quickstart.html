@@ -1,0 +1,25 @@
+<section class="slide" id="s03" data-title="快速开始" data-rail="上手">
+  <header class="head">
+    <p class="kicker">02 / QUICKSTART</p>
+    <h1 class="title">五分钟，<em>跑通全流程</em></h1>
+  </header>
+
+  <div class="body">
+    <div class="card" style="padding: 20px 24px; max-width: 1000px;">
+      <pre style="margin:0; font: 12.5px/2.05 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">git clone … &amp;&amp; cd deckstage
+pip install -r requirements.txt          # python 工具链（PIL / fitz / numpy / python-pptx / playwright）
+
+node build.mjs --src src-sample --deck sample-deck   # 拼装示例 deck
+python3 tools/build_library.py                       # 展示台聚合 + 缩略图
+python3 tools/serve_deck.py                          # http://127.0.0.1:8899/  ← 展示台
+
+python3 tools/import_pptx.py 你的.pptx --slug my-deck --dry-run   # 只体检不动手
+python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导入（UI 入口在展示台右上角）</pre>
+    </div>
+    <p class="note" style="margin-top:16px; font-size:13px; color: var(--ink-3);">依赖分两档：纯创作与放映零依赖，浏览器打开即可；PPTX 导入需要 LibreOffice，缩略图 / QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+
+    <p class="bridge reveal" style="--d:80ms">服务起来后，先鸟瞰这套系统的<strong>四层能力</strong>。</p>
+  </div>
+
+  <aside class="notes">五分钟上手：装 python 依赖，拼装示例 deck，聚合展示台，起本地服务。导入是可选项，需要 LibreOffice。日常创作时只跑 build.mjs 就够，刷新浏览器即见。</aside>
+</section>

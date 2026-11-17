@@ -4,6 +4,32 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.2.0] - 2026-11-17
+
+### 新增：deck 配色主题（六套预设一键切换）
+
+- `serve_deck.py` 向 deck 页注入 `tools/deck_themes.py`：默认 / 藏青 / 暖赭 / 紫藤 /
+  青瓷 / 玄墨（深色）六套预设，放映中按 `C` 循环或右下角 🎨 浮窗点选，
+  顶部 toast 提示当前方案；按 deck 存 `localStorage` 记忆。
+- 实现：全部 deck 共用 `tokens.css` 变量契约，预设 = 同名变量成套覆盖
+  （`html[data-dtheme=…]`），不改 deck 文件、旧 deck 自动支持；
+  `?export=1`（缩略图采集）不注入，缩略图保持原配色。
+- 边界：写死颜色与整页渲染图（导入 deck 的逐页 PNG）不受主题影响；
+  玄墨主题保持 `--dark*` 深面板不变浅，保证面板内浅色文字可读。
+
+### 重写：sample-deck 变为系统使用说明
+
+- `src-sample/` 由 6 屏「引擎自我介绍」扩写为 11 屏使用手册，按「重要 → 细节」排序：
+  封面 → **AI 代工最佳实践**（三窗格图示：Word 素材 → 拖入 WorkBuddy 一句话 →
+  生成 deck，配提示词示例与三步要点）→ 快速开始 → 系统总览 → 放映操作 → 配色主题 →
+  创作规范 → PPTX 导入 → 导出与质检 → 管理后台 → 结尾文档索引（含 GitHub 仓库链接），
+  `deck.json` 标题同步改为「DeckStage · 使用说明」。
+
+### 修复
+
+- `base.css`：`.card--dark` 补 `.kv__k` / `.kv__v` 浅色变体——此前深色卡片内的
+  key-value 正文沿用 `--ink` 深色，深底上几乎不可读（老 deck 同样受益）。
+
 ## [1.1.0] - 2026-11-17
 
 ### 新增：`/admin` 管理后台
@@ -45,5 +71,6 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.2.0]: https://github.com/Rocky8080/deckstage/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Rocky8080/deckstage/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Rocky8080/deckstage/releases/tag/v1.0.0

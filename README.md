@@ -20,7 +20,7 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 | **PPTX 导入** | 外部 PowerPoint 经六阶段 pipeline 自动转换（体检 → 字体 → 版式预修 → LibreOffice 渲染 → 补字层 → 组装），详见 [docs/IMPORT.md](docs/IMPORT.md) |
 | **展示台** | `library.html` 缩略图墙聚合所有 deck；`serve_deck.py` 本地起服务后右上角可「＋ 导入 PPTX」（四步向导，仅限本机） |
 | **管理后台** | `/admin/` 访问追踪（逐屏时长 / 来源 / 访客）· deck 密码门禁与上下架（即时生效），见 [docs/ADMIN.md](docs/ADMIN.md) 与 [CHANGELOG.md](CHANGELOG.md) |
-| **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`#s12` 深链 |
+| **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（六套预设含深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
 | **导出** | 页面内一键导出可编辑 PPTX（pptxgenjs）；构建时可产出全内联的单机版 HTML |
 | **QA 工具** | 溢出/截断/重叠检查、放映交互自测、逐屏截图（见下文「质检」） |
 
@@ -34,6 +34,7 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 pip install -r requirements.txt
 
 # 1) 拼装示例 deck 并起展示台
+#    sample-deck 是 11 屏《使用说明》：最佳实践 / 放映 / 配色 / 创作 / 导入 / 管理
 node build.mjs --src src-sample --deck sample-deck
 python3 tools/build_library.py            # 生成 decks.json / library.html / 缩略图
 python3 tools/serve_deck.py               # → http://127.0.0.1:8899/
@@ -49,6 +50,17 @@ node build.mjs --src src-mine --deck my-deck
 ```
 
 > 缩略图 / QA 需要 Chrome（Playwright 走 `channel="chrome"`）；PPTX 渲染需要 LibreOffice。
+
+## 二·五、最佳实践：让 AI 替你写 deck
+
+被验证最多的用法（示例 deck 第 2 屏就是这份说明的图文版）：
+
+1. **素材随手写**：一个简单的 Word / Markdown，文字 + 截图随手放，不用管排版；
+2. **一句话委托**：在 ZCode / WorkBuddy / DeepSeek Harness / Codex 等 AI 客户端里，
+   把文件拖进去并说清三件事——素材位置、目标屏数与 slug、验收标准（如「质检 0 问题」）；
+3. **审片只看效果**：AI 调用本仓库工具链完成拼装、缩略图、质检自修，你翻一遍提修改即可。
+
+适用边界：内容型汇报最适合这条路；需要严格品牌版式 / 合规模板时，走 PPTX 导入保真路径。
 
 ## 三、目录
 

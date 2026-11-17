@@ -221,6 +221,8 @@ a { color: inherit; }
   box-shadow: 0 24px 60px -34px rgba(0, 0, 0, .7);
 }
 .card--dark .txt { color: rgba(247, 243, 234, .76); }
+.card--dark .kv__k { color: rgba(247, 243, 234, .42); }
+.card--dark .kv__v { color: rgba(247, 243, 234, .85); }
 .card--dark .label { color: rgba(247, 243, 234, .42); }
 .card--dark .h3 { color: var(--paper); }
 .card--no-pad { padding: 0; overflow: hidden; }

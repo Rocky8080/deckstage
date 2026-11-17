@@ -1,0 +1,38 @@
+<section class="slide" id="s10" data-title="管理后台 /admin" data-rail="管理">
+  <header class="head">
+    <p class="kicker">09 / ADMIN</p>
+    <h1 class="title">管理后台：<em>/admin</em> 一站管理</h1>
+  </header>
+
+  <div class="body">
+    <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="card reveal" style="--d:80ms">
+        <p class="kv__k">访问追踪</p>
+        <p class="kv__v" style="margin-top:8px">谁看了什么、看了多久<br>逐屏停留热度、来源与访客数<br>最近 100 条明细</p>
+      </div>
+      <div class="card card--tint reveal" style="--d:200ms">
+        <p class="kv__k">密码门禁</p>
+        <p class="kv__v" style="margin-top:8px">单套 deck 设访问密码<br>门禁页可配提示语<br>通过后 30 天免重输</p>
+      </div>
+      <div class="card card--tint reveal" style="--d:320ms">
+        <p class="kv__k">上下架</p>
+        <p class="kv__v" style="margin-top:8px">一键下架：整目录 404<br>展示台卡片即时消失<br>无需重新构建</p>
+      </div>
+      <div class="card card--dark reveal" style="--d:440ms">
+        <p class="kv__k">安全边界</p>
+        <p class="kv__v" style="margin-top:8px">导入 API 仅限本机<br>管理 / 追踪接口有限流<br>数据在 data/ 不入库</p>
+      </div>
+    </div>
+
+    <ul class="list" style="margin-top: 26px; max-width: 940px;">
+      <li class="list__item reveal" style="--d:530ms"><i class="list__dot"></i>
+        <p class="list__txt">入口：展示台页脚「管理后台」或直接访问 <code>/admin/</code>；首次启动打印初始密码，<code>--admin-password</code> 可重置</p></li>
+      <li class="list__item reveal" style="--d:620ms"><i class="list__dot"></i>
+        <p class="list__txt">追踪只存随机访客号与可见时长，无个人身份信息；详见 <code>docs/ADMIN.md</code></p></li>
+    </ul>
+
+    <p class="bridge reveal" style="--d:710ms">最后，把<strong>文档索引</strong>留给你。</p>
+  </div>
+
+  <aside class="notes">管理后台四块：访问追踪（内容与时长的逐屏统计）、密码门禁、上下架、安全边界。首次启动会打印一次初始管理密码，之后可在面板里改。追踪数据匿名，只记随机访客号。</aside>
+</section>

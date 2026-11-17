@@ -1,0 +1,35 @@
+<section class="slide" id="s04" data-title="系统总览" data-rail="概览">
+  <header class="head">
+    <p class="kicker">03 / OVERVIEW</p>
+    <h1 class="title">四个能力，<em>一条流水线</em></h1>
+  </header>
+
+  <div class="body">
+    <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="card reveal" style="--d:80ms">
+        <p class="kv__k">① 创作</p>
+        <p class="kv__v" style="margin-top:8px">一屏一个 HTML 文件<br>tokens.css 统一配色<br>reveal 类名做动效</p>
+      </div>
+      <div class="card card--tint reveal" style="--d:200ms">
+        <p class="kv__k">② 放映</p>
+        <p class="kv__v" style="margin-top:8px">全屏 / 总览 / 备注<br>画幅自适应 16:9·4:3<br>六套配色随时切换</p>
+      </div>
+      <div class="card card--tint reveal" style="--d:320ms">
+        <p class="kv__k">③ 导入导出</p>
+        <p class="kv__v" style="margin-top:8px">PPTX 一键转 HTML<br>页面内导出可编辑 PPTX<br>单机版 HTML 断网可用</p>
+      </div>
+      <div class="card card--dark reveal" style="--d:440ms">
+        <p class="kv__k">④ 管理</p>
+        <p class="kv__v" style="margin-top:8px">/admin 访问追踪<br>deck 密码门禁<br>上下架即时生效</p>
+      </div>
+    </div>
+
+    <div class="card card--flat reveal" style="--d:560ms; margin-top: 28px; padding: 16px 22px;">
+      <p class="kv__v" style="font: 13px/1.9 var(--font-mono); color: var(--ink-2);">src-slides/*.html → <b>build.mjs</b> 拼装 → decks/&lt;slug&gt;/ → <b>serve_deck.py</b> 起服务 → 展示台 library.html → 点开放映</p>
+    </div>
+
+    <p class="bridge reveal" style="--d:660ms">系统已经跑起来了，从每天最常用的<strong>放映操作</strong>练起。</p>
+  </div>
+
+  <aside class="notes">四层能力：创作是写 HTML 源文件；放映是引擎负责的浏览器体验；导入导出解决与 PowerPoint 的双向流通；管理后台面向公开分享时的运营。数据流一行：源文件拼装成单文件 deck，本地服务起展示台，浏览器点开即放映。</aside>
+</section>

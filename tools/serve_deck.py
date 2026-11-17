@@ -57,7 +57,8 @@ def get_store(root):
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import admin_core
         import admin_site
-        _MODS["core"], _MODS["site"] = admin_core, admin_site
+        import deck_themes
+        _MODS["core"], _MODS["site"], _MODS["themes"] = admin_core, admin_site, deck_themes
         _STORE = admin_core.Store(root)
     return _STORE
 
@@ -152,7 +153,9 @@ class DeckHandler(SimpleHTTPRequestHandler):
             if not (parse_qs(urlparse(self.path).query).get("export") == ["1"] and self._is_local()):
                 text = data.decode("utf-8", errors="replace")
                 if slug:
-                    tracker = _MODS["site"].tracker_script(slug)
+                    # deck 页：访问追踪 + 配色主题（默认六套，C 键/浮窗切换）
+                    tracker = (_MODS["site"].tracker_script(slug)
+                               + _MODS["themes"].theme_assets(slug))
                 elif rel in ("library.html", "index.html", "index-web.html"):
                     if rel == "library.html":
                         text = _MODS["site"].filter_library_html(text, site.access_map())

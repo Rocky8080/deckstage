@@ -1,0 +1,153 @@
+<section class="slide" id="s02" data-title="最佳实践 · AI 代你写 deck" data-rail="上手">
+  <style>
+    .bp-stage { display: grid; grid-template-columns: 1fr 84px 1.18fr 84px 1fr; gap: 0; align-items: stretch; }
+    .bp-win { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-md);
+      overflow: hidden; box-shadow: var(--sh-card); display: flex; flex-direction: column; height: 258px; }
+    .bp-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+      border-bottom: 1px solid var(--line-soft); background: var(--paper-3); }
+    .bp-bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+    .bp-bar i:first-child { background: var(--terra-2); }
+    .bp-bar b { font: 11px/1 var(--font-mono); letter-spacing: .05em; color: var(--ink-3); margin-left: 4px; }
+    .bp-body { flex: 1; padding: 14px 16px; overflow: hidden; }
+    /* Word 纸面 */
+    .bp-doc { background: #fff; border: 1px solid var(--line-soft); border-radius: 4px; height: 100%; padding: 14px 16px; }
+    .bp-doc .t { height: 13px; width: 62%; background: var(--ink-2); border-radius: 2px; margin-bottom: 12px; }
+    .bp-doc .l { height: 7px; background: var(--line); border-radius: 2px; margin-bottom: 8px; }
+    .bp-doc .l.s { width: 78%; } .bp-doc .l.m { width: 92%; } .bp-doc .l.e { width: 55%; }
+    .bp-doc .pic { margin-top: 12px; height: 74px; border: 1px dashed var(--line);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--ink-4); }
+    /* WorkBuddy 对话 */
+    .bp-chat { display: flex; flex-direction: column; gap: 10px; height: 100%; }
+    .bp-msg { max-width: 92%; padding: 9px 12px; border-radius: 10px; font: 12.5px/1.6 var(--font-sans); }
+    .bp-msg--user { align-self: flex-end; background: var(--green); color: var(--paper); border-bottom-right-radius: 3px; }
+    .bp-msg--user .file { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; margin-bottom: 6px;
+      background: rgba(255,255,255,.18); border-radius: 6px; font-family: var(--font-mono); font-size: 11px; }
+    .bp-msg--ai { align-self: flex-start; background: var(--green-tint); color: var(--ink-2); border-bottom-left-radius: 3px; }
+    .bp-input { margin-top: auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      border: 1px solid var(--line); border-radius: 9px; color: var(--ink-4); font: 12px/1 var(--font-sans); }
+    /* deck 成品 */
+    .bp-slide { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--paper); }
+    .bp-slide .cap { padding: 10px 12px 6px; }
+    .bp-slide .cap .tt { height: 10px; width: 58%; background: var(--green); border-radius: 2px; margin-bottom: 8px; }
+    .bp-slide .cap .ll { height: 6px; width: 84%; background: var(--line); border-radius: 2px; margin-bottom: 6px; }
+    .bp-slide .cap .ll.h { width: 46%; }
+    .bp-slide .blocks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 12px 10px; }
+    .bp-slide .blocks i { height: 34px; border-radius: 4px; background: var(--green-wash); }
+    .bp-slide .blocks i:last-child { background: var(--dark-2); }
+    .bp-prog { display: flex; gap: 4px; padding: 10px 12px 0; }
+    .bp-prog i { flex: 1; height: 5px; border-radius: 3px; background: var(--line-soft); }
+    .bp-prog i.on { background: var(--green-2); }
+    /* 箭头列 */
+    .bp-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .bp-arrow svg { display: block; }
+    .bp-arrow span { font: 11px/1 var(--font-mono); letter-spacing: .1em; color: var(--ink-3); }
+  </style>
+
+  <header class="head">
+    <p class="kicker">01 / BEST PRACTICE</p>
+    <h1 class="title">一句话需求，<em>AI 全程代工</em></h1>
+    <p class="sub">这套《使用说明》本身就是这么做的：一个随手写的 Word，拖进 AI 客户端，右边就长出了你现在看的 deck。</p>
+  </header>
+
+  <div class="body body--tight">
+    <div class="bp-stage reveal" style="--d:60ms">
+      <!-- 窗格一：Word 素材 -->
+      <div class="bp-win">
+        <div class="bp-bar"><i></i><i></i><i></i><b>素材草稿.docx</b></div>
+        <div class="bp-body">
+          <div class="bp-doc">
+            <div class="t"></div>
+            <div class="l m"></div>
+            <div class="l s"></div>
+            <div class="l e"></div>
+            <div class="pic">
+              <svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="24" height="20" rx="2"/><circle cx="11" cy="12" r="2.4"/><path d="M3 21 l7-6 5 4 6-5 6 5"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 拖入 -->
+      <div class="bp-arrow">
+        <svg width="56" height="80" viewBox="0 0 56 80" fill="none" stroke="var(--green-2)" stroke-width="2" stroke-linecap="round">
+          <path class="draw" pathLength="1" style="--d:500ms" d="M8 8 C 40 18, 46 44, 30 62"/>
+          <path d="M30 62 l -2 -9 l 8 3 z" style="fill:var(--green-2);stroke:none"/>
+          <g transform="translate(10,30)" stroke="var(--ink-3)" stroke-width="1.5">
+            <rect x="0" y="0" width="16" height="20" rx="2" style="fill:var(--paper-2)"/>
+            <path d="M4 6 h8 M4 10 h8 M4 14 h5"/>
+          </g>
+        </svg>
+        <span>拖入</span>
+      </div>
+
+      <!-- 窗格二：WorkBuddy 对话 -->
+      <div class="bp-win">
+        <div class="bp-bar"><i></i><i></i><i></i><b>WorkBuddy — 会话</b></div>
+        <div class="bp-body">
+          <div class="bp-chat">
+            <div class="bp-msg bp-msg--user">
+              <span class="file">
+                <svg width="11" height="12" viewBox="0 0 12 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+                  <path d="M9.5 4.5 V9 a3 3 0 0 1 -6 0 V3 a1.8 1.8 0 0 1 3.6 0 v6 a1 1 0 0 1 -2 0 V4"/>
+                </svg>
+                素材草稿.docx
+              </span><br>
+              把这份 Word 做成 8 屏 deck：配色藏青、每屏带演讲备注，跑质检改到 0 问题，最后刷新展示台。
+            </div>
+            <div class="bp-msg bp-msg--ai">
+              已生成 sample-deck（11 屏）：拼装、缩略图、质检全部通过，可以放映了。
+            </div>
+            <div class="bp-input">说点什么，或把文件拖进来…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 生成 -->
+      <div class="bp-arrow">
+        <svg width="56" height="40" viewBox="0 0 56 40" fill="none" stroke="var(--green-2)" stroke-width="2" stroke-linecap="round">
+          <path class="draw" pathLength="1" style="--d:800ms" d="M4 20 h40"/>
+          <path d="M46 20 l -10 -6 v12 z" style="fill:var(--green-2);stroke:none"/>
+        </svg>
+        <span>生成</span>
+      </div>
+
+      <!-- 窗格三：deck 成品 -->
+      <div class="bp-win">
+        <div class="bp-bar"><i></i><i></i><i></i><b>DeckStage · sample-deck</b></div>
+        <div class="bp-body">
+          <div class="bp-slide">
+            <div class="cap">
+              <div class="tt"></div>
+              <div class="ll"></div>
+              <div class="ll h"></div>
+            </div>
+            <div class="blocks"><i></i><i></i><i></i></div>
+          </div>
+          <div class="bp-prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+          <p class="note" style="margin:10px 0 0; font: 11px/1.6 var(--font-mono); color: var(--ink-4);">sample-deck · 11 屏 · 质检 0 问题</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
+      <div class="card card--flat reveal" style="--d:200ms; padding: 13px 18px;">
+        <p class="kv__k">① 素材随手写</p>
+        <p class="kv__v" style="margin-top:5px; font-size:14px;">Word / Markdown，文字加截图，不用管排版</p>
+      </div>
+      <div class="card card--flat reveal" style="--d:290ms; padding: 13px 18px;">
+        <p class="kv__k">② 委托说清楚</p>
+        <p class="kv__v" style="margin-top:5px; font-size:14px;">素材位置、屏数与 slug、验收标准（质检 0 问题）</p>
+      </div>
+      <div class="card card--flat reveal" style="--d:380ms; padding: 13px 18px;">
+        <p class="kv__k">③ 审片只看效果</p>
+        <p class="kv__v" style="margin-top:5px; font-size:14px;">拼装、缩略图、质检自修都归 AI，你翻一遍提修改</p>
+      </div>
+    </div>
+
+    <p class="bridge reveal" style="--d:460ms">客户端不限 WorkBuddy，<strong>ZCode / DeepSeek Harness / Codex</strong> 同样适用；这套说明也是这么生成的；接下来三条命令<strong>跑通全流程</strong>。</p>
+  </div>
+
+  <aside class="notes">这是我自己的最佳实践，图上三步就是生成眼前这套说明的真实过程：左边是随手写的 Word 素材，文字加截图、不管排版；把它拖进 WorkBuddy，附一句话说明——屏数、slug、验收标准；右边 AI 调用本仓库工具链生成了你现在看的这套 deck。客户端不限 WorkBuddy，ZCode、DeepSeek Harness、Codex 都可以。关键：素材别管排版、委托说清验收、人只审效果。</aside>
+</section>

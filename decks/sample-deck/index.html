@@ -314,6 +314,8 @@ a { color: inherit; }
   box-shadow: 0 24px 60px -34px rgba(0, 0, 0, .7);
 }
 .card--dark .txt { color: rgba(247, 243, 234, .76); }
+.card--dark .kv__k { color: rgba(247, 243, 234, .42); }
+.card--dark .kv__v { color: rgba(247, 243, 234, .85); }
 .card--dark .label { color: rgba(247, 243, 234, .42); }
 .card--dark .h3 { color: var(--paper); }
 .card--no-pad { padding: 0; overflow: hidden; }
@@ -620,6 +622,64 @@ a { color: inherit; }
 
 
 /* ===== 各屏专属样式 ===== */
+
+/* ---- 02-ai-workflow.html ---- */
+.bp-stage { display: grid; grid-template-columns: 1fr 84px 1.18fr 84px 1fr; gap: 0; align-items: stretch; }
+    .bp-win { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-md);
+      overflow: hidden; box-shadow: var(--sh-card); display: flex; flex-direction: column; height: 258px; }
+    .bp-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+      border-bottom: 1px solid var(--line-soft); background: var(--paper-3); }
+    .bp-bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+    .bp-bar i:first-child { background: var(--terra-2); }
+    .bp-bar b { font: 11px/1 var(--font-mono); letter-spacing: .05em; color: var(--ink-3); margin-left: 4px; }
+    .bp-body { flex: 1; padding: 14px 16px; overflow: hidden; }
+    /* Word 纸面 */
+    .bp-doc { background: #fff; border: 1px solid var(--line-soft); border-radius: 4px; height: 100%; padding: 14px 16px; }
+    .bp-doc .t { height: 13px; width: 62%; background: var(--ink-2); border-radius: 2px; margin-bottom: 12px; }
+    .bp-doc .l { height: 7px; background: var(--line); border-radius: 2px; margin-bottom: 8px; }
+    .bp-doc .l.s { width: 78%; } .bp-doc .l.m { width: 92%; } .bp-doc .l.e { width: 55%; }
+    .bp-doc .pic { margin-top: 12px; height: 74px; border: 1px dashed var(--line);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--ink-4); }
+    /* WorkBuddy 对话 */
+    .bp-chat { display: flex; flex-direction: column; gap: 10px; height: 100%; }
+    .bp-msg { max-width: 92%; padding: 9px 12px; border-radius: 10px; font: 12.5px/1.6 var(--font-sans); }
+    .bp-msg--user { align-self: flex-end; background: var(--green); color: var(--paper); border-bottom-right-radius: 3px; }
+    .bp-msg--user .file { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; margin-bottom: 6px;
+      background: rgba(255,255,255,.18); border-radius: 6px; font-family: var(--font-mono); font-size: 11px; }
+    .bp-msg--ai { align-self: flex-start; background: var(--green-tint); color: var(--ink-2); border-bottom-left-radius: 3px; }
+    .bp-input { margin-top: auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      border: 1px solid var(--line); border-radius: 9px; color: var(--ink-4); font: 12px/1 var(--font-sans); }
+    /* deck 成品 */
+    .bp-slide { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--paper); }
+    .bp-slide .cap { padding: 10px 12px 6px; }
+    .bp-slide .cap .tt { height: 10px; width: 58%; background: var(--green); border-radius: 2px; margin-bottom: 8px; }
+    .bp-slide .cap .ll { height: 6px; width: 84%; background: var(--line); border-radius: 2px; margin-bottom: 6px; }
+    .bp-slide .cap .ll.h { width: 46%; }
+    .bp-slide .blocks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 12px 10px; }
+    .bp-slide .blocks i { height: 34px; border-radius: 4px; background: var(--green-wash); }
+    .bp-slide .blocks i:last-child { background: var(--dark-2); }
+    .bp-prog { display: flex; gap: 4px; padding: 10px 12px 0; }
+    .bp-prog i { flex: 1; height: 5px; border-radius: 3px; background: var(--line-soft); }
+    .bp-prog i.on { background: var(--green-2); }
+    /* 箭头列 */
+    .bp-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .bp-arrow svg { display: block; }
+    .bp-arrow span { font: 11px/1 var(--font-mono); letter-spacing: .1em; color: var(--ink-3); }
+
+/* ---- 11-closing.html ---- */
+.cover { flex: 1; display: flex; flex-direction: column; }
+    .cover__title { font: 600 var(--fs-h1)/1.28 var(--font-serif); letter-spacing: .02em; margin: 0; color: var(--ink); }
+    .cover__line { display: block; }
+    .cover__rule { width: 96px; height: 5px; background: var(--green); border-radius: 3px; margin-top: 22px; }
+    .cover__foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 8px; }
+    .cover__meta { display: flex; flex-direction: column; gap: 6px; }
+    .cover__who { font: 13px/1.5 var(--font-sans); color: var(--ink-2); }
+    .cover__date { font-size: 13px; color: var(--ink-3); }
+    .cover__date a { color: var(--green); }
+    .cover__stats { display: flex; gap: 36px; }
+    .cover__stat { display: flex; align-items: baseline; gap: 8px; }
+    .cover__stat b { font: 600 38px var(--font-mono); color: var(--green); }
+    .cover__stat i { font: 12.5px/1.4 var(--font-sans); font-style: normal; color: var(--ink-3); }
 </style>
   <style>
 /* ===== _shared/deck.css（构建内联，改 src/css/deck.css 后重跑 build） ===== */
@@ -1408,11 +1468,11 @@ body.ratio-4x3 #s16 .body { zoom: .70; }
   <div class="stage">
     <div class="stage__bar"><i></i></div>
     <div class="slides">
-<section class="slide" id="s01" data-title="封面 · DeckStage" data-rail="概览" data-nofoot>
+<section class="slide" id="s01" data-title="封面 · 使用说明" data-rail="概览" data-nofoot>
   <header class="head">
-    <p class="kicker">DECKSTAGE · DEMO DECK</p>
-    <h1 class="title reveal reveal--blur" style="--d:60ms">一套幻灯片引擎<em>的自我介绍</em></h1>
-    <p class="sub reveal" style="--d:260ms">这套 deck 本身就是示例：所有版式、动效、图表均由仓库内的引擎渲染，不含任何素材图片。</p>
+    <p class="kicker">DECKSTAGE · 使用说明</p>
+    <h1 class="title reveal reveal--blur" style="--d:60ms">一套幻灯片系统的<em>完整用法</em></h1>
+    <p class="sub reveal" style="--d:260ms">你现在看的这套 deck 就是示例：每一屏都由仓库内的引擎渲染，讲的正是这套系统本身怎么用。</p>
   </header>
 
   <div class="body">
@@ -1426,62 +1486,285 @@ body.ratio-4x3 #s16 .body { zoom: .70; }
         <p class="kv__v">外部 PowerPoint<br>一条 pipeline 自动转换</p>
       </div>
       <div class="card card--dark reveal" style="--d:360ms">
-        <p class="kv__k">PRESENT READY</p>
-        <p class="kv__v">全屏放映 · 画幅自适应<br>备注 / 总览 / 深链</p>
+        <p class="kv__k">ADMIN CONSOLE</p>
+        <p class="kv__v">管理后台 /admin<br>访问追踪 · 门禁 · 上下架</p>
       </div>
     </div>
+    <p class="bridge reveal" style="--d:480ms">系统分四层：<strong>创作 → 放映 → 导入导出 → 管理</strong>，先看总览。</p>
   </div>
 
-  <aside class="notes">示例 deck 的封面。开场一句话：这个仓库是一个 HTML 幻灯片引擎，你现在看到的每一屏都是引擎渲染出来的。</aside>
+  <aside class="notes">这是整套系统的使用说明，共十屏：总览、快速开始、放映操作、配色主题、创作规范、PPTX 导入、导出与质检、管理后台、文档索引。每一屏都是引擎渲染的活示例——边看边按方向键，就是在用它。</aside>
 </section>
 
-<section class="slide" id="s02" data-title="六阶段导入 pipeline" data-rail="概览">
+<section class="slide" id="s02" data-title="最佳实践 · AI 代你写 deck" data-rail="上手">
+  
+
   <header class="head">
-    <p class="kicker">01 / PIPELINE</p>
-    <h1 class="title">外部 PPTX，<em>一条流水线</em>进展示台</h1>
+    <p class="kicker">01 / BEST PRACTICE</p>
+    <h1 class="title">一句话需求，<em>AI 全程代工</em></h1>
+    <p class="sub">这套《使用说明》本身就是这么做的：一个随手写的 Word，拖进 AI 客户端，右边就长出了你现在看的 deck。</p>
+  </header>
+
+  <div class="body body--tight">
+    <div class="bp-stage reveal" style="--d:60ms">
+      <!-- 窗格一：Word 素材 -->
+      <div class="bp-win">
+        <div class="bp-bar"><i></i><i></i><i></i><b>素材草稿.docx</b></div>
+        <div class="bp-body">
+          <div class="bp-doc">
+            <div class="t"></div>
+            <div class="l m"></div>
+            <div class="l s"></div>
+            <div class="l e"></div>
+            <div class="pic">
+              <svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="24" height="20" rx="2"/><circle cx="11" cy="12" r="2.4"/><path d="M3 21 l7-6 5 4 6-5 6 5"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 拖入 -->
+      <div class="bp-arrow">
+        <svg width="56" height="80" viewBox="0 0 56 80" fill="none" stroke="var(--green-2)" stroke-width="2" stroke-linecap="round">
+          <path class="draw" pathLength="1" style="--d:500ms" d="M8 8 C 40 18, 46 44, 30 62"/>
+          <path d="M30 62 l -2 -9 l 8 3 z" style="fill:var(--green-2);stroke:none"/>
+          <g transform="translate(10,30)" stroke="var(--ink-3)" stroke-width="1.5">
+            <rect x="0" y="0" width="16" height="20" rx="2" style="fill:var(--paper-2)"/>
+            <path d="M4 6 h8 M4 10 h8 M4 14 h5"/>
+          </g>
+        </svg>
+        <span>拖入</span>
+      </div>
+
+      <!-- 窗格二：WorkBuddy 对话 -->
+      <div class="bp-win">
+        <div class="bp-bar"><i></i><i></i><i></i><b>WorkBuddy — 会话</b></div>
+        <div class="bp-body">
+          <div class="bp-chat">
+            <div class="bp-msg bp-msg--user">
+              <span class="file">
+                <svg width="11" height="12" viewBox="0 0 12 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+                  <path d="M9.5 4.5 V9 a3 3 0 0 1 -6 0 V3 a1.8 1.8 0 0 1 3.6 0 v6 a1 1 0 0 1 -2 0 V4"/>
+                </svg>
+                素材草稿.docx
+              </span><br>
+              把这份 Word 做成 8 屏 deck：配色藏青、每屏带演讲备注，跑质检改到 0 问题，最后刷新展示台。
+            </div>
+            <div class="bp-msg bp-msg--ai">
+              已生成 sample-deck（11 屏）：拼装、缩略图、质检全部通过，可以放映了。
+            </div>
+            <div class="bp-input">说点什么，或把文件拖进来…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 生成 -->
+      <div class="bp-arrow">
+        <svg width="56" height="40" viewBox="0 0 56 40" fill="none" stroke="var(--green-2)" stroke-width="2" stroke-linecap="round">
+          <path class="draw" pathLength="1" style="--d:800ms" d="M4 20 h40"/>
+          <path d="M46 20 l -10 -6 v12 z" style="fill:var(--green-2);stroke:none"/>
+        </svg>
+        <span>生成</span>
+      </div>
+
+      <!-- 窗格三：deck 成品 -->
+      <div class="bp-win">
+        <div class="bp-bar"><i></i><i></i><i></i><b>DeckStage · sample-deck</b></div>
+        <div class="bp-body">
+          <div class="bp-slide">
+            <div class="cap">
+              <div class="tt"></div>
+              <div class="ll"></div>
+              <div class="ll h"></div>
+            </div>
+            <div class="blocks"><i></i><i></i><i></i></div>
+          </div>
+          <div class="bp-prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+          <p class="note" style="margin:10px 0 0; font: 11px/1.6 var(--font-mono); color: var(--ink-4);">sample-deck · 11 屏 · 质检 0 问题</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
+      <div class="card card--flat reveal" style="--d:200ms; padding: 13px 18px;">
+        <p class="kv__k">① 素材随手写</p>
+        <p class="kv__v" style="margin-top:5px; font-size:14px;">Word / Markdown，文字加截图，不用管排版</p>
+      </div>
+      <div class="card card--flat reveal" style="--d:290ms; padding: 13px 18px;">
+        <p class="kv__k">② 委托说清楚</p>
+        <p class="kv__v" style="margin-top:5px; font-size:14px;">素材位置、屏数与 slug、验收标准（质检 0 问题）</p>
+      </div>
+      <div class="card card--flat reveal" style="--d:380ms; padding: 13px 18px;">
+        <p class="kv__k">③ 审片只看效果</p>
+        <p class="kv__v" style="margin-top:5px; font-size:14px;">拼装、缩略图、质检自修都归 AI，你翻一遍提修改</p>
+      </div>
+    </div>
+
+    <p class="bridge reveal" style="--d:460ms">客户端不限 WorkBuddy，<strong>ZCode / DeepSeek Harness / Codex</strong> 同样适用；这套说明也是这么生成的；接下来三条命令<strong>跑通全流程</strong>。</p>
+  </div>
+
+  <aside class="notes">这是我自己的最佳实践，图上三步就是生成眼前这套说明的真实过程：左边是随手写的 Word 素材，文字加截图、不管排版；把它拖进 WorkBuddy，附一句话说明——屏数、slug、验收标准；右边 AI 调用本仓库工具链生成了你现在看的这套 deck。客户端不限 WorkBuddy，ZCode、DeepSeek Harness、Codex 都可以。关键：素材别管排版、委托说清验收、人只审效果。</aside>
+</section>
+
+<section class="slide" id="s03" data-title="快速开始" data-rail="上手">
+  <header class="head">
+    <p class="kicker">02 / QUICKSTART</p>
+    <h1 class="title">五分钟，<em>跑通全流程</em></h1>
   </header>
 
   <div class="body">
-    <ul class="list" style="max-width: 860px;">
-      <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>体检</b>　字体清单 / 画幅 / 语言判定 / 表格·组合统计 —— 只读不改</p></li>
-      <li class="list__item reveal" style="--d:140ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>版式预修</b>　短行禁折 + 全局缩字 + 表格缩字，配方在真实 deck 上验证过</p></li>
-      <li class="list__item reveal" style="--d:220ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>渲染</b>　LibreOffice 无头渲染 → 逐页 1600×900 位图，视觉与原稿一致</p></li>
-      <li class="list__item reveal" style="--d:300ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>补字层</b>　检测没画出来 / 缺字方块的文字，按 PDF 坐标补成可检索的 HTML</p></li>
-      <li class="list__item reveal" style="--d:380ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>组装入库</b>　生成 deck 源码目录 → 拼装 → 刷新展示台缩略图</p></li>
-    </ul>
+    <div class="card" style="padding: 20px 24px; max-width: 1000px;">
+      <pre style="margin:0; font: 12.5px/2.05 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">git clone … &amp;&amp; cd deckstage
+pip install -r requirements.txt          # python 工具链（PIL / fitz / numpy / python-pptx / playwright）
 
-    <div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 30px;">
-      <div class="stat reveal" style="--d:420ms"><b class="stat__num num stat__num--l" data-count="6">6</b><span class="stat__label">个阶段全自动</span></div>
-      <div class="stat reveal" style="--d:500ms"><b class="stat__num num stat__num--l" data-count="45">45</b><span class="stat__unit">s</span><span class="stat__label">33 页实测用时</span></div>
-      <div class="stat reveal" style="--d:580ms"><b class="stat__num num stat__num--l">1600<i class="stat__unit">×</i>900</b><span class="stat__label">逐页渲染分辨率</span></div>
-      <div class="stat reveal" style="--d:660ms"><b class="stat__num num stat__num--l" data-count="300">300</b><span class="stat__unit">MB</span><span class="stat__label">上传体积上限</span></div>
+node build.mjs --src src-sample --deck sample-deck   # 拼装示例 deck
+python3 tools/build_library.py                       # 展示台聚合 + 缩略图
+python3 tools/serve_deck.py                          # http://127.0.0.1:8899/  ← 展示台
+
+python3 tools/import_pptx.py 你的.pptx --slug my-deck --dry-run   # 只体检不动手
+python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导入（UI 入口在展示台右上角）</pre>
     </div>
+    <p class="note" style="margin-top:16px; font-size:13px; color: var(--ink-3);">依赖分两档：纯创作与放映零依赖，浏览器打开即可；PPTX 导入需要 LibreOffice，缩略图 / QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+
+    <p class="bridge reveal" style="--d:80ms">服务起来后，先鸟瞰这套系统的<strong>四层能力</strong>。</p>
   </div>
 
-  <aside class="notes">六阶段流水线：体检、预修、渲染、补字、组装、报告。重点是"补字层"——LibreOffice 漏画的文字会按原坐标补回来，所以文字始终可检索、可复制。</aside>
+  <aside class="notes">五分钟上手：装 python 依赖，拼装示例 deck，聚合展示台，起本地服务。导入是可选项，需要 LibreOffice。日常创作时只跑 build.mjs 就够，刷新浏览器即见。</aside>
 </section>
 
-<section class="slide" id="s03" data-title="亲手写一屏" data-rail="上手">
+<section class="slide" id="s04" data-title="系统总览" data-rail="概览">
   <header class="head">
-    <p class="kicker">02 / AUTHORING</p>
+    <p class="kicker">03 / OVERVIEW</p>
+    <h1 class="title">四个能力，<em>一条流水线</em></h1>
+  </header>
+
+  <div class="body">
+    <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="card reveal" style="--d:80ms">
+        <p class="kv__k">① 创作</p>
+        <p class="kv__v" style="margin-top:8px">一屏一个 HTML 文件<br>tokens.css 统一配色<br>reveal 类名做动效</p>
+      </div>
+      <div class="card card--tint reveal" style="--d:200ms">
+        <p class="kv__k">② 放映</p>
+        <p class="kv__v" style="margin-top:8px">全屏 / 总览 / 备注<br>画幅自适应 16:9·4:3<br>六套配色随时切换</p>
+      </div>
+      <div class="card card--tint reveal" style="--d:320ms">
+        <p class="kv__k">③ 导入导出</p>
+        <p class="kv__v" style="margin-top:8px">PPTX 一键转 HTML<br>页面内导出可编辑 PPTX<br>单机版 HTML 断网可用</p>
+      </div>
+      <div class="card card--dark reveal" style="--d:440ms">
+        <p class="kv__k">④ 管理</p>
+        <p class="kv__v" style="margin-top:8px">/admin 访问追踪<br>deck 密码门禁<br>上下架即时生效</p>
+      </div>
+    </div>
+
+    <div class="card card--flat reveal" style="--d:560ms; margin-top: 28px; padding: 16px 22px;">
+      <p class="kv__v" style="font: 13px/1.9 var(--font-mono); color: var(--ink-2);">src-slides/*.html → <b>build.mjs</b> 拼装 → decks/&lt;slug&gt;/ → <b>serve_deck.py</b> 起服务 → 展示台 library.html → 点开放映</p>
+    </div>
+
+    <p class="bridge reveal" style="--d:660ms">系统已经跑起来了，从每天最常用的<strong>放映操作</strong>练起。</p>
+  </div>
+
+  <aside class="notes">四层能力：创作是写 HTML 源文件；放映是引擎负责的浏览器体验；导入导出解决与 PowerPoint 的双向流通；管理后台面向公开分享时的运营。数据流一行：源文件拼装成单文件 deck，本地服务起展示台，浏览器点开即放映。</aside>
+</section>
+
+<section class="slide" id="s05" data-title="放映操作 · 键盘与鼠标" data-rail="放映">
+  <header class="head">
+    <p class="kicker">04 / PRESENTING</p>
+    <h1 class="title">放映，<em>全在指尖</em></h1>
+  </header>
+
+  <div class="body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+    <ul class="list" style="margin-top: 0;">
+      <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
+        <p class="list__txt"><code>→</code> <code>←</code> <code>空格</code> 翻页与分步；<code>Home</code>/<code>End</code> 首尾屏</p></li>
+      <li class="list__item reveal" style="--d:150ms"><i class="list__dot"></i>
+        <p class="list__txt"><code>G</code> 总览缩略图墙 · <code>N</code> 演讲备注 · <code>F</code> 全屏放映</p></li>
+      <li class="list__item reveal" style="--d:240ms"><i class="list__dot"></i>
+        <p class="list__txt"><code>R</code> 画幅 16:9 / 4:3 · <code>S</code> 填满或留边 · <code>H</code> 回展示台</p></li>
+      <li class="list__item reveal" style="--d:330ms"><i class="list__dot"></i>
+        <p class="list__txt"><code>Esc</code> 逐层退出；网址带 <code>#s12</code> 直达第 12 屏</p></li>
+    </ul>
+    <ul class="list" style="margin-top: 0;">
+      <li class="list__item reveal" style="--d:120ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>鼠标</b>　点两侧边缘翻页；点进度条任意位置跳屏；悬停看屏标题</p></li>
+      <li class="list__item reveal" style="--d:210ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>触控</b>　左右滑动翻页；影院模式轻点屏幕唤回外壳</p></li>
+      <li class="list__item reveal" style="--d:300ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>深色放映</b>　外框 2.6 秒后自动隐去，动鼠标即重现</p></li>
+      <li class="list__item reveal" style="--d:390ms"><i class="list__dot"></i>
+        <p class="list__txt">按键不依赖焦点位置；总览 / 备注打开时依然生效</p></li>
+    </ul>
+
+    <p class="bridge reveal" style="--d:480ms">画面之外还能换<strong>配色</strong>——按一下 <code>C</code> 试试。</p>
+  </div>
+
+  <aside class="notes">放映操作分键盘与鼠标两栏。引擎键：方向键空格翻页，G 总览、N 备注、F 全屏、R 画幅、S 留边、H 回展示台、Esc 逐层退出。鼠标：两侧边缘翻页、进度条跳屏。所有按键在任何焦点位置都生效。</aside>
+</section>
+
+<section class="slide" id="s06" data-title="配色主题 · 六套预设" data-rail="放映">
+  <header class="head">
+    <p class="kicker">05 / THEMES</p>
+    <h1 class="title">六套配色，<em>一键切换</em></h1>
+  </header>
+
+  <div class="body">
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
+      <div class="card card--flat reveal" style="--d:60ms; padding: 16px 18px;">
+        <p class="kv__k" style="display:flex;align-items:center;gap:9px;"><i style="width:15px;height:15px;border-radius:50%;flex:none;background:linear-gradient(135deg,var(--green),var(--terra))"></i>默认</p>
+        <p class="kv__v" style="margin-top:6px; font-size:14px;">deck 原配色<br>纸墨绿 + 赭石强调</p>
+      </div>
+      <div class="card card--flat reveal" style="--d:150ms; padding: 16px 18px;">
+        <p class="kv__k" style="display:flex;align-items:center;gap:9px;"><i style="width:15px;height:15px;border-radius:50%;flex:none;background:#1D4E89"></i>藏青</p>
+        <p class="kv__v" style="margin-top:6px; font-size:14px;">冷调纸面<br>靛蓝主色 + 绛红强调</p>
+      </div>
+      <div class="card card--flat reveal" style="--d:240ms; padding: 16px 18px;">
+        <p class="kv__k" style="display:flex;align-items:center;gap:9px;"><i style="width:15px;height:15px;border-radius:50%;flex:none;background:#A65232"></i>暖赭</p>
+        <p class="kv__v" style="margin-top:6px; font-size:14px;">暖纸面<br>赭陶主色</p>
+      </div>
+      <div class="card card--flat reveal" style="--d:330ms; padding: 16px 18px;">
+        <p class="kv__k" style="display:flex;align-items:center;gap:9px;"><i style="width:15px;height:15px;border-radius:50%;flex:none;background:#5B4A8A"></i>紫藤</p>
+        <p class="kv__v" style="margin-top:6px; font-size:14px;">冷紫纸面<br>绛紫主色 + 玫红强调</p>
+      </div>
+      <div class="card card--flat reveal" style="--d:420ms; padding: 16px 18px;">
+        <p class="kv__k" style="display:flex;align-items:center;gap:9px;"><i style="width:15px;height:15px;border-radius:50%;flex:none;background:#3E8577"></i>青瓷</p>
+        <p class="kv__v" style="margin-top:6px; font-size:14px;">灰绿纸面<br>青瓷主色 + 珊瑚强调</p>
+      </div>
+      <div class="card card--dark reveal" style="--d:510ms; padding: 16px 18px;">
+        <p class="kv__k" style="display:flex;align-items:center;gap:9px;"><i style="width:15px;height:15px;border-radius:50%;flex:none;background:#4FA07F"></i>玄墨</p>
+        <p class="kv__v" style="margin-top:6px; font-size:14px; color:rgba(247,243,234,.82);">深色放映 · 高对比<br>深纸浅字，页内深面板保持</p>
+      </div>
+    </div>
+
+    <ul class="list" style="margin-top: 24px; max-width: 900px;">
+      <li class="list__item reveal" style="--d:580ms"><i class="list__dot"></i>
+        <p class="list__txt">按 <code>C</code> 循环切换；或点右下角<b>「配色」按钮</b>选一套，当前方案打勾</p></li>
+      <li class="list__item reveal" style="--d:670ms"><i class="list__dot"></i>
+        <p class="list__txt">每套 deck 各自记忆；原理是覆盖 <code>tokens.css</code> 变量——写死颜色的元素不受影响</p></li>
+    </ul>
+  </div>
+
+  <aside class="notes">配色主题由本地服务注入，六套预设覆盖同一套 tokens 变量。C 键循环或右下角配色按钮点选。想让自己的 deck 完整支持主题，创作时只用变量、不写死颜色。</aside>
+</section>
+
+<section class="slide" id="s07" data-title="创作规范 · 亲手写一屏" data-rail="创作">
+  <header class="head">
+    <p class="kicker">06 / AUTHORING</p>
     <h1 class="title">一屏 = <em>一个 HTML 文件</em></h1>
   </header>
 
   <div class="body" style="display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: start;">
     <div class="card card--dark" style="padding: 22px 24px;">
-      <p class="kv__k" style="margin-bottom: 12px;">src-sample/slides/02-pipeline.html</p>
-      <pre style="margin:0; font: 12px/1.85 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" id="s02"
-         data-title="六阶段导入 pipeline"
-         data-rail="概览"&gt;
+      <p class="kv__k" style="margin-bottom: 12px;">src-sample/slides/06-authoring.html</p>
+      <pre style="margin:0; font: 12px/1.85 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" id="s07"
+         data-title="创作规范"
+         data-rail="创作"&gt;
   &lt;header class="head"&gt;
-    &lt;p class="kicker"&gt;01 / PIPELINE&lt;/p&gt;
-    &lt;h1 class="title"&gt;外部 PPTX，
-      &lt;em&gt;一条流水线&lt;/em&gt;进展示台&lt;/h1&gt;
+    &lt;p class="kicker"&gt;06 / AUTHORING&lt;/p&gt;
+    &lt;h1 class="title"&gt;一屏 =
+      &lt;em&gt;一个 HTML 文件&lt;/em&gt;&lt;/h1&gt;
   &lt;/header&gt;
   &lt;div class="body"&gt; … &lt;/div&gt;
   &lt;aside class="notes"&gt;演讲备注&lt;/aside&gt;
@@ -1492,96 +1775,171 @@ body.ratio-4x3 #s16 .body { zoom: .70; }
       <li class="list__item reveal" style="--d:80ms"><i class="list__dot"></i>
         <p class="list__txt"><code>data-rail</code> 决定顶部导轨分章；<code>data-title</code> 进度条悬停可见</p></li>
       <li class="list__item reveal" style="--d:180ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>reveal</code> + <code>--d</code> 控制逐步入场；<code>data-count</code> 数字滚动</p></li>
+        <p class="list__txt"><code>reveal</code> + <code>--d</code> 控制逐步入场；<code>data-count</code> 数字滚动；<code>.frag</code> 空格分步</p></li>
       <li class="list__item reveal" style="--d:280ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>aside.notes</code> 是演讲者备注，按 <b>N</b> 呼出，不占画面</p></li>
+        <p class="list__txt"><code>aside.notes</code> 是演讲备注，按 <b>N</b> 呼出，不占画面</p></li>
       <li class="list__item reveal" style="--d:380ms"><i class="list__dot"></i>
-        <p class="list__txt">屏内可带 <code>&lt;style&gt;</code>，构建时自动提取合并进 head</p></li>
+        <p class="list__txt">颜色只用 <code>tokens.css</code> 变量、不写死——配色主题才能整套生效</p></li>
+      <li class="list__item reveal" style="--d:480ms"><i class="list__dot"></i>
+        <p class="list__txt">写完跑 <code>python3 tools/check_slides.py</code> 自查溢出与截断</p></li>
     </ul>
   </div>
 
-  <aside class="notes">这一屏讲创作模型：一屏一个文件，类名体系见 docs/AUTHORING.md。左侧深色卡片里就是上一屏的真实源码。</aside>
+  <aside class="notes">创作模型：一屏一个文件放 src-slides 目录，类名体系见 docs/AUTHORING.md。左侧深色卡片就是本屏的真实源码。最关键的两条：高度预算不要超、颜色只用变量。</aside>
 </section>
 
-<section class="slide" id="s04" data-title="设计哲学" data-rail="上手">
+<section class="slide" id="s08" data-title="PPTX 导入 · 两条路径" data-rail="导入">
   <header class="head">
-    <p class="kicker">03 / PHILOSOPHY</p>
-    <h1 class="title">三条<em>设计取舍</em></h1>
+    <p class="kicker">07 / IMPORT</p>
+    <h1 class="title">外部 PPTX，<em>一条流水线</em>进展示台</h1>
   </header>
 
   <div class="body">
-    <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
-      <div class="card card--flat reveal" style="--d:80ms">
-        <p class="kv__k">所见即所得</p>
-        <p class="kv__v" style="margin-top:8px">导入的 deck 每屏 = 原稿整页图 + 补字层。<br>视觉与原稿零偏差，代价是改字要回源 PPTX 重导。</p>
-      </div>
-      <div class="card card--flat reveal" style="--d:200ms">
-        <p class="kv__k">离线优先</p>
-        <p class="kv__v" style="margin-top:8px">第三方运行时落盘在 vendor/，图片走本地相对路径。<br>单机版一个文件断网可用。</p>
-      </div>
-      <div class="card card--flat reveal" style="--d:320ms">
-        <p class="kv__k">引擎与内容分离</p>
-        <p class="kv__v" style="margin-top:8px">引擎与示例在仓库里，你的真实内容只属于你。<br>本地目录即站点，部署与开源互不干扰。</p>
-      </div>
+    <ul class="list" style="max-width: 900px;">
+      <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>入口</b>　展示台右上角「＋ 导入 PPTX」四步向导（体检 → 选项 → SSE 实时进度 → 入库）；CLI 同款能力：<code>import_pptx.py</code></p></li>
+      <li class="list__item reveal" style="--d:150ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>流程</b>　体检 → 版式预修（禁折行 / 缩字）→ LibreOffice 渲染 → 补字层 → 组装入库</p></li>
+      <li class="list__item reveal" style="--d:240ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>保真</b>　每屏 = 原稿整页图 + 按 PDF 坐标补的可检索文字，视觉零偏差</p></li>
+      <li class="list__item reveal" style="--d:330ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>边界</b>　导入 API 仅限本机（Host 守卫），单文件 ≤ 300MB；改字要回源 PPTX 重导</p></li>
+    </ul>
+
+    <div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 28px;">
+      <div class="stat reveal" style="--d:410ms"><b class="stat__num num stat__num--l" data-count="6">6</b><span class="stat__label">个阶段全自动</span></div>
+      <div class="stat reveal" style="--d:490ms"><b class="stat__num num stat__num--l" data-count="4">4</b><span class="stat__label">步 UI 向导</span></div>
+      <div class="stat reveal" style="--d:570ms"><b class="stat__num num stat__num--l">1600<i class="stat__unit">×</i>900</b><span class="stat__label">逐页渲染分辨率</span></div>
+      <div class="stat reveal" style="--d:650ms"><b class="stat__num num stat__num--l" data-count="300">300</b><span class="stat__unit">MB</span><span class="stat__label">上传体积上限</span></div>
     </div>
 
-    <div class="quote reveal" style="--d:460ms; margin-top: 34px; max-width: 900px;">
-      幻灯片的本质是"把注意力摆到正确的地方"——引擎负责不让你分心。
-      <p class="quote__by">DeckStage · 设计说明</p>
-    </div>
+    <p class="bridge reveal" style="--d:730ms">导入是单向快照；日常更新走<strong>源码创作</strong>，也可以随时导出回 PPTX。</p>
   </div>
 
-  <aside class="notes">三条取舍：像素保真优先于可编辑、离线可用优先于在线依赖、内容主权优先于生态锁定。</aside>
+  <aside class="notes">两条导入路径：UI 向导与 CLI。六阶段里最关键的是补字层——LibreOffice 漏画的文字按原坐标补回来，可检索可复制。注意导入 API 只在本机开放，公网隧道一律 403。</aside>
 </section>
 
-<section class="slide" id="s05" data-title="五分钟上手" data-rail="上手">
+<section class="slide" id="s09" data-title="导出与质检" data-rail="质检">
   <header class="head">
-    <p class="kicker">04 / QUICKSTART</p>
-    <h1 class="title">五分钟，<em>跑通全流程</em></h1>
+    <p class="kicker">08 / EXPORT &amp; QA</p>
+    <h1 class="title">能放出去，也<em>能带回来</em></h1>
+  </header>
+
+  <div class="body" style="display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px; align-items: start;">
+    <div>
+      <ul class="list" style="margin-top: 0;">
+        <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
+          <p class="list__txt"><b>导出 PPTX</b>　放映外壳右下角「导出」按钮，页面内生成可编辑 PPTX（pptxgenjs）</p></li>
+        <li class="list__item reveal" style="--d:150ms"><i class="list__dot"></i>
+          <p class="list__txt"><b>单机版 HTML</b>　全内联一个文件，断网双击即放映，方便分发</p></li>
+        <li class="list__item reveal" style="--d:240ms"><i class="list__dot"></i>
+          <p class="list__txt"><b>离线优先</b>　第三方运行时落盘 vendor/，图片走本地相对路径</p></li>
+      </ul>
+    </div>
+
+    <div class="card" style="padding: 20px 24px;">
+      <p class="kv__k" style="margin-bottom: 12px;">质检命令</p>
+      <pre style="margin:0; font: 12.5px/2.1 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">python3 tools/check_slides.py            # 溢出/截断/重叠/图片体检
+python3 tools/check_slides.py --shots    # 同上 + 逐屏截图到 /tmp/qa
+python3 tools/test_deck.py               # 放映交互自测（点按/翻页/抽屉）</pre>
+      <p class="note" style="margin-top: 12px;">QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+    </div>
+
+    <p class="bridge reveal" style="--d:360ms">分享出去之后呢？<strong>管理后台</strong>负责运营与门禁。</p>
+  </div>
+
+  <aside class="notes">导出两条路：页面内一键导出可编辑 PPTX；build 时可产出全内联单机版 HTML。质检两条命令：check_slides 体检版式溢出，test_deck 自测放映交互。</aside>
+</section>
+
+<section class="slide" id="s10" data-title="管理后台 /admin" data-rail="管理">
+  <header class="head">
+    <p class="kicker">09 / ADMIN</p>
+    <h1 class="title">管理后台：<em>/admin</em> 一站管理</h1>
   </header>
 
   <div class="body">
-    <div class="card" style="padding: 20px 24px; max-width: 980px;">
-      <pre style="margin:0; font: 12.5px/2.05 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">git clone … &amp;&amp; cd deckstage
-pip install -r requirements.txt          # python 工具链（PIL / fitz / numpy / python-pptx / playwright）
-
-node build.mjs --src src-sample --deck sample-deck   # 拼装示例 deck
-python3 tools/build_library.py                       # 展示台 + 缩略图
-python3 tools/serve_deck.py                          # http://127.0.0.1:8899/  ← 展示台
-
-python3 tools/import_pptx.py 你的.pptx --slug my-deck --dry-run   # 体检一个外部 PPTX
-python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导入（UI 入口在展示台右上角）</pre>
+    <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="card reveal" style="--d:80ms">
+        <p class="kv__k">访问追踪</p>
+        <p class="kv__v" style="margin-top:8px">谁看了什么、看了多久<br>逐屏停留热度、来源与访客数<br>最近 100 条明细</p>
+      </div>
+      <div class="card card--tint reveal" style="--d:200ms">
+        <p class="kv__k">密码门禁</p>
+        <p class="kv__v" style="margin-top:8px">单套 deck 设访问密码<br>门禁页可配提示语<br>通过后 30 天免重输</p>
+      </div>
+      <div class="card card--tint reveal" style="--d:320ms">
+        <p class="kv__k">上下架</p>
+        <p class="kv__v" style="margin-top:8px">一键下架：整目录 404<br>展示台卡片即时消失<br>无需重新构建</p>
+      </div>
+      <div class="card card--dark reveal" style="--d:440ms">
+        <p class="kv__k">安全边界</p>
+        <p class="kv__v" style="margin-top:8px">导入 API 仅限本机<br>管理 / 追踪接口有限流<br>数据在 data/ 不入库</p>
+      </div>
     </div>
-    <p class="note" style="margin-top:16px; font-size:13px; color: var(--ink-3);">需要本机装有 LibreOffice（PPTX 导入用）与 Chrome（缩略图 / QA 用）；纯创作与放映则零依赖，浏览器打开即可。</p>
+
+    <ul class="list" style="margin-top: 26px; max-width: 940px;">
+      <li class="list__item reveal" style="--d:530ms"><i class="list__dot"></i>
+        <p class="list__txt">入口：展示台页脚「管理后台」或直接访问 <code>/admin/</code>；首次启动打印初始密码，<code>--admin-password</code> 可重置</p></li>
+      <li class="list__item reveal" style="--d:620ms"><i class="list__dot"></i>
+        <p class="list__txt">追踪只存随机访客号与可见时长，无个人身份信息；详见 <code>docs/ADMIN.md</code></p></li>
+    </ul>
+
+    <p class="bridge reveal" style="--d:710ms">最后，把<strong>文档索引</strong>留给你。</p>
   </div>
 
-  <aside class="notes">依赖分两档：放映与创作零依赖；导入 pipeline 需要 LibreOffice + python 工具链。</aside>
+  <aside class="notes">管理后台四块：访问追踪（内容与时长的逐屏统计）、密码门禁、上下架、安全边界。首次启动会打印一次初始管理密码，之后可在面板里改。追踪数据匿名，只记随机访客号。</aside>
 </section>
 
-<section class="slide slide--flush" id="s06" data-title="结尾 · 试试看" data-rail="" data-nofoot>
+<section class="slide slide--flush" id="s11" data-title="结尾 · 文档索引" data-rail="" data-nofoot>
+  
   <div class="cover">
-    <div class="cover__main" style="margin-top: 140px; max-width: 960px;">
+    <div class="cover__main" style="margin-top: 110px; max-width: 980px;">
       <h1 class="cover__title reveal reveal--blur" style="--d:60ms">
-        <span class="cover__line">把你的</span>
-        <span class="cover__line">PPTX 交给我</span>
+        <span class="cover__line">十屏讲完，</span>
+        <span class="cover__line">剩下交给文档</span>
       </h1>
       <div class="cover__rule grow-x" style="--d:380ms"></div>
-      <p class="cover__sub reveal" style="--d:280ms">展示台右上角「＋ 导入 PPTX」，四步向导，全程约一分钟。</p>
+      <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 34px;">
+        <div class="card card--flat reveal" style="--d:420ms; padding: 14px 18px;">
+          <p class="kv__k">docs/AUTHORING.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">版式规范 · 组件类名 · 高度预算</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:490ms; padding: 14px 18px;">
+          <p class="kv__k">docs/DECK_SPEC.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">交互规范 · 快捷键 · URL 约定</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:560ms; padding: 14px 18px;">
+          <p class="kv__k">docs/IMPORT.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">导入 pipeline · 预修配方</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:630ms; padding: 14px 18px;">
+          <p class="kv__k">docs/ADMIN.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">管理后台 · 追踪与门禁</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:700ms; padding: 14px 18px;">
+          <p class="kv__k">CHANGELOG.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">版本更新说明</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:770ms; padding: 14px 18px;">
+          <p class="kv__k">README.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">总览 · 快速开始 · 安全模型</p>
+        </div>
+      </div>
     </div>
-    <div class="cover__foot reveal" style="--d:560ms">
+    <div class="cover__foot reveal" style="--d:840ms">
       <div class="cover__meta">
         <span class="cover__who">DeckStage · Apache-2.0</span>
-        <span class="cover__date mono">github.com/…/deckstage</span>
+        <span class="cover__date mono"><a href="https://github.com/Rocky8080/deckstage" target="_blank" rel="noopener" style="color:inherit">github.com/Rocky8080/deckstage</a></span>
       </div>
       <div class="cover__stats">
-        <div class="cover__stat"><b class="num">2</b><i>条导入路径（UI / CLI）</i></div>
+        <div class="cover__stat"><b class="num">10</b><i>屏使用说明</i></div>
         <div class="cover__stat"><b class="num">0</b><i>个前端构建依赖</i></div>
         <div class="cover__stat"><b class="num">100%</b><i>离线放映</i></div>
       </div>
     </div>
   </div>
 
-  <aside class="notes">收尾：欢迎 star / fork / 提 issue。示例内容与引擎同授权，你创作的内容归你自己。</aside>
+  <aside class="notes">收尾：十屏覆盖了创作、放映、配色、导入导出、质检与管理。更细的规范在 docs 六份文档里。欢迎 star / fork / 提 issue；示例内容与引擎同授权，你创作的内容归你自己。</aside>
 </section>
     </div>
   </div>

@@ -1,0 +1,65 @@
+<section class="slide slide--flush" id="s11" data-title="结尾 · 文档索引" data-rail="" data-nofoot>
+  <style>
+    .cover { flex: 1; display: flex; flex-direction: column; }
+    .cover__title { font: 600 var(--fs-h1)/1.28 var(--font-serif); letter-spacing: .02em; margin: 0; color: var(--ink); }
+    .cover__line { display: block; }
+    .cover__rule { width: 96px; height: 5px; background: var(--green); border-radius: 3px; margin-top: 22px; }
+    .cover__foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 8px; }
+    .cover__meta { display: flex; flex-direction: column; gap: 6px; }
+    .cover__who { font: 13px/1.5 var(--font-sans); color: var(--ink-2); }
+    .cover__date { font-size: 13px; color: var(--ink-3); }
+    .cover__date a { color: var(--green); }
+    .cover__stats { display: flex; gap: 36px; }
+    .cover__stat { display: flex; align-items: baseline; gap: 8px; }
+    .cover__stat b { font: 600 38px var(--font-mono); color: var(--green); }
+    .cover__stat i { font: 12.5px/1.4 var(--font-sans); font-style: normal; color: var(--ink-3); }
+  </style>
+  <div class="cover">
+    <div class="cover__main" style="margin-top: 110px; max-width: 980px;">
+      <h1 class="cover__title reveal reveal--blur" style="--d:60ms">
+        <span class="cover__line">十屏讲完，</span>
+        <span class="cover__line">剩下交给文档</span>
+      </h1>
+      <div class="cover__rule grow-x" style="--d:380ms"></div>
+      <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 34px;">
+        <div class="card card--flat reveal" style="--d:420ms; padding: 14px 18px;">
+          <p class="kv__k">docs/AUTHORING.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">版式规范 · 组件类名 · 高度预算</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:490ms; padding: 14px 18px;">
+          <p class="kv__k">docs/DECK_SPEC.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">交互规范 · 快捷键 · URL 约定</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:560ms; padding: 14px 18px;">
+          <p class="kv__k">docs/IMPORT.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">导入 pipeline · 预修配方</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:630ms; padding: 14px 18px;">
+          <p class="kv__k">docs/ADMIN.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">管理后台 · 追踪与门禁</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:700ms; padding: 14px 18px;">
+          <p class="kv__k">CHANGELOG.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">版本更新说明</p>
+        </div>
+        <div class="card card--flat reveal" style="--d:770ms; padding: 14px 18px;">
+          <p class="kv__k">README.md</p>
+          <p class="kv__v" style="margin-top:4px; font-size:13.5px;">总览 · 快速开始 · 安全模型</p>
+        </div>
+      </div>
+    </div>
+    <div class="cover__foot reveal" style="--d:840ms">
+      <div class="cover__meta">
+        <span class="cover__who">DeckStage · Apache-2.0</span>
+        <span class="cover__date mono"><a href="https://github.com/Rocky8080/deckstage" target="_blank" rel="noopener" style="color:inherit">github.com/Rocky8080/deckstage</a></span>
+      </div>
+      <div class="cover__stats">
+        <div class="cover__stat"><b class="num">10</b><i>屏使用说明</i></div>
+        <div class="cover__stat"><b class="num">0</b><i>个前端构建依赖</i></div>
+        <div class="cover__stat"><b class="num">100%</b><i>离线放映</i></div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="notes">收尾：十屏覆盖了创作、放映、配色、导入导出、质检与管理。更细的规范在 docs 六份文档里。欢迎 star / fork / 提 issue；示例内容与引擎同授权，你创作的内容归你自己。</aside>
+</section>
