@@ -1,0 +1,13 @@
+{
+  "slug": "sample-deck",
+  "title": "DeckStage · 示例 deck",
+  "subtitle": "引擎自我介绍：版式、动效、导入 pipeline",
+  "author": "DeckStage",
+  "date": "2026-11-17",
+  "version": "1.0.0",
+  "tags": [
+    "示例"
+  ],
+  "accent": "#1E5B47",
+  "order": 99
+}

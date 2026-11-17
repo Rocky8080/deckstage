@@ -1,0 +1,11 @@
+DeckStage
+Copyright 2026 DeckStage Authors
+
+This product includes software developed by third parties:
+
+  * PptxGenJS (vendor/pptxgen.bundle.js) — Copyright 2015-2023 Brent Ely.
+    Licensed under the MIT License. https://github.com/gitbrent/PptxGenJS
+
+The sample deck content in src-sample/ and decks/sample-deck/ is licensed with the
+repository under Apache-2.0. Content you author with this engine is yours alone and
+is not part of this repository (see .gitignore conventions).

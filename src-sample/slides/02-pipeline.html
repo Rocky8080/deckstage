@@ -1,0 +1,30 @@
+<section class="slide" id="s02" data-title="六阶段导入 pipeline" data-rail="概览">
+  <header class="head">
+    <p class="kicker">01 / PIPELINE</p>
+    <h1 class="title">外部 PPTX，<em>一条流水线</em>进展示台</h1>
+  </header>
+
+  <div class="body">
+    <ul class="list" style="max-width: 860px;">
+      <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>体检</b>　字体清单 / 画幅 / 语言判定 / 表格·组合统计 —— 只读不改</p></li>
+      <li class="list__item reveal" style="--d:140ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>版式预修</b>　短行禁折 + 全局缩字 + 表格缩字，配方在真实 deck 上验证过</p></li>
+      <li class="list__item reveal" style="--d:220ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>渲染</b>　LibreOffice 无头渲染 → 逐页 1600×900 位图，视觉与原稿一致</p></li>
+      <li class="list__item reveal" style="--d:300ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>补字层</b>　检测没画出来 / 缺字方块的文字，按 PDF 坐标补成可检索的 HTML</p></li>
+      <li class="list__item reveal" style="--d:380ms"><i class="list__dot"></i>
+        <p class="list__txt"><b>组装入库</b>　生成 deck 源码目录 → 拼装 → 刷新展示台缩略图</p></li>
+    </ul>
+
+    <div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 30px;">
+      <div class="stat reveal" style="--d:420ms"><b class="stat__num num stat__num--l" data-count="6">6</b><span class="stat__label">个阶段全自动</span></div>
+      <div class="stat reveal" style="--d:500ms"><b class="stat__num num stat__num--l" data-count="45">45</b><span class="stat__unit">s</span><span class="stat__label">33 页实测用时</span></div>
+      <div class="stat reveal" style="--d:580ms"><b class="stat__num num stat__num--l">1600<i class="stat__unit">×</i>900</b><span class="stat__label">逐页渲染分辨率</span></div>
+      <div class="stat reveal" style="--d:660ms"><b class="stat__num num stat__num--l" data-count="300">300</b><span class="stat__unit">MB</span><span class="stat__label">上传体积上限</span></div>
+    </div>
+  </div>
+
+  <aside class="notes">六阶段流水线：体检、预修、渲染、补字、组装、报告。重点是"补字层"——LibreOffice 漏画的文字会按原坐标补回来，所以文字始终可检索、可复制。</aside>
+</section>

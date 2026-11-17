@@ -1,0 +1,83 @@
+/* ============================================================
+   AI 改变学习方式 · 设计变量
+   学术编辑风：米色纸面 + 墨绿主色 + 赭石强调 + 衬线标题
+   ============================================================ */
+:root {
+  /* --- 纸面与墨色 --- */
+  --paper:        #F7F3EA;
+  --paper-2:      #FFFDF7;
+  --paper-3:      #F1EADA;
+  --ink:          #14201B;
+  --ink-2:        #3D4E47;
+  --ink-3:        #5F6E66;   /* 4.85:1 on paper */
+  --ink-4:        #6E7B73;   /* 4.0:1 on paper，仅用于微型标签 */
+  --line:         #DCD2BF;
+  --line-soft:    #E7E0D0;
+
+  /* --- 主色：墨绿 --- */
+  --green:        #1E5B47;
+  --green-2:      #2E7D62;
+  --green-3:      #5E9A82;
+  --green-tint:   #E4EDE5;
+  --green-wash:   #EEF3EC;
+
+  /* --- 强调：赭石 / 金 --- */
+  --terra:        #B4522B;
+  --terra-2:      #D0703F;
+  --terra-tint:   #F6E5D9;
+  --gold:         #A9863C;
+  --gold-tint:    #F3EAD5;
+
+  /* --- 涨跌（A 股口径：红涨绿跌） --- */
+  --up:        #C0392B;
+  --up-2:      #D9574A;
+  --up-soft:   #F3DDD9;
+  --down:      #2E7D62;
+  --down-2:    #1E5B47;
+  --down-soft: #DCEAE4;
+
+  /* --- 深色面板 --- */
+  --dark:         #101A16;
+  --dark-2:       #16221C;
+  --dark-3:       #1E2C25;
+  --dark-line:    #2C3B33;
+
+  /* --- 字体 --- */
+  --font-serif: "Songti SC", "Songti TC", "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", serif;
+  --font-sans:  "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:  "SF Mono", ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+  --font-num:   "Inter", "SF Pro Display", -apple-system, "Helvetica Neue", Arial, sans-serif;
+
+  /* --- 字号（1600×900 设计坐标） --- */
+  --fs-display: 108px;
+  --fs-h1:      61px;
+  --fs-h2:      40px;
+  --fs-h3:      27px;
+  --fs-lead:    25px;
+  --fs-body:    20px;
+  --fs-small:  17px;
+  --fs-micro:   13.5px;
+  --fs-num-xl: 122px;
+  --fs-num-l:   70px;
+  --fs-num:     46px;
+
+  /* --- 间距与圆角 --- */
+  --pad-x: 96px;
+  --pad-y: 58px;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  /* --- 阴影 --- */
+  --sh-card: 0 1px 2px rgba(20, 32, 27, .05), 0 14px 34px -22px rgba(20, 32, 27, .22);
+  --sh-shot: 0 2px 6px rgba(20, 32, 27, .07), 0 26px 50px -30px rgba(20, 32, 27, .34);
+  --sh-float: 0 30px 80px -40px rgba(0, 0, 0, .6);
+
+  /* --- 动画 --- */
+  --ease-out: cubic-bezier(.22, .61, .36, 1);
+  --ease-soft: cubic-bezier(.4, 0, .2, 1);
+  --t-fast: .32s;
+  --t-base: .62s;
+  --t-slow: 1.05s;
+}

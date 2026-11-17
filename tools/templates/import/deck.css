@@ -1,0 +1,54 @@
+/* ============================================================
+   PPTX 导入 deck —— 原稿渲染版（tools/import_pptx.py 生成）
+   每屏 = LibreOffice 渲染的整页图（1600×900）+ 隐藏文本层
+   ============================================================ */
+
+body {
+  --green: {{ACCENT}};
+  --green-2: {{ACCENT_2}};
+  --green-3: {{ACCENT_3}};
+  --green-tint: rgba(94, 39, 80, .08);
+  --green-wash: rgba(94, 39, 80, .05);
+  --xl-sans: Calibri, Carlito, "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+}
+
+.slide.xl3 { padding: 0 !important; overflow: hidden; background: #14101A; }
+.slide.xl3 .xl3__bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;          /* 4:3 或其他画幅下不裁切原页 */
+  display: block;
+}
+
+/* 入场：轻微推近 + 淡入（不改变原页任何像素，只做进场动效） */
+.slide.is-active.xl3 .xl3__bg { animation: xl3In .72s cubic-bezier(.22,.7,.3,1) both; }
+@keyframes xl3In {
+  from { opacity: 0; transform: scale(1.015); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* 补齐 LibreOffice 未渲染出来的文字（按 PDF 真实坐标定位） */
+.xl3__fix { position: absolute; inset: 0; pointer-events: none; }
+.xl3__fix .xl3__blk {
+  position: absolute;
+  text-align: justify;
+  overflow: visible;
+}
+.xl3__fix .xl3__t {
+  position: absolute;
+  white-space: pre;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+/* 4:3 画幅：图片按 contain 缩到 1200×675 居中，补字层跟着缩放并下移对齐 */
+body.ratio-4x3 .xl3__fix {
+  transform: translateY(112.5px) scale(0.75);
+  transform-origin: top left;
+}
+
+/* 讲稿面板里的原文（页面本身不显示，避免与原图文字重叠） */
+.slide.xl3 > aside.notes { display: none; }
+
+/* P5：该行在 PDF 里与右侧列贴得很紧，收窄一点避免视觉挤压 */
+#s05 .xl3__t[data-w="249.2"] { transform: scaleX(.88) !important; transform-origin: left top; }

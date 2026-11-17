@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导入 PPTX · 展示台</title>
+<style>
+  :root {
+    --paper: #F7F3EA; --paper-2: #FCFAF4; --ink: #14201B; --ink-2: #33453D;
+    --ink-3: #5F6E66; --ink-4: #8A968F; --green: #1E5B47; --green-2: #2E7D62;
+    --terra: #B4522B; --line: rgba(20,32,27,.12); --line-soft: rgba(20,32,27,.07);
+    --dark: #101A16; --dark-2: #16221C; --dark-line: #2C3B33;
+    --serif: "Songti SC", "Source Han Serif SC", "Noto Serif SC", serif;
+    --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink);
+         font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 48px 32px 80px; }
+
+  header.top { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .back { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; color: var(--ink-3);
+          text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+  .back:hover { color: var(--green); border-color: var(--green); }
+  .srv { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; }
+  .srv.ok { color: var(--green); } .srv.bad { color: var(--terra); }
+  h1 { font-family: var(--serif); font-size: 38px; letter-spacing: .02em; margin: 18px 0 8px; font-weight: 600; }
+  .lede { margin: 0; color: var(--ink-3); font-size: 14.5px; line-height: 1.7; }
+  .rule { height: 1px; background: var(--line); margin: 28px 0 30px; }
+
+  .banner { display: none; padding: 14px 18px; border-radius: 10px; margin-bottom: 24px;
+            background: #F6E5D9; color: #7A3A1E; font-size: 13.5px; line-height: 1.7; }
+  .banner.show { display: block; }
+  .banner code { font-family: var(--mono); background: rgba(122,58,30,.1); padding: 1px 6px; border-radius: 4px; }
+
+  .card { background: var(--paper-2); border: 1px solid var(--line); border-radius: 14px; padding: 26px 28px; margin-bottom: 22px; }
+  .card h2 { font-family: var(--serif); font-size: 20px; margin: 0 0 4px; font-weight: 600; }
+  .card .hint { margin: 0 0 18px; color: var(--ink-3); font-size: 12.5px; line-height: 1.6; }
+  .step-tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: .18em;
+              color: var(--green); margin-bottom: 10px; }
+  .card[hidden] { display: none; }
+
+  /* ① 拖拽区 */
+  .drop { border: 1.5px dashed rgba(20,32,27,.25); border-radius: 12px; padding: 44px 24px;
+          text-align: center; cursor: pointer; transition: border-color .2s, background .2s; }
+  .drop:hover, .drop.over { border-color: var(--green); background: rgba(30,91,71,.045); }
+  .drop b { display: block; font-family: var(--serif); font-size: 17px; margin: 0 0 6px; }
+  .drop span { color: var(--ink-3); font-size: 12.5px; }
+  .upbar { height: 4px; background: var(--line-soft); border-radius: 4px; margin-top: 16px; overflow: hidden; }
+  .upbar i { display: block; height: 100%; width: 0; background: var(--green); border-radius: 4px; transition: width .2s; }
+
+  /* 体检结果 */
+  .inv { display: none; }
+  .inv.show { display: block; }
+  .inv__row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; color: var(--ink-2);
+          background: rgba(30,91,71,.08); border-radius: 6px; padding: 5px 10px; }
+  .chip b { color: var(--green); font-weight: 600; }
+  .fonts { font-family: var(--mono); font-size: 11px; color: var(--ink-3); line-height: 1.9; }
+  .fonts .more { color: var(--green); cursor: pointer; border-bottom: 1px dashed var(--green); }
+
+  /* ② 表单 */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+  .grid2 .full { grid-column: 1 / -1; }
+  label.fld { display: block; font-size: 12px; }
+  label.fld > span { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
+                     color: var(--ink-4); margin-bottom: 6px; }
+  input[type=text], input[type=number], input[type=date], select {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
+    background: #fff; color: var(--ink); font: 13.5px/1.4 var(--sans); outline: none;
+    transition: border-color .15s, box-shadow .15s; }
+  input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(30,91,71,.12); }
+  input[type=color] { width: 100%; height: 37px; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .conflict { display: none; margin-top: 6px; font-size: 12px; color: var(--terra); }
+  .conflict.show { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .conflict label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+
+  details.adv { margin-top: 18px; border-top: 1px dashed var(--line); padding-top: 14px; }
+  details.adv summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+                        color: var(--ink-3); user-select: none; }
+  details.adv[open] summary { margin-bottom: 14px; }
+  .checks { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 4px; }
+  .checks label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
+
+  /* 按钮 */
+  .acts { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  .btn { padding: 11px 22px; border-radius: 999px; border: 1px solid transparent; cursor: pointer;
+         font: 600 13.5px/1 var(--sans); letter-spacing: .04em; text-decoration: none;
+         display: inline-flex; align-items: center; gap: 8px; transition: transform .15s, box-shadow .15s, opacity .15s; }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--green); color: #F7F3EA; }
+  .btn.primary:hover { box-shadow: 0 8px 20px rgba(30,91,71,.28); }
+  .btn.primary[disabled] { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  .btn.ghost { background: transparent; color: var(--ink-2); border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--green); color: var(--green); }
+  .btn.danger { background: transparent; color: var(--terra); border-color: rgba(180,82,43,.4); }
+
+  /* ③ 进度 */
+  .stepper { display: flex; gap: 0; margin: 6px 0 18px; }
+  .stp { flex: 1; text-align: center; position: relative; }
+  .stp::before { content: ""; position: absolute; top: 7px; left: -50%; width: 100%; height: 1.5px; background: var(--line); }
+  .stp:first-child::before { display: none; }
+  .stp i { display: inline-block; width: 15px; height: 15px; border-radius: 50%; background: var(--paper);
+           border: 1.5px solid var(--line); position: relative; z-index: 1; transition: all .25s; }
+  .stp span { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+              color: var(--ink-4); margin-top: 7px; }
+  .stp.done i { background: var(--green); border-color: var(--green); }
+  .stp.done span { color: var(--green); }
+  .stp.done::before { background: var(--green); }
+  .stp.on i { border-color: var(--green); box-shadow: 0 0 0 4px rgba(30,91,71,.15); animation: pulse 1.2s ease-in-out infinite; }
+  .stp.on span { color: var(--green); font-weight: 600; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(30,91,71,.08); } }
+  .log { background: var(--dark); color: #BFD6CB; border-radius: 10px; padding: 14px 16px;
+         font: 11.5px/1.75 var(--mono); height: 260px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+  .log .err { color: #E8A18B; }
+  .log .ok { color: #7FC8A9; }
+  .cur { color: #F3EAD5; }
+
+  /* ④ 结果 */
+  .done-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start; }
+  .preview { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #E8E2D4; }
+  .preview img { display: block; width: 100%; }
+  .result-stats { display: grid; gap: 12px; }
+  .result-stats .row { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2);
+                       border-bottom: 1px dashed var(--line-soft); padding-bottom: 9px; }
+  .result-stats .row b { font-family: var(--mono); }
+  .note { font-size: 12px; color: var(--ink-3); line-height: 1.7; margin: 12px 0 0; }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 32px 18px 64px; }
+    .grid2, .done-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="back" href="/">← 返回展示台</a>
+    <span class="srv bad" id="srv">检测伴生服务…</span>
+  </header>
+  <h1>导入 PPTX</h1>
+  <p class="lede">把外部 PowerPoint 自动转换成展示台 deck：字体与版式按已验证配方预修，LibreOffice 渲染，缺字自动补齐。</p>
+  <div class="rule"></div>
+
+  <div class="banner" id="nosrv">
+    未检测到本地伴生服务。导入只能在本机进行 —— 在项目目录运行
+    <code>python3 tools/serve_deck.py</code>，然后打开 <code>http://127.0.0.1:8899/import.html</code>。
+  </div>
+
+  <!-- ① 上传与体检 -->
+  <section class="card">
+    <span class="step-tag">STEP 1 · 选择文件</span>
+    <h2>拖入或选择 PPTX</h2>
+    <p class="hint">上传后立即自动体检（页数 / 画幅 / 语言 / 字体清单），不会改动任何现有 deck。</p>
+    <div class="drop" id="drop">
+      <b>把 .pptx 拖到这里</b>
+      <span>或点击选择文件 · ≤ 300MB · 只在本机处理</span>
+      <div class="upbar" id="upbar" style="display:none"><i></i></div>
+    </div>
+    <input type="file" id="file" accept=".pptx" hidden>
+    <div class="inv" id="inv">
+      <div class="rule" style="margin:20px 0 16px"></div>
+      <div class="inv__row" id="invChips"></div>
+      <div class="fonts" id="invFonts"></div>
+    </div>
+  </section>
+
+  <!-- ② 元数据 -->
+  <section class="card" id="cardForm" hidden>
+    <span class="step-tag">STEP 2 · 确认信息</span>
+    <h2>Deck 信息</h2>
+    <p class="hint">slug 与标题已按文件名带出，可修改。颜色决定 deck 的界面主题色。</p>
+    <div class="grid2">
+      <label class="fld"><span>SLUG（目录名）</span><input type="text" id="fSlug"></label>
+      <label class="fld"><span>标题</span><input type="text" id="fTitle"></label>
+      <label class="fld full"><span>副标题</span><input type="text" id="fSubtitle"></label>
+      <label class="fld"><span>作者</span><input type="text" id="fAuthor"></label>
+      <label class="fld"><span>日期</span><input type="date" id="fDate"></label>
+      <label class="fld"><span>标签（逗号分隔）</span><input type="text" id="fTags" placeholder="机构介绍,中文"></label>
+      <label class="fld"><span>排序（越小越靠前）</span><input type="number" id="fOrder" value="90"></label>
+      <label class="fld"><span>主题色</span><input type="color" id="fAccent" value="#2F5D8C"></label>
+      <div class="full conflict" id="conflict">
+        <span>⚠ 已存在同名 deck —— 勾选覆盖才会重导：</span>
+        <label><input type="checkbox" id="fForce"> 覆盖现有 deck</label>
+      </div>
+    </div>
+
+    <details class="adv">
+      <summary>高级选项（一般不用动）</summary>
+      <div class="grid2">
+        <label class="fld"><span>左上角品牌名</span><input type="text" id="fBrand" placeholder="默认=标题"></label>
+        <label class="fld"><span>品牌副题</span><input type="text" id="fBrandSub" placeholder="默认=日期"></label>
+        <label class="fld"><span>语言</span>
+          <select id="fLang"><option value="">自动（按正文比例）</option><option value="zh">中文</option><option value="en">英文</option></select></label>
+        <label class="fld"><span>全局缩字（默认 0.95）</span><input type="text" id="fShrink" value="0.95"></label>
+        <label class="fld"><span>表格缩字（默认 0.9，填 1 关闭）</span><input type="text" id="fTableK" value="0.9"></label>
+        <label class="fld"><span>自动加码轮数（默认 1）</span><input type="number" id="fRounds" value="1" min="1" max="4"></label>
+        <label class="fld full"><span>导轨标签（About=关于,Programs=教育项目,…）</span><input type="text" id="fRailLabels"></label>
+        <label class="fld full"><span>导轨分章（About:1-6 Programs:7-13 …）</span><input type="text" id="fRailMap"></label>
+      </div>
+      <div class="checks" style="margin-top:14px">
+        <label><input type="checkbox" id="fPrefit"> 实测预排 prefit（实验）</label>
+        <label><input type="checkbox" id="fRewrite"> 统一改写字体（实验）</label>
+        <label><input type="checkbox" id="fNoNowrap"> 关闭短行禁折</label>
+        <label><input type="checkbox" id="fSkipBuild"> 只出素材不拼 deck</label>
+      </div>
+    </details>
+
+    <div class="acts">
+      <button class="btn primary" id="btnGo">开始导入</button>
+      <button class="btn ghost" id="btnReset">换一个文件</button>
+    </div>
+  </section>
+
+  <!-- ③ 执行 -->
+  <section class="card" id="cardRun" hidden>
+    <span class="step-tag">STEP 3 · 转换中</span>
+    <h2>正在导入</h2>
+    <p class="hint">全程约 30–90 秒（取决于页数与体积）。日志是 pipeline 原始输出，可直接复制。</p>
+    <div class="stepper" id="stepper">
+      <div class="stp" data-s="0"><i></i><span>体检</span></div>
+      <div class="stp" data-s="1"><i></i><span>字体</span></div>
+      <div class="stp" data-s="2"><i></i><span>预修</span></div>
+      <div class="stp" data-s="3"><i></i><span>渲染</span></div>
+      <div class="stp" data-s="4"><i></i><span>补字</span></div>
+      <div class="stp" data-s="5"><i></i><span>组装</span></div>
+      <div class="stp" data-s="6"><i></i><span>报告</span></div>
+    </div>
+    <div class="log" id="log"></div>
+    <div class="acts">
+      <button class="btn danger" id="btnCancel">取消导入</button>
+    </div>
+  </section>
+
+  <!-- ④ 结果 -->
+  <section class="card" id="cardDone" hidden>
+    <span class="step-tag">STEP 4 · 完成</span>
+    <h2>导入完成</h2>
+    <div class="done-grid" style="margin-top:16px">
+      <div class="preview"><img id="preview" alt="deck 首页预览"></div>
+      <div>
+        <div class="result-stats">
+          <div class="row"><span>页数</span><b id="rSlides">—</b></div>
+          <div class="row"><span>补字（自动修复的漏画文字）</span><b id="rRepairs">—</b></div>
+          <div class="row"><span>用时</span><b id="rTime">—</b></div>
+          <div class="row"><span>deck 地址</span><b id="rUrl">—</b></div>
+        </div>
+        <p class="note">补字数偏多（比如超过页数的一半）通常说明源稿用了本机没有的字体 —— 可回 STEP 2 勾选「统一改写字体」或调低缩字重导对比效果。</p>
+        <div class="acts">
+          <a class="btn primary" id="btnOpen" href="#">打开 deck</a>
+          <button class="btn ghost" id="btnPublish">入库 · 刷新展示台</button>
+          <button class="btn ghost" id="btnRetry">调参重导</button>
+        </div>
+        <div class="log" id="publog" style="display:none;height:160px;margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const state = { path: null, suggest: null, running: false };
+
+/* ---------- 伴生服务探测 ---------- */
+(async () => {
+  try {
+    const r = await fetch("/api/ping", { cache: "no-store" });
+    if (!r.ok) throw 0;
+    $("srv").textContent = "● 本地伴生服务已连接";
+    $("srv").className = "srv ok";
+  } catch {
+    $("srv").textContent = "● 伴生服务不可用";
+    $("srv").className = "srv bad";
+    $("nosrv").classList.add("show");
+    $("drop").style.opacity = .45;
+  }
+})();
+
+/* ---------- ① 上传 ---------- */
+const drop = $("drop");
+drop.addEventListener("click", () => !state.running && $("file").click());
+$("file").addEventListener("change", (e) => e.target.files[0] && upload(e.target.files[0]));
+["dragover", "dragenter"].forEach((ev) => drop.addEventListener(ev, (e) => {
+  e.preventDefault(); drop.classList.add("over");
+}));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => {
+  e.preventDefault(); drop.classList.remove("over");
+}));
+drop.addEventListener("drop", (e) => {
+  const f = [...e.dataTransfer.files].find((f) => f.name.toLowerCase().endsWith(".pptx"));
+  if (f) upload(f); else alert("只支持 .pptx 文件");
+});
+
+function upload(file) {
+  if (file.size > 300 * 1024 * 1024) return alert("文件超过 300MB");
+  const bar = $("upbar"), fill = bar.firstElementChild;
+  bar.style.display = "block"; fill.style.width = "0";
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/inventory?name=" + encodeURIComponent(file.name));
+  xhr.upload.onprogress = (e) => { if (e.lengthComputable) fill.style.width = (e.loaded / e.total * 100) + "%"; };
+  xhr.onload = () => {
+    setTimeout(() => { bar.style.display = "none"; }, 400);
+    let d = {};
+    try { d = JSON.parse(xhr.responseText); } catch { /* fallthrough */ }
+    if (!d.ok) return alert("体检失败：" + (d.error || xhr.statusText));
+    state.path = d.path;
+    showInventory(file.name, d.inventory, d.suggest);
+  };
+  xhr.onerror = () => { bar.style.display = "none"; alert("上传失败：请确认通过本地服务打开本页"); };
+  xhr.send(file);
+}
+
+function showInventory(fname, inv, suggest) {
+  state.suggest = suggest;
+  const lang = inv.cjk >= inv.latin * 0.25 ? "中文" : "英文";
+  const chips = [
+    ["页数", inv.slides + " 页"], ["画幅", inv.ratio], ["语言", lang + "（CJK/Latin " + inv.cjk + "/" + inv.latin + "）"],
+    ["表格", inv.tables], ["组合", inv.groups], ["自动缩放", inv.autofit],
+  ];
+  $("invChips").innerHTML = chips.map(([k, v]) => `<span class="chip">${k} <b>${v}</b></span>`).join("");
+  const fonts = inv.fonts.filter((f) => !f.startsWith("+"));
+  const head = fonts.slice(0, 10).join(" · ");
+  $("invFonts").innerHTML = "字体 " + fonts.length + " 个：" + head +
+    (fonts.length > 10 ? ` <span class="more" id="fmore">…展开</span>` : "");
+  if (fonts.length > 10) $("fmore").onclick = () => { $("invFonts").textContent = "字体 " + fonts.length + " 个：" + fonts.join(" · "); };
+  $("inv").classList.add("show");
+
+  let slug = suggest.slug || "";
+  if (!slug || slug === "imported-deck") slug = "deck-" + new Date().toISOString().slice(0, 10);
+  $("fSlug").value = slug;
+  $("fTitle").value = suggest.title || fname.replace(/\.pptx$/i, "");
+  $("fDate").value = new Date().toISOString().slice(0, 10);
+  $("cardForm").hidden = false;
+  $("cardForm").scrollIntoView({ behavior: "smooth", block: "start" });
+  checkSlug();
+}
+
+/* ---------- slug 冲突检测 ---------- */
+let slugTimer = null;
+$("fSlug").addEventListener("input", () => { clearTimeout(slugTimer); slugTimer = setTimeout(checkSlug, 350); });
+function checkSlug() {
+  const slug = $("fSlug").value.trim();
+  if (!/^[a-z0-9-]+$/.test(slug)) return $("conflict").classList.remove("show");
+  fetch("/api/slug-exists?slug=" + slug, { cache: "no-store" })
+    .then((r) => r.json())
+    .then((d) => $("conflict").classList.toggle("show", !!d.exists))
+    .catch(() => {});
+}
+
+/* ---------- ③ 导入（SSE） ---------- */
+const STAGE_NAMES = { 1: "体检", 2: "字体", 3: "预修", 4: "渲染", 5: "补字", 6: "组装" };
+$("btnGo").addEventListener("click", startImport);
+$("btnCancel").addEventListener("click", () => fetch("/api/cancel", { method: "POST" }).then(() => {}));
+
+function collectOptions() {
+  const num = (id, d) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : d; };
+  const o = {
+    slug: $("fSlug").value.trim(), title: $("fTitle").value.trim(),
+    subtitle: $("fSubtitle").value.trim(), author: $("fAuthor").value.trim(),
+    date: $("fDate").value, version: $("fDate").value.replaceAll("-", "."),
+    tags: $("fTags").value.split(",").map((s) => s.trim()).filter(Boolean),
+    order: parseInt($("fOrder").value || "90", 10), accent: $("fAccent").value,
+    shrink: num("fShrink", 0.95), table_k: num("fTableK", 0.9),
+    rounds: Math.min(4, Math.max(1, parseInt($("fRounds").value || "1", 10))),
+    prefit: $("fPrefit").checked, rewrite_fonts: $("fRewrite").checked,
+    no_nowrap: $("fNoNowrap").checked, skip_build: $("fSkipBuild").checked,
+    force: $("fForce").checked,
+  };
+  if ($("fLang").value) o.lang = $("fLang").value;
+  if ($("fBrand").value.trim()) o.brand = $("fBrand").value.trim();
+  if ($("fBrandSub").value.trim()) o.brand_sub = $("fBrandSub").value.trim();
+  if ($("fRailLabels").value.trim()) {
+    o.rail_labels = {};
+    $("fRailLabels").value.split(",").forEach((p) => {
+      const [k, v] = p.split("=").map((s) => s.trim());
+      if (k && v) o.rail_labels[k] = v;
+    });
+  }
+  if ($("fRailMap").value.trim()) o.rail_map = $("fRailMap").value.trim();
+  return o;
+}
+
+async function startImport() {
+  const opts = collectOptions();
+  if (!opts.slug || !/^[a-z0-9-]+$/.test(opts.slug)) return alert("slug 只能含小写字母、数字、连字符");
+  if ($("conflict").classList.contains("show") && !opts.force) return alert("已存在同名 deck —— 请勾选「覆盖现有 deck」");
+  state.running = true;
+  $("btnGo").disabled = true;
+  $("cardRun").hidden = false;
+  $("cardRun").scrollIntoView({ behavior: "smooth", block: "start" });
+  setStage(0);
+  logClear();
+  try {
+    await ssePost("/api/import", { path: state.path, options: opts }, onImportEvent);
+  } catch (e) {
+    logLine("✗ " + e.message, "err");
+    $("cardRun").hidden = true;
+  }
+  state.running = false;
+  $("btnGo").disabled = false;
+}
+
+function setStage(n) {
+  document.querySelectorAll(".stp").forEach((el) => {
+    const s = +el.dataset.s;
+    el.classList.toggle("done", s < n || (n === 7 && s <= 6));
+    el.classList.toggle("on", s === n);
+  });
+}
+
+function onImportEvent(ev) {
+  if (ev.type === "stage") { setStage(ev.n); logLine(ev.line, "cur"); }
+  else if (ev.type === "log") logLine(ev.line);
+  else if (ev.type === "exit" && ev.code === 0) setStage(7);
+  else if (ev.type === "error") { logLine("✗ " + ev.message, "err"); setStage(0); }
+  if (ev.type === "log" && ev.line.startsWith("✅")) {
+    const m = ev.line.match(/(\d+) 屏 · 补字 (\d+) 处 · 用时 ([\d.]+)s/);
+    if (m) showDone(+m[1], +m[2], m[3] + "s");
+  }
+}
+
+function showDone(slides, repairs, time) {
+  const slug = $("fSlug").value.trim();
+  $("rSlides").textContent = slides + " 屏";
+  $("rRepairs").textContent = repairs + " 处";
+  $("rTime").textContent = time;
+  $("rUrl").textContent = "/decks/" + slug + "/";
+  $("preview").src = "/assets/" + slug + "/slide01.jpg?t=" + Date.now();
+  $("btnOpen").href = "/decks/" + slug + "/";
+  $("cardDone").hidden = false;
+  $("cardDone").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+$("btnRetry").addEventListener("click", () => {
+  $("cardDone").hidden = true;
+  $("cardForm").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("conflict").classList.add("show");
+  $("fForce").checked = true;
+});
+
+/* ---------- ④ 入库 ---------- */
+$("btnPublish").addEventListener("click", async () => {
+  const btn = $("btnPublish");
+  btn.disabled = true; btn.textContent = "入库中…";
+  $("publog").style.display = "block"; logClear($("publog"));
+  try {
+    await ssePost("/api/publish", { force: true }, (ev) => {
+      if (ev.type === "log") logLine(ev.line, ev.line.startsWith("✅") ? "ok" : "", $("publog"));
+      else if (ev.type === "error") logLine("✗ " + ev.message, "err", $("publog"));
+    });
+    btn.textContent = "✅ 已入库 —— 回展示台查看";
+  } catch (e) {
+    logLine("✗ " + e.message, "err", $("publog"));
+    btn.textContent = "入库 · 刷新展示台";
+  }
+  btn.disabled = false;
+});
+
+$("btnReset").addEventListener("click", () => location.reload());
+
+/* ---------- 工具 ---------- */
+async function ssePost(url, body, onEvent) {
+  const resp = await fetch(url, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: typeof body === "string" ? body : JSON.stringify(body),
+  });
+  if (!resp.ok || !resp.body) {
+    let msg = resp.statusText;
+    try { msg = (await resp.json()).error || msg; } catch { /* keep */ }
+    throw new Error(msg);
+  }
+  const reader = resp.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let i;
+    while ((i = buf.indexOf("\n\n")) >= 0) {
+      const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+      for (const line of chunk.split("\n")) {
+        if (line.startsWith("data: ")) onEvent(JSON.parse(line.slice(6)));
+      }
+    }
+  }
+}
+
+function logClear(box) { (box || $("log")).textContent = ""; }
+function logLine(text, cls, box) {
+  box = box || $("log");
+  const el = document.createElement("div");
+  if (cls) el.className = cls;
+  el.textContent = text;
+  box.appendChild(el);
+  while (box.childNodes.length > 500) box.removeChild(box.firstChild);
+  box.scrollTop = box.scrollHeight;
+}
+</script>
+</body>
+</html>

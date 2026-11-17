@@ -1,0 +1,41 @@
+# ================= OS / 临时 =================
+.DS_Store
+node_modules/
+__pycache__/
+*.pyc
+
+# ============ 构建产物（可重新生成） ============
+# 根 index.html 是「本机实例」的拼装产物（build.mjs 默认从 src/ 读取），
+# 引擎仓库不跟踪任何真实内容产物 —— clone 后用 src-sample 重新拼装即可。
+/index.html
+/index-web.html
+/*-单机版.html
+/*-standalone.html
+/*.pdf
+/*.pptx
+/_shared/
+/decks.json
+/library.html
+build/
+uploads/
+
+# ============ 内容与引擎分离（核心约定） ============
+# decks/ 与 assets/ 只跟踪匿名示例 deck；
+# src/ 只跟踪引擎（css/js）；src-*/ 里的 deck 源码属于内容，默认全部不入库
+# （真实汇报、第三方 deck 源码 src-xlab*/、个人项目 src-24steps/ 都在其中）。
+/decks/*
+!/decks/sample-deck/
+/assets/*
+!/assets/sample-deck/
+/src/*
+!/src/css/
+!/src/js/
+/src-*/
+!/src-sample/
+/docs/本地笔记/
+tools/fixtures/
+
+# 兼容旧链接的零散产物
+/*.html
+!import.html
+!/decks/*/index.html

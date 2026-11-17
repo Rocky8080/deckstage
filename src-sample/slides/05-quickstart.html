@@ -1,0 +1,23 @@
+<section class="slide" id="s05" data-title="五分钟上手" data-rail="上手">
+  <header class="head">
+    <p class="kicker">04 / QUICKSTART</p>
+    <h1 class="title">五分钟，<em>跑通全流程</em></h1>
+  </header>
+
+  <div class="body">
+    <div class="card" style="padding: 20px 24px; max-width: 980px;">
+      <pre style="margin:0; font: 12.5px/2.05 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">git clone … &amp;&amp; cd deckstage
+pip install -r requirements.txt          # python 工具链（PIL / fitz / numpy / python-pptx / playwright）
+
+node build.mjs --src src-sample --deck sample-deck   # 拼装示例 deck
+python3 tools/build_library.py                       # 展示台 + 缩略图
+python3 tools/serve_deck.py                          # http://127.0.0.1:8899/  ← 展示台
+
+python3 tools/import_pptx.py 你的.pptx --slug my-deck --dry-run   # 体检一个外部 PPTX
+python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导入（UI 入口在展示台右上角）</pre>
+    </div>
+    <p class="note" style="margin-top:16px; font-size:13px; color: var(--ink-3);">需要本机装有 LibreOffice（PPTX 导入用）与 Chrome（缩略图 / QA 用）；纯创作与放映则零依赖，浏览器打开即可。</p>
+  </div>
+
+  <aside class="notes">依赖分两档：放映与创作零依赖；导入 pipeline 需要 LibreOffice + python 工具链。</aside>
+</section>

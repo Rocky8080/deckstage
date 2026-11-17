@@ -1,0 +1,777 @@
+/* ============================================================
+   演示外壳：深色放映环境 + 舞台缩放 + 导航 / 进度 / 总览 / 备注
+   ============================================================ */
+
+html, body { height: 100%; overflow: hidden; }
+
+.deck {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, #1D2A23 0%, transparent 62%),
+    radial-gradient(900px 600px at 110% 110%, #17241D 0%, transparent 60%),
+    #0C1411;
+  font-family: var(--font-sans);
+  overflow: hidden;
+}
+
+/* ---------------------------------------------- 舞台 */
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1600px;
+  height: 900px;
+  transform: translate(-50%, -50%) scale(var(--scale, 1));
+  transform-origin: center center;
+  transition: transform .25s var(--ease-soft);
+  /* 垫一层纸色：两屏交叉淡化时不会透出 .deck 的深色底（放映时就是那块黑） */
+  background: var(--paper);
+  border-radius: 3px;
+  box-shadow: 0 40px 120px -50px rgba(0, 0, 0, .9), 0 0 0 1px rgba(255, 255, 255, .07);
+}
+
+.slides { position: absolute; inset: 0; }
+.slides.is-booting .slide { transition: none !important; }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .42s var(--ease-soft), transform .42s var(--ease-soft), visibility 0s linear .42s;
+  /* 方向入场并进过渡：本元素不要再用动画动 opacity / transform，
+     否则撤掉 .is-active 时过渡不会启动，旧屏瞬间消失 → 翻页黑闪 */
+  transform: translateX(calc(var(--dir, 1) * 30px)) translateY(10px) scale(.994);
+  z-index: 1;
+}
+.slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  z-index: 2;
+  transition: opacity .42s var(--ease-soft), transform .42s var(--ease-soft), visibility 0s;
+}
+.slide.is-prev { transform: translateY(-14px) scale(.99); }
+
+/* 屏间细进度（贴在舞台顶部） */
+.stage__bar {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 2px;
+  background: rgba(20, 32, 27, .08);
+  z-index: 4;
+  overflow: hidden;
+}
+.stage__bar > i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--green);
+  transition: width .45s var(--ease-out);
+}
+
+/* ---------------------------------------------- 外框 chrome */
+.chrome {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  color: rgba(247, 243, 234, .62);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  opacity: 1;
+  transition: opacity .4s var(--ease-soft);
+}
+.chrome > * { pointer-events: auto; }
+
+.chrome__brand {
+  position: absolute;
+  top: 14px; left: 34px;
+  display: flex; align-items: baseline; gap: 12px;
+}
+.chrome__brand b {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: rgba(247, 243, 234, .88);
+  text-transform: none;
+}
+.chrome__brand span { color: rgba(247, 243, 234, .34); }
+
+.chrome__rail {
+  position: absolute;
+  top: 11px; left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .07);
+}
+.chrome__rail button {
+  border: 0;
+  background: transparent;
+  padding: 6px 15px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: .06em;
+  color: rgba(247, 243, 234, .5);
+  cursor: pointer;
+  transition: color .25s, background .25s;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.chrome__rail button em {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  opacity: .55;
+}
+.chrome__rail button:hover { color: rgba(247, 243, 234, .92); }
+.chrome__rail button.is-active {
+  background: rgba(156, 199, 180, .16);
+  color: #B7D8C9;
+}
+
+.chrome__bottom {
+  position: absolute;
+  left: 34px; right: 34px; bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.chrome__count {
+  font-variant-numeric: tabular-nums;
+  color: rgba(247, 243, 234, .44);
+  min-width: 74px;
+}
+.chrome__count b {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: rgba(247, 243, 234, .9);
+  margin-right: 3px;
+}
+.chrome__title {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: rgba(247, 243, 234, .42);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 46vw;
+}
+.chrome__progress {
+  flex: 1 1 auto;
+  height: 28px;                    /* 命中区：整条 28px 高都能点 */
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 3px;
+  margin: 0 -3px;                  /* 视觉宽度不变，命中区外扩 */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.chrome__progress i {
+  position: relative;
+  flex: 1 1 auto;
+  height: 100%;                    /* 每段都占满高度 */
+  display: block;
+  background: none;
+}
+.chrome__progress i::before {      /* 视觉：细条居中 */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .14);
+  transition: height .18s var(--ease-out), background .18s var(--ease-out);
+}
+.chrome__progress i:hover::before { height: 9px; background: rgba(255, 255, 255, .45); }
+.chrome__progress i.is-done::before { background: rgba(156, 199, 180, .55); }
+.chrome__progress i.is-active::before { background: #9CC7B4; height: 7px; }
+
+/* 悬停提示：这一屏是第几屏、叫什么 */
+.chrome__progress i::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: rgba(9, 15, 12, .94);
+  border: 1px solid rgba(255, 255, 255, .14);
+  color: rgba(247, 243, 234, .92);
+  font-size: 10.5px;
+  letter-spacing: .05em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s var(--ease-out), transform .15s var(--ease-out);
+  z-index: 40;
+}
+.chrome__progress i:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* 首尾两段提示别出界 */
+.chrome__progress i:first-child::after { left: 0; transform: translateX(0) translateY(4px); }
+.chrome__progress i:first-child:hover::after { transform: translateX(0) translateY(0); }
+.chrome__progress i:last-child::after { left: auto; right: 0; transform: translateX(0) translateY(4px); }
+.chrome__progress i:last-child:hover::after { transform: translateX(0) translateY(0); }
+
+.chrome__tools { display: flex; gap: 6px; }
+.chrome__tools button {
+  width: 30px; height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .04);
+  color: rgba(247, 243, 234, .62);
+  cursor: pointer;
+  transition: all .22s var(--ease-soft);
+}
+.chrome__tools button:hover {
+  background: rgba(255, 255, 255, .1);
+  color: #EAF3EE;
+  border-color: rgba(255, 255, 255, .2);
+}
+.chrome__tools button.is-on {
+  background: rgba(156, 199, 180, .2);
+  color: #B7D8C9;
+  border-color: rgba(156, 199, 180, .34);
+}
+.chrome__tools svg { width: 15px; height: 15px; display: block; }
+
+.chrome__hint {
+  position: absolute;
+  right: 34px;
+  top: 16px;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: rgba(247, 243, 234, .34);
+  opacity: 0;
+  text-align: right;
+  transition: opacity .5s;
+  white-space: nowrap;
+}
+.chrome__hint.is-shown { opacity: 1; }
+
+/* ---------------------------------------------- 总览 */
+.overview {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(8, 14, 11, .93);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 44px 48px 30px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s var(--ease-soft), visibility 0s linear .3s;
+  overflow: auto;
+}
+.overview.is-open { opacity: 1; visibility: visible; transition: opacity .3s var(--ease-soft), visibility 0s; }
+.overview__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  color: rgba(247, 243, 234, .55);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-bottom: 26px;
+}
+.overview__head b {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  letter-spacing: .02em;
+  color: var(--paper);
+  text-transform: none;
+  font-weight: 500;
+}
+.overview__grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  align-content: start;
+}
+.ov-card {
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .04);
+  padding: 13px 14px 12px;
+  cursor: pointer;
+  color: rgba(247, 243, 234, .72);
+  transition: all .22s var(--ease-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 96px;
+}
+.ov-card:hover { background: rgba(255, 255, 255, .1); border-color: rgba(156, 199, 180, .4); transform: translateY(-2px); }
+.ov-card.is-active { border-color: #9CC7B4; background: rgba(156, 199, 180, .14); }
+.ov-card__no {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  color: rgba(247, 243, 234, .4);
+}
+.ov-card__title {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: rgba(247, 243, 234, .9);
+  font-family: var(--font-sans);
+}
+.ov-card__rail {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(156, 199, 180, .6);
+}
+.overview__foot {
+  margin-top: 24px;
+  color: rgba(247, 243, 234, .32);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: .04em;
+}
+
+/* ---------------------------------------------- 备注抽屉 */
+.notebar {
+  position: fixed;
+  left: 0; right: 0; bottom: 52px;          /* 抬到底部工具栏之上，不再挡住按钮 */
+  z-index: 28;
+  background: rgba(10, 18, 14, .97);
+  border-top: 1px solid rgba(156, 199, 180, .22);
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 -18px 40px rgba(0, 0, 0, .28);
+  padding: 14px 40px 20px;
+  max-height: 46vh;                          /* 备注再长也不铺满 */
+  overflow-y: auto;
+  transform: translateY(calc(101% + 52px));
+  transition: transform .34s var(--ease-out);
+  max-height: 34vh;
+  overflow: auto;
+}
+.notebar.is-open { transform: none; }
+.notebar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+.notebar__close {
+  flex: none;
+  width: 28px; height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .06);
+  color: rgba(247, 243, 234, .72);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.notebar__close svg { width: 13px; height: 13px; }
+.notebar__close:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+.notebar__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(156, 199, 180, .7);
+}
+.notebar__body {
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: rgba(247, 243, 234, .8);
+  max-width: 1100px;
+}
+.notebar__body strong { color: #B7D8C9; font-weight: 600; }
+
+/* ---------------------------------------------- 演示/导出模式 */
+body.is-presenting .chrome__brand,
+body.is-presenting .chrome__title { opacity: 0; }
+
+body.exporting { background: #fff; }
+body.exporting .chrome,
+body.exporting .overview,
+body.exporting .notebar,
+body.exporting .stage__bar { display: none !important; }
+body.exporting .deck { background: #fff; display: block; overflow: visible; }
+body.exporting .stage {
+  position: static;
+  left: auto;
+  top: auto;
+  transform: none !important;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0;
+  width: 1600px;
+  height: 900px;
+}
+body.exporting .slide {
+  transition: none;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  position: absolute;
+  inset: 0;
+}
+body.exporting *,
+body.exporting *::before,
+body.exporting *::after {
+  animation: none !important;
+  transition: none !important;
+}
+/* 所有"初始隐藏 + 动画入场"的元素在静态导出时必须是终态 */
+body.exporting .reveal,
+body.exporting .stagger > *,
+body.exporting .ring-dot,
+body.exporting .frag,
+body.exporting [data-anim-hidden] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  filter: none !important;
+}
+body.exporting .draw, body.exporting .draw--len { stroke-dashoffset: 0 !important; animation: none !important; }
+/* 动画类以外的 SVG 描边（例如封面的 .ring-arc）在静态导出时也要落到终态 */
+body.exporting svg * { animation: none !important; }
+body.exporting .ring-arc,
+body.exporting [stroke-dashoffset],
+body.exporting [stroke-dasharray]:not([stroke-dasharray="1 9"]):not([stroke-dasharray="1 7"]) {
+  stroke-dashoffset: 0 !important;
+}
+body.exporting .grow-x { transform: none !important; }
+body.exporting .frag { visibility: visible !important; }
+
+/* ---------------------------------------------- 打印 / PDF */
+@media print {
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { overflow: visible !important; background: #fff !important; height: auto !important; }
+  .chrome, .overview, .notebar, .stage__bar, .chrome__hint { display: none !important; }
+
+  .deck { position: static !important; display: block !important; background: #fff !important; }
+  .stage {
+    position: static !important;
+    transform: none !important;
+    box-shadow: none !important;
+    width: 1600px !important;
+    height: auto !important;
+  }
+  .slides { position: static !important; }
+
+  .slide {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important; top: auto !important;
+    width: 1600px !important;
+    height: 900px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+  }
+  .slide:last-of-type { break-after: auto; page-break-after: auto; }
+  .reveal, .stagger > *, .ring-dot, .frag { opacity: 1 !important; visibility: visible !important; transform: none !important; filter: none !important; animation: none !important; }
+  .draw, .draw--len, [stroke-dashoffset] { stroke-dashoffset: 0 !important; animation: none !important; }
+  .grow-x { transform: none !important; }
+  #s01 .ring-spin { animation: none !important; }
+}
+
+
+/* ---------------------------------------------- 窄窗口（右侧预览面板 / 小屏） */
+@media (max-width: 1080px) {
+  .chrome__hint { display: none; }
+  .chrome__title { max-width: 24vw; }
+}
+@media (max-width: 860px) {
+  .chrome__rail { display: none; }
+  .chrome__brand span { display: none; }
+  .chrome { font-size: 10px; }
+  .chrome__brand { top: 10px; left: 16px; }
+  .chrome__bottom { left: 16px; right: 16px; bottom: 6px; gap: 12px; }
+  .chrome__count { min-width: 56px; }
+  .chrome__tools button { width: 26px; height: 26px; }
+}
+
+/* 万一脚本没跑起来：至少让第一屏可见（不会被 opacity:0 全黑） */
+html:not(.deck-ready) .slide:first-of-type {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+
+/* ---------------------------------------------- 「放映」按钮（明确入口） */
+.chrome__tools .chrome__present {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  height: 30px;
+  width: auto !important;
+  grid-template-columns: none !important;
+  padding: 0 12px 0 9px;
+  gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  letter-spacing: .04em !important;
+  text-transform: none !important;
+  background: rgba(156, 199, 180, .16) !important;
+  border-color: rgba(156, 199, 180, .34) !important;
+  color: #B7D8C9 !important;
+}
+.chrome__present:hover {
+  background: rgba(156, 199, 180, .26) !important;
+  color: #E4F3EC !important;
+}
+.chrome__tools .chrome__present span { line-height: 1; }
+.chrome__tools .chrome__present svg { width: 13px; height: 13px; flex: none; }
+.chrome__hint b { color: rgba(247, 243, 234, .62); font-weight: 600; }
+
+/* ---------------------------------------------- 影院模式（无原生全屏时的兜底） */
+body.is-cinema { background: #000; }
+body.is-cinema .deck { background: #000; }
+body.is-cinema .stage { box-shadow: none; border-radius: 0; }
+
+body.chrome-hidden .chrome { opacity: 0; pointer-events: none; }
+body.chrome-hidden .chrome * { pointer-events: none; }
+
+/* 原生全屏时同样隐藏外壳 */
+body.is-presenting .chrome { opacity: 0; pointer-events: none; }
+body.is-presenting .chrome * { pointer-events: none; }
+body:fullscreen .deck, body:-webkit-full-screen .deck { background: #000; }
+
+/* ============================================================
+   交互增强：左右点击区 · 方向入场 · 章节扫光 · 视差
+   ============================================================ */
+
+/* ---------- 左右点击翻页 ---------- */
+.tapzone {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: clamp(64px, 13vw, 190px);
+  z-index: 6;                     /* 在舞台之上、外壳之下 */
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: rgba(247, 243, 234, 0);
+  transition: color .25s var(--ease-soft), background .25s var(--ease-soft);
+  -webkit-tap-highlight-color: transparent;
+}
+.tapzone--prev { left: 0; }
+.tapzone--next { right: 0; }
+.tapzone svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6;
+               stroke-linecap: round; stroke-linejoin: round; transition: transform .25s var(--ease-out); }
+.tapzone:hover { color: rgba(247, 243, 234, .55); background: rgba(247, 243, 234, .035); }
+.tapzone--prev:hover svg { transform: translateX(-3px); }
+.tapzone--next:hover svg { transform: translateX(3px); }
+.tapzone:active { background: rgba(247, 243, 234, .07); }
+/* 点击区是透明手势面（键盘用户直接按方向键）：任何情况下都不画焦点框 */
+.tapzone:focus,
+.tapzone:focus-visible { outline: 0; }
+
+body.exporting .tapzone,
+body.is-cinema.chrome-hidden .tapzone { color: rgba(247, 243, 234, 0); }
+body.exporting .tapzone { display: none; }
+
+/* ---------- 进入方向 ---------- */
+/* 入场位移已由 .slide 的 transform 过渡完成（--dir 控制左右）。
+   不要再在这里挂 animation：带 fill:both 的动画会接管 opacity，
+   撤掉 .is-active 时浏览器不会为「动画被移除」启动过渡，旧屏瞬间消失、
+   新屏从 opacity:0 淡入，放映时每次翻页都会有一次整屏黑闪。 */
+
+/* ---------- 章节切换：顶部扫光 + 轻微推近 ---------- */
+.deck.is-sweep .stage::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 2px;
+  z-index: 5;
+  background: linear-gradient(90deg, transparent, var(--green-2), transparent);
+  animation: sweep .9s var(--ease-out) both;
+  pointer-events: none;
+}
+@keyframes sweep {
+  0%   { transform: scaleX(0); transform-origin: left center; opacity: 0; }
+  35%  { transform: scaleX(1); transform-origin: left center; opacity: 1; }
+  100% { transform: scaleX(1); transform-origin: right center; opacity: 0; }
+}
+
+/* ---------- 实拍图：缓慢推近（Ken Burns） ---------- */
+.slide.is-active .shot img {
+  animation: kenBurns 11s var(--ease-soft) both;
+}
+@keyframes kenBurns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.045); }
+}
+
+/* ---------- 鼠标视差 ---------- */
+[data-parallax] {
+  transform: translate3d(calc(var(--mx, 0) * var(--px, -9px)), calc(var(--my, 0) * var(--py, -7px)), 0);
+  will-change: transform;
+}
+[data-parallax="soft"] {
+  transform: translate3d(calc(var(--mx, 0) * var(--px, -5px)), calc(var(--my, 0) * var(--py, -4px)), 0);
+}
+
+/* ---------- 图表：画完之后持续微光呼吸 ---------- */
+@keyframes flowGlow {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(46, 125, 98, 0)); }
+  45%      { filter: drop-shadow(0 0 6px rgba(46, 125, 98, .38)); }
+}
+body:not(.exporting) .slide.is-active .draw {
+  animation: drawLine 1.1s var(--ease-soft) forwards var(--d, 200ms),
+             flowGlow 4.6s ease-in-out 1.6s infinite;
+}
+
+/* ---------- 无障碍 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .slide.is-active, .slide.is-active .shot img, .deck.is-sweep .stage::after { animation: none !important; }
+  body:not(.exporting) .slide.is-active .draw { animation: none !important; filter: none !important; }
+  [data-parallax] { transform: none !important; }
+}
+
+
+/* ---------- 投影适配：cover 模式（填满屏幕，裁掉外沿） ---------- */
+body.is-cover .stage { border-radius: 0; }
+body.is-cover .deck { overflow: hidden; }
+
+/* ---------- 轻提示 ---------- */
+.deck-toast {
+  position: fixed;
+  left: 50%; bottom: 64px;
+  transform: translate(-50%, 8px);
+  z-index: 60;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(9, 15, 12, .92);
+  border: 1px solid rgba(255, 255, 255, .14);
+  color: rgba(247, 243, 234, .92);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .06em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s var(--ease-out), transform .2s var(--ease-out);
+}
+.deck-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+
+/* ---------- 4:3 画幅（1200×900）的少量补偿 ---------- */
+body.ratio-4x3 #s01 .cover__ring {
+  right: 24px;
+  top: 132px;
+  width: 470px;
+  height: 470px;
+}
+body.ratio-4x3 #s01 .cover__ring svg { width: 470px; height: 470px; }
+body.ratio-4x3 .runhead { right: 72px; }
+
+/* 4:3 下，按 16:9 宽度设计的图/表整体等比缩小（逐屏校准过，保证 0 溢出） */
+body.ratio-4x3 #s07 .loop-area { zoom: .84; }
+body.ratio-4x3 #s08 .body { zoom: .95; }
+body.ratio-4x3 #s08b .body { zoom: .93; }
+body.ratio-4x3 #s08b .sys__shot { height: 226px; }
+body.ratio-4x3 #s08b .sys__shot img { object-fit: contain; background: #fff; }
+body.ratio-4x3 #s10 .body { zoom: .95; }
+body.ratio-4x3 #s11 .body { zoom: .93; }
+body.ratio-4x3 #s13b .body { zoom: .90; }
+/* 这两屏是固定尺寸的 SVG 关系图：整体按比例缩小（描边动画结束后看效果） */
+body.ratio-4x3 #s14 .body { zoom: .72; }
+body.ratio-4x3 #s16 .body { zoom: .70; }
+
+
+/* ---------- 画幅切换按钮（显示当前比例） ---------- */
+.chrome__tools .chrome__ratio-btn {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  width: auto !important;
+  padding: 0 9px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  color: rgba(247, 243, 234, .72);
+}
+.chrome__tools .chrome__ratio-btn svg { width: 13px; height: 13px; flex: none; }
+.chrome__tools .chrome__ratio-btn.is-auto::after {
+  content: "";
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--green-3);
+  margin-left: 1px;
+}
+.chrome__tools .chrome__ratio-btn:hover { color: #F7F3EA; }
+
+
+/* ---------- 左上角「← 展示台」返回入口 ---------- */
+.chrome__home {
+  position: absolute;
+  top: 14px;
+  left: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 11px 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .05);
+  color: rgba(247, 243, 234, .72);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-decoration: none;
+  pointer-events: auto;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.chrome__home svg { width: 12px; height: 12px; flex: none; }
+.chrome__home:hover {
+  background: rgba(255, 255, 255, .14);
+  border-color: rgba(255, 255, 255, .22);
+  color: #F7F3EA;
+}
+/* 品牌块右移，别和返回按钮打架 */
+.chrome__brand { left: 132px; }
+@media (max-width: 860px) {
+  .chrome__brand { left: 22px; top: 44px; }
+  .chrome__home { top: 10px; left: 14px; }
+}

@@ -1,0 +1,12 @@
+# DeckStage python 工具链（tools/）
+# 用系统 Python 3.9+ 安装：pip install -r requirements.txt
+#
+# PPTX 导入渲染另需 LibreOffice（非 pip 包）：
+#   macOS:  安装 https://www.libreoffice.org/（默认路径 /Applications/LibreOffice.app）
+# 缩略图 / QA 另需 Chrome（playwright 用 channel="chrome"，无需另下浏览器）。
+
+pillow>=10.0        # 版式预修的实测度量 / 逐页 JPEG
+pymupdf>=1.24       # 渲染 PDF 解析与补字层坐标
+numpy>=1.26         # 缺字方块（tofu）检测
+python-pptx>=1.0    # 源稿文本抽取（讲稿面板）
+playwright>=1.40    # 缩略图 / 体检 / 交互自测

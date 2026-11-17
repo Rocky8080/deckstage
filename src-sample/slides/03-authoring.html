@@ -1,0 +1,36 @@
+<section class="slide" id="s03" data-title="亲手写一屏" data-rail="上手">
+  <header class="head">
+    <p class="kicker">02 / AUTHORING</p>
+    <h1 class="title">一屏 = <em>一个 HTML 文件</em></h1>
+  </header>
+
+  <div class="body" style="display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: start;">
+    <div class="card card--dark" style="padding: 22px 24px;">
+      <p class="kv__k" style="margin-bottom: 12px;">src-sample/slides/02-pipeline.html</p>
+      <pre style="margin:0; font: 12px/1.85 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" id="s02"
+         data-title="六阶段导入 pipeline"
+         data-rail="概览"&gt;
+  &lt;header class="head"&gt;
+    &lt;p class="kicker"&gt;01 / PIPELINE&lt;/p&gt;
+    &lt;h1 class="title"&gt;外部 PPTX，
+      &lt;em&gt;一条流水线&lt;/em&gt;进展示台&lt;/h1&gt;
+  &lt;/header&gt;
+  &lt;div class="body"&gt; … &lt;/div&gt;
+  &lt;aside class="notes"&gt;演讲备注&lt;/aside&gt;
+&lt;/section&gt;</pre>
+    </div>
+
+    <ul class="list" style="margin-top: 6px;">
+      <li class="list__item reveal" style="--d:80ms"><i class="list__dot"></i>
+        <p class="list__txt"><code>data-rail</code> 决定顶部导轨分章；<code>data-title</code> 进度条悬停可见</p></li>
+      <li class="list__item reveal" style="--d:180ms"><i class="list__dot"></i>
+        <p class="list__txt"><code>reveal</code> + <code>--d</code> 控制逐步入场；<code>data-count</code> 数字滚动</p></li>
+      <li class="list__item reveal" style="--d:280ms"><i class="list__dot"></i>
+        <p class="list__txt"><code>aside.notes</code> 是演讲者备注，按 <b>N</b> 呼出，不占画面</p></li>
+      <li class="list__item reveal" style="--d:380ms"><i class="list__dot"></i>
+        <p class="list__txt">屏内可带 <code>&lt;style&gt;</code>，构建时自动提取合并进 head</p></li>
+    </ul>
+  </div>
+
+  <aside class="notes">这一屏讲创作模型：一屏一个文件，类名体系见 docs/AUTHORING.md。左侧深色卡片里就是上一屏的真实源码。</aside>
+</section>
