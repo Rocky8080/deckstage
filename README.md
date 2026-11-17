@@ -51,6 +51,24 @@ node build.mjs --src src-mine --deck my-deck
 
 > 缩略图 / QA 需要 Chrome（Playwright 走 `channel="chrome"`）；PPTX 渲染需要 LibreOffice。
 
+### 使用图例
+
+**展示台**（`serve_deck.py` 起服务后的首页）：所有 deck 的缩略图墙，点卡片即放映。
+
+![展示台首页](docs/img/library.jpg)
+
+**deck 放映**：示例 deck 第 3 屏「最佳实践」——顶部导轨分章、底部进度条与快捷键提示；
+按 `C` 或右下角「配色」按钮可整套换色，下图右为玄墨深色主题（详见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）。
+
+![deck 放映 · 最佳实践屏](docs/img/present.jpg)
+
+![玄墨深色主题](docs/img/theme-dark.jpg)
+
+**管理后台 `/admin/`**：访问追踪（谁看了什么、看了多久、逐屏停留）与门禁管理
+——展示台首页与每套 deck 都可设密码或下架，即时生效（详见 [docs/ADMIN.md](docs/ADMIN.md)）。
+
+![管理后台](docs/img/admin.jpg)
+
 ## 二·五、最佳实践：让 AI 替你写 deck
 
 被验证最多的用法（示例 deck 第 3 屏是图文版）。安装也是一句话的事——把
