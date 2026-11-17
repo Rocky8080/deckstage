@@ -19,6 +19,7 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 | **HTML 创作** | 一屏一个 HTML 文件，类名体系见 [docs/AUTHORING.md](docs/AUTHORING.md)；`reveal` 入场动效、数字滚动、演讲备注、导轨分章 |
 | **PPTX 导入** | 外部 PowerPoint 经六阶段 pipeline 自动转换（体检 → 字体 → 版式预修 → LibreOffice 渲染 → 补字层 → 组装），详见 [docs/IMPORT.md](docs/IMPORT.md) |
 | **展示台** | `library.html` 缩略图墙聚合所有 deck；`serve_deck.py` 本地起服务后右上角可「＋ 导入 PPTX」（四步向导，仅限本机） |
+| **管理后台** | `/admin/` 访问追踪（逐屏时长 / 来源 / 访客）· deck 密码门禁与上下架（即时生效），见 [docs/ADMIN.md](docs/ADMIN.md) 与 [CHANGELOG.md](CHANGELOG.md) |
 | **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`#s12` 深链 |
 | **导出** | 页面内一键导出可编辑 PPTX（pptxgenjs）；构建时可产出全内联的单机版 HTML |
 | **QA 工具** | 溢出/截断/重叠检查、放映交互自测、逐屏截图（见下文「质检」） |
@@ -60,14 +61,16 @@ src/js/                    放映引擎 deck.js + 页面内 PPTX 导出 pptx-exp
 src-sample/                示例 deck 源码（shell + slides），创作模板
 decks/<slug>/              成品：index.html + deck.json + thumb.jpg（sample-deck 已含）
 assets/<slug>/             导入 deck 的逐页渲染图
-tools/                     全部工具链（见 docs/IMPORT.md、各文件 docstring）
+tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md、各文件 docstring）
   import_pptx.py             PPTX → deck 六阶段 pipeline（单命令入口）
-  serve_deck.py              静态服务 + 导入 API（Host 白名单，仅限本机直连）
+  serve_deck.py              静态服务 + 导入 API（仅限本机）+ /admin 管理后台（追踪 / 门禁 / 上下架）
+  admin_core.py              管理后台数据层：管理员会话 / 门禁配置 / SQLite 访问统计
+  admin_site.py              管理后台页面、追踪脚本、门禁页模板
   build_library.py           展示台聚合：缩略图 / decks.json / library.html
   pptx_*.py                  渲染前的版式预修工具链（nowrap / 缩字 / prefit / 字距…）
   check_slides.py            溢出 / 截断 / 重叠 / 图片 / 控制台报错体检
   test_deck.py               放映交互自测
-docs/                      AUTHORING（版式规范）/ DECK_SPEC（交互规范）/ IMPORT（导入 pipeline）
+docs/                      AUTHORING（版式规范）/ DECK_SPEC（交互规范）/ IMPORT（导入）/ ADMIN（管理后台）
 vendor/                    pptxgen.bundle.js（MIT，落盘锁定）
 ```
 
@@ -85,9 +88,13 @@ python3 tools/test_deck.py                            # 放映交互自测
 
 ## 五、安全模型
 
-导入 API 永远不应该暴露到公网：`serve_deck.py` 的所有 `/api/*` 路由校验 `Host` 头，
-仅接受 `127.0.0.1 / localhost` 直连；经反向代理（如 cloudflared tunnel）而来的公网请求
+导入 API 永远不应该暴露到公网：`serve_deck.py` 的导入路由（`/api/inventory|import|cancel|publish`）
+校验 `Host` 头，仅接受 `127.0.0.1 / localhost` 直连；经反向代理（如 cloudflared tunnel）而来的公网请求
 Host 是站点域名，一律 403。请勿修改或绕过该守卫后再绑定公网。
+
+其余 API 属于另一边界：`/api/track/*`（匿名访问统计）、`/api/access`（deck 门禁密码）
+与 `/api/admin/*`（管理后台，密码登录 + 登录限流）设计上可经隧道公网使用；
+追踪数据只含随机 UUID，不含个人身份信息。运行时数据在 `data/`（不入库）。
 
 ## 六、授权
 
@@ -102,5 +109,8 @@ Host 是站点域名，一律 403。请勿修改或绕过该守卫后再绑定�
 `import.html`. The six-stage import pipeline (`tools/import_pptx.py`) normalizes fonts,
 pre-fits layouts, renders pages headlessly via LibreOffice, repairs unrendered/tofu text as a
 coordinate-accurate HTML overlay, and assembles a self-contained deck. See
-[docs/IMPORT.md](docs/IMPORT.md) for the validated recipe and knobs. Issues and PRs welcome —
-please keep personal content out of PRs (the default `.gitignore` already guards this).
+[docs/IMPORT.md](docs/IMPORT.md) for the validated recipe and knobs. It also ships an
+admin console at `/admin/` — anonymous visit tracking (per-slide dwell time), per-deck
+password protection and publish/unpublish switches; see [docs/ADMIN.md](docs/ADMIN.md).
+Issues and PRs welcome — please keep personal content out of PRs (the default `.gitignore`
+already guards this).

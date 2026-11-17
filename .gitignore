@@ -18,6 +18,8 @@ __pycache__/
 /library.html
 build/
 uploads/
+/data/
+gui-test-screenshots/
 
 # ============ 内容与引擎分离（核心约定） ============
 # decks/ 与 assets/ 只跟踪匿名示例 deck；
