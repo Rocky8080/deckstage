@@ -49,6 +49,9 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
   可配门禁页提示语）与上下架 —— 下架后 `decks/<slug>/` 整目录 404，
   `library.html` 与 `decks.json` 服务端每请求实时过滤并即时生效；加密 deck 的缩略图
   换为占位图，内容不出网。
+- **展示台首页门禁**：管理端「展示台首页」行可设密码（默认所有人可访问）。设密码后
+  直接访问 `/`、`/library.html`、`/decks.json`（401）或从 deck 按返回首页，都会被
+  门禁页拦下；各 deck 直链的独立门禁不受影响。
 - **安全边界**：`/api/track/*`、`/api/access`、`/api/admin/*` 公网可达但分别有
   登录限流（10 分钟 8 次）与追踪 init 限流；导入 API 的本机 `Host` 守卫保持不变。
   运行时数据全部落在 `data/`（gitignore）：`admin.json`（密码哈希 + Cookie 签名密钥，

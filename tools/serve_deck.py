@@ -101,6 +101,19 @@ class DeckHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             return
         site = self._store()
+
+        # 首页门禁：管理端可给展示台设密码（伪 slug __library）；
+        # 从 deck 返回首页 / 直接输首页地址都会被拦，deck 直链不受影响。
+        if raw in ("/", "/index.html", "/index-web.html", "/library.html", "/decks.json"):
+            hcfg = site.deck_cfg("__library")
+            if hcfg["locked"] and not site.check_token(
+                    "deck:__library", self._cookies().get("deck_auth___library")):
+                if raw == "/decks.json":
+                    return self._send_bytes(401, "application/json; charset=utf-8",
+                                            b'{"ok": false, "error": "library locked"}')
+                return self._send_html(200, _MODS["site"].gate_page(
+                    "__library", "PPT 展示台", hcfg["hint"]))
+
         slug = None
         m = re.match(r"^/decks/([a-z0-9-]+)(/|$)", raw)
         if m:
@@ -360,7 +373,10 @@ class DeckHandler(SimpleHTTPRequestHandler):
                                              "visits": st.recent_visits((q.get("limit") or ["100"])[0])})
         if path == "/api/admin/decks":
             stats = st.deck_stats()
-            decks = []
+            hcfg = st.deck_cfg("__library")
+            decks = [{"slug": "__library", "title": "展示台首页", "n_slides": 0,
+                      "enabled": True, "locked": hcfg["locked"], "hint": hcfg["hint"],
+                      "stats": stats.get("__library", {})}]
             for d in st.deck_list():
                 d.update(st.deck_cfg(d["slug"]))
                 d["stats"] = stats.get(d["slug"], {})
@@ -409,11 +425,11 @@ class DeckHandler(SimpleHTTPRequestHandler):
             return self._json_response(400, {"ok": False, "error": "JSON 解析失败"})
         if path == "/api/admin/deck":
             slug = str(req.get("slug") or "")
-            if not re.fullmatch(r"[a-z0-9-]+", slug) or \
-                    not os.path.isdir(os.path.join(self.directory, "decks", slug)):
+            if slug != "__library" and (not re.fullmatch(r"[a-z0-9-]+", slug) or \
+                    not os.path.isdir(os.path.join(self.directory, "decks", slug))):
                 return self._json_response(400, {"ok": False, "error": "未知 deck"})
             kwargs = {}
-            if "enabled" in req:
+            if "enabled" in req and slug != "__library":   # 展示台首页只有门禁语义，无下架
                 kwargs["enabled"] = bool(req["enabled"])
             if "password" in req:                      # None/"" = 移除密码
                 kwargs["password"] = req["password"]
@@ -480,10 +496,11 @@ class DeckHandler(SimpleHTTPRequestHandler):
         except Exception:
             return self._json_response(400, {"ok": False, "error": "JSON 解析失败"})
         slug = str(req.get("deck") or "")
-        if not re.fullmatch(r"[a-z0-9-]+", slug):
+        if slug != "__library" and not re.fullmatch(r"[a-z0-9-]+", slug):
             return self._json_response(400, {"ok": False, "error": "bad deck"})
         if not st.deck_cfg(slug)["locked"]:
-            return self._json_response(200, {"ok": True, "redirect": f"/decks/{slug}/"})
+            return self._json_response(200, {"ok": True,
+                                             "redirect": "/" if slug == "__library" else f"/decks/{slug}/"})
         key = f"deck:{slug}:{self._client_ip()}"
         if not st.login_allowed(key):
             return self._json_response(429, {"ok": False, "error": "尝试次数过多，请 10 分钟后再试"})
@@ -493,7 +510,8 @@ class DeckHandler(SimpleHTTPRequestHandler):
         tok = st.make_token(f"deck:{slug}", self.DECK_COOKIE_TTL)
         cookie = (f"deck_auth_{slug}={tok}; Path=/; Max-Age={self.DECK_COOKIE_TTL}; "
                   f"HttpOnly; SameSite=Lax")
-        return self._json_response(200, {"ok": True, "redirect": f"/decks/{slug}/"},
+        return self._json_response(200, {"ok": True,
+                                         "redirect": "/" if slug == "__library" else f"/decks/{slug}/"},
                                    headers=[("Set-Cookie", cookie)])
 
     def _uploads_dir(self):

@@ -42,6 +42,10 @@ DECK_ADMIN_PASSWORD=xxx python3 tools/serve_deck.py  # 首次初始化用环境�
 - **密码**：访问 deck 出门禁页；通过 `POST /api/access` 校验后发 HMAC 签名 Cookie
   （30 天免重输）。展示台卡片加 🔒 需密码标签；缩略图换为占位图，内容不出网。
   密码同样哈希存放（PBKDF2-SHA256），可配提示语（如「会议当天发的编号」）。
+- **展示台首页门禁**（伪 slug `__library`）：管理端「展示台首页」行可设密码 + 提示语。
+  默认所有人可访问；设密码后，直接访问 `/`、`/library.html`、`/decks.json`
+  或从 deck 按 `H` / 点「‹ 展示台」返回，都会被门禁页拦下（`/decks.json` 返回 401）。
+  各 deck 直链的独立门禁不受影响；解锁后 30 天免重输。
 - 例外：本机 `?export=1`（`build_library.py` 拍缩略图）不注入、不拦截；
   公网伪造该参数无效（校验 Host 是否 loopback）。
 

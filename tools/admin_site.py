@@ -143,12 +143,12 @@ _GATE = """<!doctype html>
 </style></head><body><div class="wrap"><div class="card">
   <div class="lock">🔒</div>
   <h1>__TITLE__</h1>
-  <p class="sub">这套幻灯片受密码保护，请输入访问密码。</p>
+  <p class="sub">__SUB__</p>
   <p class="hint">__HINT__</p>
   <input type="password" id="pw" placeholder="••••••••" autofocus autocomplete="off">
   <button id="go">解锁</button>
   <p class="err" id="err">__ERR__</p>
-  <a class="back" href="/">← 返回展示台</a>
+  __BACK__
 </div></div>
 <script>
 (function () {
@@ -170,8 +170,13 @@ _GATE = """<!doctype html>
 
 
 def gate_page(slug: str, title: str, hint: str, err: str = "") -> str:
+    sub = ("展示台受密码保护，请输入访问密码。" if slug == "__library"
+           else "这套幻灯片受密码保护，请输入访问密码。")
+    back = "" if slug == "__library" else '<a class="back" href="/">← 返回展示台</a>'
     return (_GATE.replace("__BASE__", _BASE_CSS)
                  .replace("__TITLE__", html.escape(title))
+                 .replace("__SUB__", sub)
+                 .replace("__BACK__", back)
                  .replace("__HINT__", html.escape(hint))
                  .replace("__ERR__", html.escape(err))
                  .replace("__SLUG__", html.escape(slug, quote=True)))
@@ -401,17 +406,21 @@ _ADMIN = """<!doctype html>
   function renderDecks(list) {
     if (!list.length) { $('#deckBox').innerHTML = '<p class="empty">decks/ 里还没有幻灯片。</p>'; return; }
     var rows = list.map(function (d) {
-      var pills = '<span class="pill ' + (d.enabled ? 'on">公开' : 'off">已下架') + '</span>' +
-        (d.locked ? '<span class="pill lock">🔒 密码</span>' : '');
+      var isLib = d.slug === '__library';
+      var pills = isLib
+        ? '<span class="pill ' + (d.locked ? 'off">需密码' : 'on">开放访问') + '</span>'
+        : '<span class="pill ' + (d.enabled ? 'on">公开' : 'off">已下架') + '</span>' +
+          (d.locked ? '<span class="pill lock">🔒 密码</span>' : '');
       var st = d.stats || {};
+      var sub = isLib ? '首页门禁 · /admin/ 与追踪同源' : esc(d.slug) + ' · ' + d.n_slides + ' 屏';
       return '<tr data-slug="' + esc(d.slug) + '">' +
-        '<td><b>' + esc(d.title) + '</b><br><span class="slug">' + esc(d.slug) + ' · ' + d.n_slides + ' 屏</span></td>' +
+        '<td><b>' + esc(d.title) + '</b><br><span class="slug">' + sub + '</span></td>' +
         '<td>' + pills + (d.hint ? '<br><span class="muted slug">提示：' + esc(d.hint) + '</span>' : '') + '</td>' +
         '<td class="num">' + (st.visits || 0) + '</td>' +
         '<td class="num">' + fmtDur(st.active || 0) + '</td>' +
         '<td class="num">' + ago(st.last || 0) + '</td>' +
         '<td><div class="rowbtns">' +
-          '<button class="mini act-en">' + (d.enabled ? '下架' : '上架') + '</button>' +
+          (isLib ? '' : '<button class="mini act-en">' + (d.enabled ? '下架' : '上架') + '</button>') +
           '<button class="mini act-pw">' + (d.locked ? '改密码' : '设密码') + '</button>' +
           (d.locked ? '<button class="mini danger act-rm">移除密码</button>' : '') +
         '</div></td></tr>';
