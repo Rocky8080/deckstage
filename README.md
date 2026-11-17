@@ -64,11 +64,6 @@ node build.mjs --src src-mine --deck my-deck
 
 ![玄墨深色主题](docs/img/theme-dark.jpg)
 
-**管理后台 `/admin/`**：访问追踪（谁看了什么、看了多久、逐屏停留）与门禁管理
-——展示台首页与每套 deck 都可设密码或下架，即时生效（详见 [docs/ADMIN.md](docs/ADMIN.md)）。
-
-![管理后台](docs/img/admin.jpg)
-
 ## 二·五、最佳实践：让 AI 替你写 deck
 
 被验证最多的用法（示例 deck 第 3 屏是图文版）。安装也是一句话的事——把
