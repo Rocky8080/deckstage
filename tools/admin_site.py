@@ -273,6 +273,11 @@ _ADMIN = """<!doctype html>
   .pill.on { background:rgba(30,91,71,.12); color:var(--green); }
   .pill.off { background:rgba(164,71,47,.12); color:var(--red); }
   .pill.lock { background:rgba(30,91,71,.08); color:var(--green); margin-left:6px; }
+  .pill.new { background:rgba(46,125,98,.16); color:var(--green-2); }
+  .pill.old { background:rgba(20,32,27,.08); color:var(--ink-3); }
+  tr.vrow { cursor:pointer; }
+  tr.vdetail td { background:rgba(30,91,71,.04); }
+  .vmini { font:12px/1.9 var(--mono); color:var(--ink-2); }
   .rowbtns { display:flex; gap:6px; flex-wrap:wrap; }
   .mini { padding:5px 11px; border-radius:999px; border:1px solid var(--line); background:#fff;
     font:500 11.5px/1 var(--sans); cursor:pointer; color:var(--ink-2); }
@@ -333,6 +338,10 @@ _ADMIN = """<!doctype html>
       <select id="deckSel"></select><span class="muted" id="slideNote"></span></div>
     <div id="slideBox"></div>
 
+    <h2>访客分析 <span class="muted" style="font-size:12px;font-family:var(--mono)">按访客号分组 · 首访在 7 天内为新用户 · 点行展开明细</span></h2>
+    <div class="selrow" id="visitorStats"></div>
+    <div id="visitorBox"></div>
+
     <h2>访问记录 <span class="muted" style="font-size:12px;font-family:var(--mono)">最近 100 条</span></h2>
     <div id="visitBox"></div>
 
@@ -389,12 +398,64 @@ _ADMIN = """<!doctype html>
     refresh();
     setInterval(function () { if (document.visibilityState === 'visible' && !$('#panel').hidden) refresh(); }, 30000);
   }
+  var OVW = null;
   function refresh() {
-    api('/api/admin/overview').then(function (r) { if (r && r.ok) renderOvw(r.stats); });
+    api('/api/admin/overview').then(function (r) { if (r && r.ok) { OVW = r.stats; renderOvw(r.stats); renderVisitorStats(); } });
     api('/api/admin/decks').then(function (r) { if (r && r.ok) { DECKS = r.decks; renderDecks(r.decks); renderDeckSel(r.decks); } });
     api('/api/admin/visits?limit=100').then(function (r) { if (r && r.ok) renderVisits(r.visits); });
+    api('/api/admin/visitors').then(function (r) { if (r && r.ok) renderVisitors(r.visitors); });
     loadSlides();
   }
+  function renderVisitorStats() {
+    if (!OVW) return;
+    $('#visitorStats').innerHTML =
+      '<span>今日新访客 <b>' + OVW.new_today + '</b></span> · ' +
+      '<span>7 日内新访客 <b>' + OVW.new_7d + '</b></span> · ' +
+      '<span>老访客（回访）<b>' + OVW.returning + '</b></span>';
+  }
+  function renderVisitors(list) {
+    if (!list.length) { $('#visitorBox').innerHTML = '<p class="empty">还没有访客数据。</p>'; return; }
+    var weekAgo = Date.now() / 1000 - 7 * 86400;
+    $('#visitorBox').innerHTML = '<table><thead><tr><th>访客</th><th>类型</th><th class="num">访问</th>' +
+      '<th class="num">累计时长</th><th class="num">次均</th><th>看过的内容</th>' +
+      '<th class="num">首访</th><th class="num">最近</th></tr></thead><tbody>' +
+      list.map(function (v) {
+        var isNew = v.first_seen >= weekAgo;
+        return '<tr class="vrow" data-v="' + esc(v.visitor) + '" title="点击展开该访客的访问明细">' +
+          '<td class="slug">' + esc(String(v.visitor).slice(0, 8)) + '…</td>' +
+          '<td><span class="pill ' + (isNew ? 'new">新用户' : 'old">老用户') + '</span></td>' +
+          '<td class="num">' + v.visits + '</td>' +
+          '<td class="num">' + fmtDur(v.active) + '</td>' +
+          '<td class="num">' + fmtDur(v.visits ? v.active / v.visits : 0) + '</td>' +
+          '<td class="slug" title="' + esc(v.deck_list) + '">' + esc(v.deck_list) + '</td>' +
+          '<td class="num">' + fmtT(v.first_seen) + '</td>' +
+          '<td class="num">' + ago(v.last_seen) + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+  function toggleVisitorDetail(tr, visitor) {
+    var next = tr.nextElementSibling;
+    if (next && next.className === 'vdetail') { next.remove(); return; }
+    document.querySelectorAll('tr.vdetail').forEach(function (d) { d.remove(); });
+    var dr = document.createElement('tr');
+    dr.className = 'vdetail';
+    dr.innerHTML = '<td colspan="8"><p class="vmini">加载中…</p></td>';
+    tr.after(dr);
+    api('/api/admin/visits?visitor=' + encodeURIComponent(visitor) + '&limit=30').then(function (r) {
+      if (!r || !r.ok) { dr.querySelector('td').innerHTML = '加载失败'; return; }
+      var rows = (r.visits || []).map(function (v) {
+        var prog = v.n_slides ? (Math.min(v.max_slide + 1, v.n_slides) + '/' + v.n_slides + ' 屏') : '—';
+        return fmtT(v.started) + '　' + esc(TITLES[v.deck] || v.deck) +
+          '　' + fmtDur(v.active) + '　' + prog;
+      }).join('<br>');
+      dr.querySelector('td').innerHTML = '<p class="vmini">' +
+        (rows || '暂无明细') + '</p>';
+    });
+  }
+  $('#visitorBox').addEventListener('click', function (e) {
+    var tr = e.target.closest('tr.vrow');
+    if (!tr) return;
+    toggleVisitorDetail(tr, tr.getAttribute('data-v'));
+  });
   function renderOvw(s) {
     $('#ovw').innerHTML =
       '<div class="stat"><b>' + s.total + '</b><span>累计访问</span></div>' +

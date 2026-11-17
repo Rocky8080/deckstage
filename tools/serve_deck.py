@@ -369,8 +369,11 @@ class DeckHandler(SimpleHTTPRequestHandler):
             return self._json_response(200, {"ok": True, "stats": st.overview()})
         if path == "/api/admin/visits":
             q = parse_qs(urlparse(self.path).query)
+            visitor = (q.get("visitor") or [None])[0]
             return self._json_response(200, {"ok": True,
-                                             "visits": st.recent_visits((q.get("limit") or ["100"])[0])})
+                                             "visits": st.recent_visits((q.get("limit") or ["100"])[0], visitor)})
+        if path == "/api/admin/visitors":
+            return self._json_response(200, {"ok": True, "visitors": st.visitor_stats()})
         if path == "/api/admin/decks":
             stats = st.deck_stats()
             hcfg = st.deck_cfg("__library")

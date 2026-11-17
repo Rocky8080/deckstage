@@ -254,8 +254,28 @@ class Store:
                                 (day0,)).fetchone()[0]
             week_n = con.execute("SELECT COUNT(*) FROM visits WHERE started>=?",
                                  (week,)).fetchone()[0]
+            new_today, new_7d, returning = con.execute(
+                """SELECT COALESCE(SUM(CASE WHEN fs>=? THEN 1 ELSE 0 END),0),
+                          COALESCE(SUM(CASE WHEN fs>=? THEN 1 ELSE 0 END),0),
+                          COALESCE(SUM(CASE WHEN fs<?  THEN 1 ELSE 0 END),0)
+                   FROM (SELECT visitor, MIN(started) AS fs
+                         FROM visits GROUP BY visitor)""",
+                (day0, week, week)).fetchone()
         return {"total": total, "visitors": visitors, "active": round(active),
-                "today": today, "week": week_n}
+                "today": today, "week": week_n,
+                "new_today": new_today, "new_7d": new_7d, "returning": returning}
+
+    def visitor_stats(self) -> list[dict]:
+        """按访客聚合：次数/时长/首末访问/看过的内容，用于新/老用户分析。"""
+        with sqlite3.connect(self.db_path) as con:
+            rows = con.execute(
+                "SELECT visitor, COUNT(*), COALESCE(SUM(active),0), MIN(started), "
+                "MAX(started), COUNT(DISTINCT deck), GROUP_CONCAT(DISTINCT deck) "
+                "FROM visits GROUP BY visitor ORDER BY MAX(started) DESC"
+            ).fetchall()
+        return [{"visitor": r[0], "visits": r[1], "active": round(r[2]),
+                 "first_seen": r[3], "last_seen": r[4], "decks": r[5],
+                 "deck_list": r[6] or ""} for r in rows]
 
     def deck_stats(self) -> dict:
         """slug → {visits, visitors, active, last}"""
@@ -266,13 +286,19 @@ class Store:
         return {r[0]: {"visits": r[1], "visitors": r[2], "active": round(r[3]), "last": r[4]}
                 for r in rows}
 
-    def recent_visits(self, limit: int = 100) -> list[dict]:
+    def recent_visits(self, limit: int = 100, visitor: str | None = None) -> list[dict]:
         limit = self._clamp(limit, 1, 500, 100)
         with sqlite3.connect(self.db_path) as con:
             con.row_factory = sqlite3.Row
-            rows = con.execute(
-                "SELECT id,deck,visitor,ip,ua,referrer,started,last,active,max_slide,n_slides "
-                "FROM visits ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+            if visitor:
+                rows = con.execute(
+                    "SELECT id,deck,visitor,ip,ua,referrer,started,last,active,max_slide,n_slides "
+                    "FROM visits WHERE visitor=? ORDER BY id DESC LIMIT ?",
+                    (visitor[:64], limit)).fetchall()
+            else:
+                rows = con.execute(
+                    "SELECT id,deck,visitor,ip,ua,referrer,started,last,active,max_slide,n_slides "
+                    "FROM visits ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
         return [dict(r) for r in rows]
 
     def slide_stats(self, deck: str) -> list[dict]:
