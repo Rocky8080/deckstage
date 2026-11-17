@@ -266,16 +266,22 @@ class Store:
                 "new_today": new_today, "new_7d": new_7d, "returning": returning}
 
     def visitor_stats(self) -> list[dict]:
-        """按访客聚合：次数/时长/首末访问/看过的内容，用于新/老用户分析。"""
+        """按访客聚合：次数/时长/首末访问/看过的内容/IP，用于新/老用户分析。"""
         with sqlite3.connect(self.db_path) as con:
             rows = con.execute(
-                "SELECT visitor, COUNT(*), COALESCE(SUM(active),0), MIN(started), "
-                "MAX(started), COUNT(DISTINCT deck), GROUP_CONCAT(DISTINCT deck) "
-                "FROM visits GROUP BY visitor ORDER BY MAX(started) DESC"
+                """SELECT v.visitor, COUNT(*), COALESCE(SUM(v.active),0), MIN(v.started),
+                          MAX(v.started), COUNT(DISTINCT v.deck),
+                          GROUP_CONCAT(DISTINCT v.deck),
+                          (SELECT ip FROM visits WHERE visitor=v.visitor
+                           ORDER BY started DESC, id DESC LIMIT 1),
+                          COUNT(DISTINCT v.ip),
+                          GROUP_CONCAT(DISTINCT v.ip)
+                   FROM visits v GROUP BY v.visitor ORDER BY MAX(v.started) DESC"""
             ).fetchall()
         return [{"visitor": r[0], "visits": r[1], "active": round(r[2]),
                  "first_seen": r[3], "last_seen": r[4], "decks": r[5],
-                 "deck_list": r[6] or ""} for r in rows]
+                 "deck_list": r[6] or "", "last_ip": r[7] or "—",
+                 "ip_count": r[8] or 0, "all_ips": r[9] or ""} for r in rows]
 
     def deck_stats(self) -> dict:
         """slug → {visits, visitors, active, last}"""

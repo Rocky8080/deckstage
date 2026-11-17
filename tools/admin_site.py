@@ -276,6 +276,7 @@ _ADMIN = """<!doctype html>
   .pill.new { background:rgba(46,125,98,.16); color:var(--green-2); }
   .pill.old { background:rgba(20,32,27,.08); color:var(--ink-3); }
   tr.vrow { cursor:pointer; }
+  td.ip { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   tr.vdetail td { background:rgba(30,91,71,.04); }
   .vmini { font:12px/1.9 var(--mono); color:var(--ink-2); }
   .rowbtns { display:flex; gap:6px; flex-wrap:wrap; }
@@ -417,16 +418,19 @@ _ADMIN = """<!doctype html>
     if (!list.length) { $('#visitorBox').innerHTML = '<p class="empty">还没有访客数据。</p>'; return; }
     var weekAgo = Date.now() / 1000 - 7 * 86400;
     $('#visitorBox').innerHTML = '<table><thead><tr><th>访客</th><th>类型</th><th class="num">访问</th>' +
-      '<th class="num">累计时长</th><th class="num">次均</th><th>看过的内容</th>' +
+      '<th class="num">累计时长</th><th class="num">次均</th><th>IP</th><th>看过的内容</th>' +
       '<th class="num">首访</th><th class="num">最近</th></tr></thead><tbody>' +
       list.map(function (v) {
         var isNew = v.first_seen >= weekAgo;
+        var ip = esc(v.last_ip || '—');
+        if (v.ip_count > 1) ip += ' <span class="muted">+' + (v.ip_count - 1) + '</span>';
         return '<tr class="vrow" data-v="' + esc(v.visitor) + '" title="点击展开该访客的访问明细">' +
           '<td class="slug">' + esc(String(v.visitor).slice(0, 8)) + '…</td>' +
           '<td><span class="pill ' + (isNew ? 'new">新用户' : 'old">老用户') + '</span></td>' +
           '<td class="num">' + v.visits + '</td>' +
           '<td class="num">' + fmtDur(v.active) + '</td>' +
           '<td class="num">' + fmtDur(v.visits ? v.active / v.visits : 0) + '</td>' +
+          '<td class="ip slug" title="该访客出现过的 IP：' + esc(v.all_ips) + '">' + ip + '</td>' +
           '<td class="slug" title="' + esc(v.deck_list) + '">' + esc(v.deck_list) + '</td>' +
           '<td class="num">' + fmtT(v.first_seen) + '</td>' +
           '<td class="num">' + ago(v.last_seen) + '</td></tr>';
@@ -438,14 +442,14 @@ _ADMIN = """<!doctype html>
     document.querySelectorAll('tr.vdetail').forEach(function (d) { d.remove(); });
     var dr = document.createElement('tr');
     dr.className = 'vdetail';
-    dr.innerHTML = '<td colspan="8"><p class="vmini">加载中…</p></td>';
+    dr.innerHTML = '<td colspan="9"><p class="vmini">加载中…</p></td>';
     tr.after(dr);
     api('/api/admin/visits?visitor=' + encodeURIComponent(visitor) + '&limit=30').then(function (r) {
       if (!r || !r.ok) { dr.querySelector('td').innerHTML = '加载失败'; return; }
       var rows = (r.visits || []).map(function (v) {
         var prog = v.n_slides ? (Math.min(v.max_slide + 1, v.n_slides) + '/' + v.n_slides + ' 屏') : '—';
         return fmtT(v.started) + '　' + esc(TITLES[v.deck] || v.deck) +
-          '　' + fmtDur(v.active) + '　' + prog;
+          '　' + fmtDur(v.active) + '　' + prog + '　<span class="muted">' + esc(v.ip || '') + '</span>';
       }).join('<br>');
       dr.querySelector('td').innerHTML = '<p class="vmini">' +
         (rows || '暂无明细') + '</p>';
