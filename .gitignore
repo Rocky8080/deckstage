@@ -39,3 +39,6 @@ tools/fixtures/
 /*.html
 !import.html
 !/decks/*/index.html
+
+# ============ 运行时数据（admin 后台：密码哈希/访问记录，永不入库） ============
+/data/
