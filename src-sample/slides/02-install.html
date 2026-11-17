@@ -1,0 +1,71 @@
+<section class="slide" id="s02" data-title="安装 · 发一个链接" data-rail="上手">
+  <style>
+    .ins-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 40px; align-items: stretch; }
+    .ins-win { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-md);
+      overflow: hidden; box-shadow: var(--sh-card); display: flex; flex-direction: column; height: 100%; }
+    .ins-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+      border-bottom: 1px solid var(--line-soft); background: var(--paper-3); }
+    .ins-bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+    .ins-bar i:first-child { background: var(--terra-2); }
+    .ins-bar b { font: 11px/1 var(--font-mono); letter-spacing: .05em; color: var(--ink-3); margin-left: 4px; }
+    .ins-chat { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; }
+    .ins-msg { max-width: 94%; padding: 9px 12px; border-radius: 10px; font: 12.5px/1.62 var(--font-sans); }
+    .ins-msg--user { align-self: flex-end; background: var(--green); color: var(--paper); border-bottom-right-radius: 3px; }
+    .ins-msg--user code { font-family: var(--font-mono); font-size: 11.5px; color: #fff;
+      background: rgba(255,255,255,.16); padding: 1px 6px; border-radius: 5px; }
+    .ins-msg--ai { align-self: flex-start; background: var(--green-tint); color: var(--ink-2);
+      border-bottom-left-radius: 3px; font-family: var(--font-mono); font-size: 11.5px; white-space: pre-wrap; }
+    .ins-msg--ai b { color: var(--green); }
+    .ins-cmd { background: var(--dark-2); border-radius: var(--r-md); padding: 18px 22px; }
+    .ins-cmd pre { margin: 0; font: 12px/1.95 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap; }
+  </style>
+
+  <header class="head">
+    <p class="kicker">01 / INSTALL</p>
+    <h1 class="title">安装，就是<em>发一个链接</em></h1>
+    <p class="sub">把仓库地址发给任意 AI 客户端（WorkBuddy / ZCode / DeepSeek Harness / Codex），下载、装依赖、起服务全自动。</p>
+  </header>
+
+  <div class="body body--tight">
+    <div class="ins-grid">
+      <div class="ins-win reveal" style="--d:60ms">
+        <div class="ins-bar"><i></i><i></i><i></i><b>WorkBuddy — 会话</b></div>
+        <div class="ins-chat">
+          <div class="ins-msg ins-msg--user">
+            帮我装一套 DeckStage：<code>https://github.com/Rocky8080/deckstage</code><br>
+            克隆到本地、装好依赖、把展示台跑起来。浏览器能打开就算完成。
+          </div>
+          <div class="ins-msg ins-msg--ai">git clone https://github.com/Rocky8080/deckstage && cd deckstage</div>
+          <div class="ins-msg ins-msg--ai">pip install -r requirements.txt</div>
+          <div class="ins-msg ins-msg--ai">python3 tools/serve_deck.py
+<b>✓ 展示台已启动 → http://127.0.0.1:8899/</b>
+11 屏《使用说明》就在首页第一张卡片。</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div class="ins-cmd reveal" style="--d:160ms">
+          <p class="kv__k" style="margin-bottom: 12px;">等效手动命令（愿意自己敲的话）</p>
+          <pre>git clone https://github.com/Rocky8080/deckstage
+cd deckstage
+pip install -r requirements.txt
+
+python3 tools/serve_deck.py
+# → http://127.0.0.1:8899/</pre>
+        </div>
+        <ul class="list" style="margin:0;">
+          <li class="list__item reveal" style="--d:280ms"><i class="list__dot"></i>
+            <p class="list__txt">客户端不限：WorkBuddy / ZCode / DeepSeek Harness / Codex 都行</p></li>
+          <li class="list__item reveal" style="--d:370ms"><i class="list__dot"></i>
+            <p class="list__txt">服务只监听本机 127.0.0.1；公开分享经隧道 + 管理后台门禁</p></li>
+          <li class="list__item reveal" style="--d:460ms"><i class="list__dot"></i>
+            <p class="list__txt">纯创作与放映零依赖；PPTX 导入另需 LibreOffice（AI 会提示）</p></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="bridge reveal" style="--d:540ms">装好了？下一屏看<strong>最佳实践</strong>——一句话让 AI 替你写 deck。</p>
+  </div>
+
+  <aside class="notes">安装被做成一句话的事：把 GitHub 仓库地址发给 AI 客户端，让它克隆、装依赖、起服务，验收标准就是浏览器能打开展示台。右下是等效的手动命令，愿意自己敲也一样。服务只监听本机，想公开分享走隧道加管理后台的门禁。</aside>
+</section>

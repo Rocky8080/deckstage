@@ -34,7 +34,7 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 pip install -r requirements.txt
 
 # 1) 拼装示例 deck 并起展示台
-#    sample-deck 是 11 屏《使用说明》：最佳实践 / 放映 / 配色 / 创作 / 导入 / 管理
+#    sample-deck 是 12 屏《使用说明》：安装 / 最佳实践 / 放映 / 配色 / 创作 / 导入 / 管理
 node build.mjs --src src-sample --deck sample-deck
 python3 tools/build_library.py            # 生成 decks.json / library.html / 缩略图
 python3 tools/serve_deck.py               # → http://127.0.0.1:8899/
@@ -53,7 +53,9 @@ node build.mjs --src src-mine --deck my-deck
 
 ## 二·五、最佳实践：让 AI 替你写 deck
 
-被验证最多的用法（示例 deck 第 2 屏就是这份说明的图文版）：
+被验证最多的用法（示例 deck 第 3 屏是图文版）。安装也是一句话的事——把
+`https://github.com/Rocky8080/deckstage` 发给 AI 客户端，让它克隆、装依赖、起服务，
+浏览器能打开展示台就算完成（示例 deck 第 2 屏）；然后：
 
 1. **素材随手写**：一个简单的 Word / Markdown，文字 + 截图随手放，不用管排版；
 2. **一句话委托**：在 ZCode / WorkBuddy / DeepSeek Harness / Codex 等 AI 客户端里，

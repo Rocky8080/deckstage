@@ -623,7 +623,27 @@ a { color: inherit; }
 
 /* ===== 各屏专属样式 ===== */
 
-/* ---- 02-ai-workflow.html ---- */
+/* ---- 02-install.html ---- */
+.ins-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 40px; align-items: stretch; }
+    .ins-win { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-md);
+      overflow: hidden; box-shadow: var(--sh-card); display: flex; flex-direction: column; height: 100%; }
+    .ins-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+      border-bottom: 1px solid var(--line-soft); background: var(--paper-3); }
+    .ins-bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+    .ins-bar i:first-child { background: var(--terra-2); }
+    .ins-bar b { font: 11px/1 var(--font-mono); letter-spacing: .05em; color: var(--ink-3); margin-left: 4px; }
+    .ins-chat { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; }
+    .ins-msg { max-width: 94%; padding: 9px 12px; border-radius: 10px; font: 12.5px/1.62 var(--font-sans); }
+    .ins-msg--user { align-self: flex-end; background: var(--green); color: var(--paper); border-bottom-right-radius: 3px; }
+    .ins-msg--user code { font-family: var(--font-mono); font-size: 11.5px; color: #fff;
+      background: rgba(255,255,255,.16); padding: 1px 6px; border-radius: 5px; }
+    .ins-msg--ai { align-self: flex-start; background: var(--green-tint); color: var(--ink-2);
+      border-bottom-left-radius: 3px; font-family: var(--font-mono); font-size: 11.5px; white-space: pre-wrap; }
+    .ins-msg--ai b { color: var(--green); }
+    .ins-cmd { background: var(--dark-2); border-radius: var(--r-md); padding: 18px 22px; }
+    .ins-cmd pre { margin: 0; font: 12px/1.95 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap; }
+
+/* ---- 03-ai-workflow.html ---- */
 .bp-stage { display: grid; grid-template-columns: 1fr 84px 1.18fr 84px 1fr; gap: 0; align-items: stretch; }
     .bp-win { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-md);
       overflow: hidden; box-shadow: var(--sh-card); display: flex; flex-direction: column; height: 258px; }
@@ -666,7 +686,7 @@ a { color: inherit; }
     .bp-arrow svg { display: block; }
     .bp-arrow span { font: 11px/1 var(--font-mono); letter-spacing: .1em; color: var(--ink-3); }
 
-/* ---- 11-closing.html ---- */
+/* ---- 12-closing.html ---- */
 .cover { flex: 1; display: flex; flex-direction: column; }
     .cover__title { font: 600 var(--fs-h1)/1.28 var(--font-serif); letter-spacing: .02em; margin: 0; color: var(--ink); }
     .cover__line { display: block; }
@@ -1490,17 +1510,70 @@ body.ratio-4x3 #s16 .body { zoom: .70; }
         <p class="kv__v">管理后台 /admin<br>访问追踪 · 门禁 · 上下架</p>
       </div>
     </div>
-    <p class="bridge reveal" style="--d:480ms">系统分四层：<strong>创作 → 放映 → 导入导出 → 管理</strong>，先看总览。</p>
+    <p class="bridge reveal" style="--d:480ms">从零到放映其实只差<strong>一句话安装</strong>，下一屏就讲。</p>
   </div>
 
-  <aside class="notes">这是整套系统的使用说明，共十屏：总览、快速开始、放映操作、配色主题、创作规范、PPTX 导入、导出与质检、管理后台、文档索引。每一屏都是引擎渲染的活示例——边看边按方向键，就是在用它。</aside>
+  <aside class="notes">这是整套系统的使用说明，共十二屏：安装、AI 代工最佳实践、快速开始、总览、放映操作、配色主题、创作规范、PPTX 导入、导出与质检、管理后台、文档索引。每一屏都是引擎渲染的活示例——边看边按方向键，就是在用它。</aside>
 </section>
 
-<section class="slide" id="s02" data-title="最佳实践 · AI 代你写 deck" data-rail="上手">
+<section class="slide" id="s02" data-title="安装 · 发一个链接" data-rail="上手">
   
 
   <header class="head">
-    <p class="kicker">01 / BEST PRACTICE</p>
+    <p class="kicker">01 / INSTALL</p>
+    <h1 class="title">安装，就是<em>发一个链接</em></h1>
+    <p class="sub">把仓库地址发给任意 AI 客户端（WorkBuddy / ZCode / DeepSeek Harness / Codex），下载、装依赖、起服务全自动。</p>
+  </header>
+
+  <div class="body body--tight">
+    <div class="ins-grid">
+      <div class="ins-win reveal" style="--d:60ms">
+        <div class="ins-bar"><i></i><i></i><i></i><b>WorkBuddy — 会话</b></div>
+        <div class="ins-chat">
+          <div class="ins-msg ins-msg--user">
+            帮我装一套 DeckStage：<code>https://github.com/Rocky8080/deckstage</code><br>
+            克隆到本地、装好依赖、把展示台跑起来。浏览器能打开就算完成。
+          </div>
+          <div class="ins-msg ins-msg--ai">git clone https://github.com/Rocky8080/deckstage && cd deckstage</div>
+          <div class="ins-msg ins-msg--ai">pip install -r requirements.txt</div>
+          <div class="ins-msg ins-msg--ai">python3 tools/serve_deck.py
+<b>✓ 展示台已启动 → http://127.0.0.1:8899/</b>
+11 屏《使用说明》就在首页第一张卡片。</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div class="ins-cmd reveal" style="--d:160ms">
+          <p class="kv__k" style="margin-bottom: 12px;">等效手动命令（愿意自己敲的话）</p>
+          <pre>git clone https://github.com/Rocky8080/deckstage
+cd deckstage
+pip install -r requirements.txt
+
+python3 tools/serve_deck.py
+# → http://127.0.0.1:8899/</pre>
+        </div>
+        <ul class="list" style="margin:0;">
+          <li class="list__item reveal" style="--d:280ms"><i class="list__dot"></i>
+            <p class="list__txt">客户端不限：WorkBuddy / ZCode / DeepSeek Harness / Codex 都行</p></li>
+          <li class="list__item reveal" style="--d:370ms"><i class="list__dot"></i>
+            <p class="list__txt">服务只监听本机 127.0.0.1；公开分享经隧道 + 管理后台门禁</p></li>
+          <li class="list__item reveal" style="--d:460ms"><i class="list__dot"></i>
+            <p class="list__txt">纯创作与放映零依赖；PPTX 导入另需 LibreOffice（AI 会提示）</p></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="bridge reveal" style="--d:540ms">装好了？下一屏看<strong>最佳实践</strong>——一句话让 AI 替你写 deck。</p>
+  </div>
+
+  <aside class="notes">安装被做成一句话的事：把 GitHub 仓库地址发给 AI 客户端，让它克隆、装依赖、起服务，验收标准就是浏览器能打开展示台。右下是等效的手动命令，愿意自己敲也一样。服务只监听本机，想公开分享走隧道加管理后台的门禁。</aside>
+</section>
+
+<section class="slide" id="s03" data-title="最佳实践 · AI 代你写 deck" data-rail="上手">
+  
+
+  <header class="head">
+    <p class="kicker">02 / BEST PRACTICE</p>
     <h1 class="title">一句话需求，<em>AI 全程代工</em></h1>
     <p class="sub">这套《使用说明》本身就是这么做的：一个随手写的 Word，拖进 AI 客户端，右边就长出了你现在看的 deck。</p>
   </header>
@@ -1602,15 +1675,15 @@ body.ratio-4x3 #s16 .body { zoom: .70; }
       </div>
     </div>
 
-    <p class="bridge reveal" style="--d:460ms">客户端不限 WorkBuddy，<strong>ZCode / DeepSeek Harness / Codex</strong> 同样适用；这套说明也是这么生成的；接下来三条命令<strong>跑通全流程</strong>。</p>
+    <p class="bridge reveal" style="--d:460ms">客户端不限 WorkBuddy，<strong>ZCode / DeepSeek Harness / Codex</strong> 同样适用；这套说明也是这么生成的；想手动执行每一步，下一屏有<strong>完整命令清单</strong>。</p>
   </div>
 
   <aside class="notes">这是我自己的最佳实践，图上三步就是生成眼前这套说明的真实过程：左边是随手写的 Word 素材，文字加截图、不管排版；把它拖进 WorkBuddy，附一句话说明——屏数、slug、验收标准；右边 AI 调用本仓库工具链生成了你现在看的这套 deck。客户端不限 WorkBuddy，ZCode、DeepSeek Harness、Codex 都可以。关键：素材别管排版、委托说清验收、人只审效果。</aside>
 </section>
 
-<section class="slide" id="s03" data-title="快速开始" data-rail="上手">
+<section class="slide" id="s04" data-title="快速开始" data-rail="上手">
   <header class="head">
-    <p class="kicker">02 / QUICKSTART</p>
+    <p class="kicker">03 / QUICKSTART</p>
     <h1 class="title">五分钟，<em>跑通全流程</em></h1>
   </header>
 
@@ -1634,9 +1707,9 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
   <aside class="notes">五分钟上手：装 python 依赖，拼装示例 deck，聚合展示台，起本地服务。导入是可选项，需要 LibreOffice。日常创作时只跑 build.mjs 就够，刷新浏览器即见。</aside>
 </section>
 
-<section class="slide" id="s04" data-title="系统总览" data-rail="概览">
+<section class="slide" id="s05" data-title="系统总览" data-rail="概览">
   <header class="head">
-    <p class="kicker">03 / OVERVIEW</p>
+    <p class="kicker">04 / OVERVIEW</p>
     <h1 class="title">四个能力，<em>一条流水线</em></h1>
   </header>
 
@@ -1670,9 +1743,9 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
   <aside class="notes">四层能力：创作是写 HTML 源文件；放映是引擎负责的浏览器体验；导入导出解决与 PowerPoint 的双向流通；管理后台面向公开分享时的运营。数据流一行：源文件拼装成单文件 deck，本地服务起展示台，浏览器点开即放映。</aside>
 </section>
 
-<section class="slide" id="s05" data-title="放映操作 · 键盘与鼠标" data-rail="放映">
+<section class="slide" id="s06" data-title="放映操作 · 键盘与鼠标" data-rail="放映">
   <header class="head">
-    <p class="kicker">04 / PRESENTING</p>
+    <p class="kicker">05 / PRESENTING</p>
     <h1 class="title">放映，<em>全在指尖</em></h1>
   </header>
 
@@ -1704,9 +1777,9 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
   <aside class="notes">放映操作分键盘与鼠标两栏。引擎键：方向键空格翻页，G 总览、N 备注、F 全屏、R 画幅、S 留边、H 回展示台、Esc 逐层退出。鼠标：两侧边缘翻页、进度条跳屏。所有按键在任何焦点位置都生效。</aside>
 </section>
 
-<section class="slide" id="s06" data-title="配色主题 · 六套预设" data-rail="放映">
+<section class="slide" id="s07" data-title="配色主题 · 六套预设" data-rail="放映">
   <header class="head">
-    <p class="kicker">05 / THEMES</p>
+    <p class="kicker">06 / THEMES</p>
     <h1 class="title">六套配色，<em>一键切换</em></h1>
   </header>
 
@@ -1749,20 +1822,20 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
   <aside class="notes">配色主题由本地服务注入，六套预设覆盖同一套 tokens 变量。C 键循环或右下角配色按钮点选。想让自己的 deck 完整支持主题，创作时只用变量、不写死颜色。</aside>
 </section>
 
-<section class="slide" id="s07" data-title="创作规范 · 亲手写一屏" data-rail="创作">
+<section class="slide" id="s08" data-title="创作规范 · 亲手写一屏" data-rail="创作">
   <header class="head">
-    <p class="kicker">06 / AUTHORING</p>
+    <p class="kicker">07 / AUTHORING</p>
     <h1 class="title">一屏 = <em>一个 HTML 文件</em></h1>
   </header>
 
   <div class="body" style="display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: start;">
     <div class="card card--dark" style="padding: 22px 24px;">
       <p class="kv__k" style="margin-bottom: 12px;">src-sample/slides/06-authoring.html</p>
-      <pre style="margin:0; font: 12px/1.85 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" id="s07"
+      <pre style="margin:0; font: 12px/1.85 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" id="s08"
          data-title="创作规范"
          data-rail="创作"&gt;
   &lt;header class="head"&gt;
-    &lt;p class="kicker"&gt;06 / AUTHORING&lt;/p&gt;
+    &lt;p class="kicker"&gt;07 / AUTHORING&lt;/p&gt;
     &lt;h1 class="title"&gt;一屏 =
       &lt;em&gt;一个 HTML 文件&lt;/em&gt;&lt;/h1&gt;
   &lt;/header&gt;
@@ -1788,9 +1861,9 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
   <aside class="notes">创作模型：一屏一个文件放 src-slides 目录，类名体系见 docs/AUTHORING.md。左侧深色卡片就是本屏的真实源码。最关键的两条：高度预算不要超、颜色只用变量。</aside>
 </section>
 
-<section class="slide" id="s08" data-title="PPTX 导入 · 两条路径" data-rail="导入">
+<section class="slide" id="s09" data-title="PPTX 导入 · 两条路径" data-rail="导入">
   <header class="head">
-    <p class="kicker">07 / IMPORT</p>
+    <p class="kicker">08 / IMPORT</p>
     <h1 class="title">外部 PPTX，<em>一条流水线</em>进展示台</h1>
   </header>
 
@@ -1819,9 +1892,9 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
   <aside class="notes">两条导入路径：UI 向导与 CLI。六阶段里最关键的是补字层——LibreOffice 漏画的文字按原坐标补回来，可检索可复制。注意导入 API 只在本机开放，公网隧道一律 403。</aside>
 </section>
 
-<section class="slide" id="s09" data-title="导出与质检" data-rail="质检">
+<section class="slide" id="s10" data-title="导出与质检" data-rail="质检">
   <header class="head">
-    <p class="kicker">08 / EXPORT &amp; QA</p>
+    <p class="kicker">09 / EXPORT &amp; QA</p>
     <h1 class="title">能放出去，也<em>能带回来</em></h1>
   </header>
 
@@ -1851,9 +1924,9 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
   <aside class="notes">导出两条路：页面内一键导出可编辑 PPTX；build 时可产出全内联单机版 HTML。质检两条命令：check_slides 体检版式溢出，test_deck 自测放映交互。</aside>
 </section>
 
-<section class="slide" id="s10" data-title="管理后台 /admin" data-rail="管理">
+<section class="slide" id="s11" data-title="管理后台 /admin" data-rail="管理">
   <header class="head">
-    <p class="kicker">09 / ADMIN</p>
+    <p class="kicker">10 / ADMIN</p>
     <h1 class="title">管理后台：<em>/admin</em> 一站管理</h1>
   </header>
 
@@ -1890,12 +1963,12 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
   <aside class="notes">管理后台四块：访问追踪（内容与时长的逐屏统计）、密码门禁、上下架、安全边界。首次启动会打印一次初始管理密码，之后可在面板里改。追踪数据匿名，只记随机访客号。</aside>
 </section>
 
-<section class="slide slide--flush" id="s11" data-title="结尾 · 文档索引" data-rail="" data-nofoot>
+<section class="slide slide--flush" id="s12" data-title="结尾 · 文档索引" data-rail="" data-nofoot>
   
   <div class="cover">
     <div class="cover__main" style="margin-top: 110px; max-width: 980px;">
       <h1 class="cover__title reveal reveal--blur" style="--d:60ms">
-        <span class="cover__line">十屏讲完，</span>
+        <span class="cover__line">十一屏讲完，</span>
         <span class="cover__line">剩下交给文档</span>
       </h1>
       <div class="cover__rule grow-x" style="--d:380ms"></div>
@@ -1932,7 +2005,7 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
         <span class="cover__date mono"><a href="https://github.com/Rocky8080/deckstage" target="_blank" rel="noopener" style="color:inherit">github.com/Rocky8080/deckstage</a></span>
       </div>
       <div class="cover__stats">
-        <div class="cover__stat"><b class="num">10</b><i>屏使用说明</i></div>
+        <div class="cover__stat"><b class="num">12</b><i>屏使用说明</i></div>
         <div class="cover__stat"><b class="num">0</b><i>个前端构建依赖</i></div>
         <div class="cover__stat"><b class="num">100%</b><i>离线放映</i></div>
       </div>
