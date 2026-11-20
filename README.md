@@ -87,6 +87,17 @@ node build.mjs --src src-mine --deck my-deck
 
 适用边界：内容型汇报最适合这条路；需要严格品牌版式 / 合规模板时，走 PPTX 导入保真路径。
 
+## 二·六、版式骨架库（v1.4.0）
+
+![12 个页面骨架](docs/img/archetypes-12.jpg)
+
+12 个可直接抄的页面骨架：封面 / 目录 / 单观点 / 三并列 / 对照矩阵 / 过程链 / 阶梯 / 数据看板 / 分层架构 / 闭环 / 反例正例 / 收尾。每个都带适用信号、容量上限和反例，选型与反单调规则见 [LAYOUTS.md](capabilities/design-quality/LAYOUTS.md)。
+
+```bash
+node build.mjs --src src-archetypes --deck archetypes   # 12 屏画廊
+python3 tools/layout_audit.py --index decks/<slug>/index.html   # 骨架种数 / 相邻重复
+```
+
 ## 三、目录
 
 ```
