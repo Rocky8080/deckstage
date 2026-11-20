@@ -1236,6 +1236,12 @@ html[data-dtheme="ink-dark"] .ax-matrix__head { color: var(--ink-3); }
     .cover__stat { display: flex; align-items: baseline; gap: 8px; }
     .cover__stat b { font: 600 38px var(--font-mono); color: var(--green); }
     .cover__stat i { font: 12.5px/1.4 var(--font-sans); font-style: normal; color: var(--ink-3); }
+
+/* ---- 99-readability.html ---- */
+/* 可读性下限：示例 deck 的主说明 18px；文档索引等密集卡片保持原字号 */
+#s01 .kv__v, #s05 .kv__v, #s10 .kv__v { font-size: 18px !important; line-height: 1.55 !important; }
+.sub { font-size: 18px !important; line-height: 1.6 !important; }
+body.ratio-4x3 .sub { font-size: 16px !important; line-height: normal !important; }
 </style>
   <style>
 /* ===== _shared/deck.css（构建内联，改 src/css/deck.css 后重跑 build） ===== */
