@@ -36,8 +36,10 @@ def main():
         check("初始在第 1 屏", page.evaluate("() => window.__deck.index") == 0)
         check("第 1 屏为 is-active",
               page.evaluate("() => document.querySelector('.slide').classList.contains('is-active')"))
-        n_foot = page.evaluate("() => document.querySelectorAll('.foot').length")
-        check("页脚自动注入", n_foot >= total - 1, f"foot={n_foot}")
+        check("页脚自动注入", page.evaluate("""() =>
+          [...document.querySelectorAll('.slide:not([data-nofoot])')]
+            .every(slide => slide.querySelector(':scope > .foot'))
+        """))
         check("进度条段数 = 屏数",
               page.evaluate("() => document.querySelectorAll('.chrome__progress i').length") == total)
         check("总览卡片数 = 屏数",
@@ -60,13 +62,19 @@ def main():
         check("Home 回到第一屏", page.evaluate("() => window.__deck.index") == 0)
 
         # --- 4. 数字滚动落值 ---
-        page.evaluate("() => window.__deck.go(2)")  # s03 四个数字
-        page.wait_for_timeout(1800)
-        txt = page.evaluate("""() => {
-          const el = document.querySelector('#s03 [data-count="632"]');
-          return el ? el.textContent.trim() : null;
-        }""")
-        check("计数器落到 632", txt == "632", f"got {txt!r}")
+        counter = page.locator(".slide [data-count]").first
+        if counter.count():
+            expected = counter.evaluate("""el => {
+              const { count, dec = 0, prefix = '', suffix = '' } = el.dataset;
+              const slide = el.closest('.slide');
+              window.__deck.go([...document.querySelectorAll('.slide')].indexOf(slide));
+              return prefix + Number(count).toLocaleString('en-US', {
+                minimumFractionDigits: Number(dec), maximumFractionDigits: Number(dec)
+              }) + suffix;
+            }""")
+            page.wait_for_timeout(1800)
+            actual = counter.inner_text().strip()
+            check("计数器显示目标值", actual == expected.strip(), f"got {actual!r}, expected {expected!r}")
 
         # --- 5. 总览 ---
         page.keyboard.press("g")

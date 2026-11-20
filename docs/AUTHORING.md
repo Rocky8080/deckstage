@@ -116,3 +116,19 @@ python3 tools/check_slides.py --shots   # 同时截图到 /tmp/qa/，可以 read
 ```
 
 检查器会列出：超出画布的元素、body 溢出、图片 404、控制台报错。**必须清零再交付。**
+
+
+## 写作门禁（自动生效）
+
+`node build.mjs` / `node build.mjs --deck <slug>` 在构建前会调用
+`tools/frame.py audit`：
+
+- **P0**（无基准倍数 / 表格无结论 / 量纲未统一）→ 构建失败，不会产出 index.html
+- **P1/P2** → 只打印提示
+- 应急跳过：`--no-frame`（不推荐）
+
+新写一屏请从 `capabilities/causal-value-chain/slide-template.html` 复制，骨架已带
+「口径 · 基准 · 结论」注释、结论位 `.insight`、图注"看这里"三件套。
+
+写作方法和作者模板见 [因果链 / 价值链能力包](../capabilities/causal-value-chain/README.md)。
+出片前的对比度与强调色面积检查见 [设计质量检查](DESIGN.md)，可编辑导出的验证步骤见 [PPTX 导出](PPTX.md)。

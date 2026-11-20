@@ -632,7 +632,10 @@
         roundRectPath(ctx, 0, 0, ow, oh, r);
         ctx.clip();
       }
-      var useJpeg = !rounded && ow * oh > 120000 && !/\.(png|gif|svg|webp)(\?|#|$)/i.test(abs);
+      // data:image/svg+xml 不含 ".svg" 后缀；必须单独识别，否则会被误转成白底 JPEG，
+      // 透明 SVG 周围会出现白框，弧线后面也会盖一层白底。
+      var isSvg = /^data:image\/svg\+xml/i.test(abs) || /\.svg(\?|#|$)/i.test(abs);
+      var useJpeg = !rounded && !isSvg && ow * oh > 120000 && !/\.(png|gif|svg|webp)(\?|#|$)/i.test(abs);
       if (useJpeg) { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, ow, oh); }
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, ow, oh);
 
@@ -1273,7 +1276,12 @@
       for (var p = 0; p < SVG_INLINE_PROPS.length; p++) {
         var prop = SVG_INLINE_PROPS[p];
         var v = cs.getPropertyValue(prop);
-        if (v && v !== 'none' && v !== 'normal') decl += prop + ':' + v + ';';
+        // fill:none / stroke:none 必须保留；否则克隆 SVG 会回到浏览器默认的黑色填充。
+        if (prop === 'fill' || prop === 'stroke') {
+          if (v) decl += prop + ':' + v + ';';
+        } else if (v && v !== 'none' && v !== 'normal') {
+          decl += prop + ':' + v + ';';
+        }
       }
       var prev = cl.getAttribute('style');
       cl.setAttribute('style', decl + (prev || ''));
@@ -1476,7 +1484,9 @@
     for (var i = 0; i < models.length; i++) {
       var m = models[i];
       var slide = pptx.addSlide();
-      slide.bkgd = 'FFFFFF';
+      // 注意：pptxgenjs 3.x 里 slide.bkgd 会压过 slide.background；
+      // 先写 bkgd='FFFFFF' 会让所有页变成白底，纸色/深色页全部失真。
+      // 只在没有解析出背景时依赖默认白底，不要显式写 bkgd。
       if (m.background) {
         if (m.background.data) {
           slide.background = { data: m.background.data };
@@ -1489,28 +1499,68 @@
       for (var j = 0; j < m.items.length; j++) {
         var it = m.items[j];
         if (it.kind === 'text') {
-          var opts = {
-            x: it.box.x * PX_TO_IN,
-            y: it.box.y * PX_TO_IN,
-            w: Math.max(0.02, it.box.w * PX_TO_IN),
-            h: Math.max(0.02, it.box.h * PX_TO_IN),
-            align: it.align,
-            valign: 'top',
-            inset: 0,
-            margin: 0,
-            wrap: it.wrap !== false,
-            fit: 'none',
-            fontFace: it.fontFace,
-            fontSize: it.fontSize,
-            color: it.color
-          };
-          if (it.lineSpacing) opts.lineSpacing = it.lineSpacing;
-          try {
-            slide.addText(it.runs, opts);
-            stats.texts++;
-            for (var r = 0; r < it.runs.length; r++) stats.chars += it.runs[r].text.length;
-          } catch (e) {
-            m.warnings.push('文本写入失败：' + e.message);
+          // 多行文本拆成逐行文本框：pptxgenjs 3.x 遇到「换行后紧跟不同颜色 run」
+          // 会把后面的 run 拆成额外段落，导致最后一行溢出、和下一块文字重叠。
+          var textLines = [], curLine = [];
+          for (var tr = 0; tr < it.runs.length; tr++) {
+            var rr = it.runs[tr];
+            var parts = String(rr.text).split('\n');
+            for (var pp = 0; pp < parts.length; pp++) {
+              if (parts[pp].length) curLine.push({ text: parts[pp], options: rr.options });
+              if (pp < parts.length - 1) { textLines.push(curLine); curLine = []; }
+            }
+          }
+          if (curLine.length) textLines.push(curLine);
+          if (textLines.length > 1) {
+            var lineHIn = (it.lineSpacing ? it.lineSpacing / 72 : (it.fontSize || 16) * 1.22 / 72);
+            for (var li = 0; li < textLines.length; li++) {
+              var lineOpts = {
+                x: it.box.x * PX_TO_IN,
+                y: it.box.y * PX_TO_IN + li * lineHIn,
+                w: Math.max(0.02, it.box.w * PX_TO_IN),
+                h: Math.max(0.02, lineHIn),
+                align: it.align,
+                valign: 'top',
+                inset: 0,
+                margin: 0,
+                wrap: false,
+                fit: 'none',
+                fontFace: it.fontFace,
+                fontSize: it.fontSize,
+                color: it.color
+              };
+              try {
+                slide.addText(textLines[li], lineOpts);
+                stats.texts++;
+                for (var lr = 0; lr < textLines[li].length; lr++) stats.chars += textLines[li][lr].text.length;
+              } catch (e2) {
+                m.warnings.push('文本写入失败：' + e2.message);
+              }
+            }
+          } else {
+            var opts = {
+              x: it.box.x * PX_TO_IN,
+              y: it.box.y * PX_TO_IN,
+              w: Math.max(0.02, it.box.w * PX_TO_IN),
+              h: Math.max(0.02, it.box.h * PX_TO_IN),
+              align: it.align,
+              valign: 'top',
+              inset: 0,
+              margin: 0,
+              wrap: it.wrap !== false,
+              fit: 'none',
+              fontFace: it.fontFace,
+              fontSize: it.fontSize,
+              color: it.color
+            };
+            if (it.lineSpacing) opts.lineSpacing = it.lineSpacing;
+            try {
+              slide.addText(it.runs, opts);
+              stats.texts++;
+              for (var r = 0; r < it.runs.length; r++) stats.chars += it.runs[r].text.length;
+            } catch (e) {
+              m.warnings.push('文本写入失败：' + e.message);
+            }
           }
         } else if (it.kind === 'image') {
           var imgOpts = {

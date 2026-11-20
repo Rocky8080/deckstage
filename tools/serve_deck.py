@@ -77,9 +77,11 @@ class DeckHandler(SimpleHTTPRequestHandler):
 
     def end_headers(self):
         path = self.path.split("?")[0].lower()
-        if (path.endswith((".html", ".htm")) or path in ("/", "")
-                or path.startswith(("/api/", "/admin"))
-                or re.match(r"^/decks/[^/]+/?$", path)):
+        if path == "/api/admin/qr":
+            self.send_header("Cache-Control", "private, no-store")
+        elif (path.endswith((".html", ".htm")) or path in ("/", "")
+              or path.startswith(("/api/", "/admin"))
+              or re.match(r"^/decks/[^/]+/?$", path)):
             self.send_header("Cache-Control", "no-cache, must-revalidate")
         else:
             self.send_header("Cache-Control", "public, max-age=3600")
@@ -91,6 +93,78 @@ class DeckHandler(SimpleHTTPRequestHandler):
 
     COMPRESSIBLE = ("text/", "application/javascript", "application/json",
                     "application/xml", "image/svg+xml")
+
+    # ------------------------------------------------------------ 视频分段传输
+    def _serve_media(self, path, ctype, head_only=False):
+        """静态视频：支持 Range/206，浏览器可以流式加载。"""
+        try:
+            size = os.path.getsize(path)
+            mtime = os.path.getmtime(path)
+        except OSError:
+            return self.send_error(404, "Not Found")
+
+        start, end = 0, size - 1
+        status = 200
+        rng = (self.headers.get("Range") or "").strip()
+        if rng:
+            m = re.fullmatch(r"bytes=(\d*)-(\d*)", rng)
+            if not m:
+                self.send_response(416)
+                self.send_header("Content-Range", f"bytes */{size}")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            a, b = m.groups()
+            if a == "" and b == "":
+                self.send_response(416)
+                self.send_header("Content-Range", f"bytes */{size}")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            if a == "":
+                suffix = int(b)
+                if suffix <= 0:
+                    self.send_response(416)
+                    self.send_header("Content-Range", f"bytes */{size}")
+                    self.send_header("Content-Length", "0")
+                    self.end_headers()
+                    return
+                start = max(size - suffix, 0)
+            else:
+                start = int(a)
+                if b:
+                    end = min(int(b), size - 1)
+            if start >= size or start > end:
+                self.send_response(416)
+                self.send_header("Content-Range", f"bytes */{size}")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            status = 206
+
+        length = end - start + 1
+        self.send_response(status)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Last-Modified", formatdate(mtime, usegmt=True))
+        self.send_header("Accept-Ranges", "bytes")
+        self.send_header("Content-Length", str(length))
+        if status == 206:
+            self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
+        self.end_headers()
+        if head_only:
+            return
+        try:
+            with open(path, "rb") as fh:
+                fh.seek(start)
+                remaining = length
+                while remaining > 0:
+                    chunk = fh.read(min(64 * 1024, remaining))
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+                    remaining -= len(chunk)
+        except (BrokenPipeError, ConnectionResetError, OSError):
+            pass
 
     def _serve(self, head_only=False):
         # /decks/<slug> → /decks/<slug>/（避免相对路径解析出错）
@@ -143,13 +217,17 @@ class DeckHandler(SimpleHTTPRequestHandler):
         if not os.path.isfile(path):
             return self.send_error(404, "Not Found")
 
+        ctype = self.guess_type(path)
+        # 视频走 Range / 206，浏览器可以边下边播，不必先下完整个文件。
+        if ctype.startswith("video/"):
+            return self._serve_media(path, ctype, head_only)
+
         try:
             with open(path, "rb") as fh:
                 data = fh.read()
         except OSError:
             return self.send_error(404, "Not Found")
 
-        ctype = self.guess_type(path)
         rel = os.path.relpath(path, self.directory)
         # decks.json 同步剔除下架 deck（公网直拉元数据也不泄漏）
         if rel == "decks.json" and self.command == "GET":
@@ -374,6 +452,29 @@ class DeckHandler(SimpleHTTPRequestHandler):
                                              "visits": st.recent_visits((q.get("limit") or ["100"])[0], visitor)})
         if path == "/api/admin/visitors":
             return self._json_response(200, {"ok": True, "visitors": st.visitor_stats()})
+        if path == "/api/admin/qr":
+            # 生成分享用二维码（PNG），t=内容 url，s=像素边长
+            q = parse_qs(urlparse(self.path).query)
+            text = (q.get("t") or [""])[0]
+            try:
+                size = max(120, min(640, int((q.get("s") or ["320"])[0])))
+            except ValueError:
+                size = 320
+            if not text:
+                return self._json_response(400, {"ok": False, "error": "缺少 t 参数"})
+            if len(text) > 900:
+                return self._json_response(400, {"ok": False, "error": "二维码内容过长"})
+            try:
+                import io
+                import segno
+                qr = segno.make(text, error="m")
+                buf = io.BytesIO()
+                qr.save(buf, kind="png", scale=max(3, size // 33), border=2,
+                        dark="#14201B", light="#FFFFFF")
+                data = buf.getvalue()
+            except Exception as exc:                                   # noqa: BLE001
+                return self._json_response(500, {"ok": False, "error": f"二维码生成失败：{exc}"})
+            return self._send_bytes(200, "image/png", data)
         if path == "/api/admin/decks":
             stats = st.deck_stats()
             hcfg = st.deck_cfg("__library")

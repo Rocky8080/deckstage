@@ -300,6 +300,35 @@ _ADMIN = """<!doctype html>
     font:13px/1 var(--sans); outline:none; }
   .foot { margin-top:52px; padding-top:18px; border-top:1px solid var(--line); font-family:var(--mono);
     font-size:11px; letter-spacing:.08em; color:var(--ink-4); }
+
+  /* 分享 */
+  .mini.share { border-color:rgba(30,91,71,.35); color:var(--green); }
+  .mini.share:hover { background:rgba(30,91,71,.08); }
+  #shareMask { position:fixed; inset:0; background:rgba(16,24,20,.55); backdrop-filter:blur(3px);
+    display:none; align-items:center; justify-content:center; padding:24px; z-index:50; }
+  #shareMask.on { display:flex; }
+  .sharePanel { width:min(880px,100%); max-height:92vh; overflow:auto; background:var(--paper);
+    border:1px solid var(--line); border-radius:18px; box-shadow:0 30px 80px rgba(10,20,15,.35); }
+  .shareHead { display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:20px 24px 14px; border-bottom:1px solid var(--line); }
+  .shareHead h3 { margin:0; font-family:var(--serif); font-size:20px; font-weight:600; }
+  .shareHead .x { border:0; background:transparent; font-size:22px; line-height:1; cursor:pointer; color:var(--ink-3); }
+  .shareHead .x:hover { color:var(--ink); }
+  .shareBody { padding:20px 24px 24px; display:grid; gap:18px; }
+  .shareRow { display:flex; gap:10px; align-items:center; }
+  .shareRow input { flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+    background:#fff; font:12.5px/1.4 var(--mono); color:var(--ink-2); outline:none; }
+  .shareRow input:focus { border-color:var(--green); }
+  .sharePreview { display:flex; justify-content:center; background:#EDE9DF; border:1px solid var(--line);
+    border-radius:14px; padding:14px; }
+  .sharePreview canvas { width:100%; max-width:340px; height:auto; border-radius:10px;
+    box-shadow:0 10px 28px rgba(20,32,27,.14); background:#fff; }
+  .shareActions { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+  .shareActions .btn:disabled { opacity:.55; cursor:default; }
+  .shareHint { font:11.5px/1.6 var(--mono); color:var(--ink-4); letter-spacing:.04em; }
+  @media (max-width:720px) { .shareBody { padding:16px; } .shareActions { justify-content:stretch; }
+    .shareActions .btn { flex:1; } }
+
   @media (max-width: 720px) { .wrap { padding:30px 16px 56px; } h1 { font-size:28px; }
     .editgrid { grid-template-columns:1fr; } }
 </style></head><body>
@@ -350,6 +379,29 @@ _ADMIN = """<!doctype html>
   </main>
 </div>
 
+
+<div id="shareMask">
+  <div class="sharePanel" role="dialog" aria-modal="true" aria-label="分享">
+    <div class="shareHead">
+      <h3 id="shareTitle">分享</h3>
+      <button class="x" id="shareClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="shareBody">
+      <div class="shareRow">
+        <input id="shareUrl" type="url" aria-label="分享链接" spellcheck="false">
+        <button class="btn pri" id="shareCopy">复制链接</button>
+      </div>
+      <div class="sharePreview"><canvas id="shareCanvas" width="2160" height="2700"></canvas></div>
+      <div class="shareRow" style="justify-content:space-between">
+        <span class="shareHint" id="shareHint" role="status"></span>
+        <div class="shareActions">
+          <button class="btn" id="shareOpen">打开链接</button>
+          <button class="btn pri" id="shareDownload">下载卡片</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 (function () {
   'use strict';
@@ -390,6 +442,16 @@ _ADMIN = """<!doctype html>
       else $('#loginErr').textContent = (r && r.error) || '密码不对';
     }).catch(function () { $('#loginErr').textContent = '网络错误'; });
   }
+  $('#shareClose').addEventListener('click', closeShare);
+  $('#shareMask').addEventListener('click', function (e) { if (e.target === $('#shareMask')) closeShare(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeShare(); });
+  $('#shareUrl').addEventListener('input', drawCard);
+  $('#shareCopy').addEventListener('click', copyShareUrl);
+  $('#shareDownload').addEventListener('click', downloadCard);
+  $('#shareOpen').addEventListener('click', function () {
+    var link = shareLink();
+    if (link) window.open(link.href, '_blank', 'noopener');
+  });
   $('#loginBtn').addEventListener('click', tryLogin);
   $('#pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') tryLogin(); });
 
@@ -400,6 +462,227 @@ _ADMIN = """<!doctype html>
     setInterval(function () { if (document.visibilityState === 'visible' && !$('#panel').hidden) refresh(); }, 30000);
   }
   var OVW = null;
+
+  /* ---------- 分享 ---------- */
+  var SHARE = null;      // 当前分享的 deck
+  var SHARE_HINT = '手机竖版 4:5 · 封面 + 标题 + 二维码 · 链接可改（改后自动重绘）';
+  function shareLink() {
+    try {
+      var link = new URL($('#shareUrl').value.trim());
+      if (link.protocol === 'http:' || link.protocol === 'https:') return link;
+    } catch (e) { /* 输入中的链接可能尚未完整 */ }
+    return null;
+  }
+  function deckUrl(slug) {
+    return location.origin + (slug === '__library' ? '/' : '/decks/' + slug + '/');
+  }
+  function openShare(slug, title, n, sub, ver, tags) {
+    SHARE = { slug: slug, title: title, n: n, sub: sub || '', ver: ver || '', tags: tags || [] };
+    var url = deckUrl(slug);
+    $('#shareTitle').textContent = '分享 · ' + title;
+    $('#shareUrl').value = url;
+    $('#shareMask').classList.add('on');
+    drawCard();
+  }
+  function closeShare() {
+    $('#shareMask').classList.remove('on');
+    SHARE = null;
+  }
+  function loadImg(src) {
+    return new Promise(function (res) {
+      var im = new Image(); im.crossOrigin = 'anonymous';
+      im.onload = function () { res(im); }; im.onerror = function () { res(null); };
+      im.src = src;
+    });
+  }
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+  function wrapText(c, text, x, y, maxW, lh, maxLines) {
+    var line = '', lines = [];
+    for (var i = 0; i < text.length; i++) {
+      var t = line + text[i];
+      if (c.measureText(t).width > maxW && line) { lines.push(line); line = text[i]; }
+      else line = t;
+      if (lines.length === maxLines) break;
+    }
+    if (lines.length < maxLines && line) lines.push(line);
+    else if (lines.length === maxLines && (line || text.length)) {
+      var last = lines[maxLines - 1];
+      if (last.length > 1) lines[maxLines - 1] = last.slice(0, last.length - 1) + '…';
+    }
+    lines.forEach(function (l, i) { c.fillText(l, x, y + i * lh); });
+    return lines.length;
+  }
+  function drawCard() {
+    var share = SHARE;
+    if (!share) return;
+    var link = shareLink();
+    var url = link ? link.href : '';
+    $('#shareOpen').disabled = !link;
+    $('#shareDownload').disabled = true;
+    $('#shareHint').textContent = link ? SHARE_HINT : '请输入完整的 HTTP 或 HTTPS 分享链接';
+    var cv = $('#shareCanvas'), c = cv.getContext('2d');
+    var gen = (share.gen = (share.gen || 0) + 1);
+    var W = 1080, H = 1350, S = 2;
+    c.setTransform(S, 0, 0, S, 0, 0);
+    c.clearRect(0, 0, W, H);
+
+    var isLib = share.slug === '__library';
+    var zh = /[\u4e00-\u9fff]/.test(share.title + share.sub);
+    var PAPER = '#F7F3EA';
+    var coverH = Math.round(H * 0.62);
+    var M = 56;
+
+    c.fillStyle = PAPER; c.fillRect(0, 0, W, H);
+
+    function body(im) {
+      if (share !== SHARE || gen !== share.gen) return;
+
+      // ——— 页面 1：封面满幅 ———
+      c.save();
+      c.beginPath(); c.rect(0, 0, W, coverH); c.clip();
+      if (isLib) {
+        // 纸张底字体封面（与站点同一气质，无深色块）
+        c.fillStyle = PAPER; c.fillRect(0, 0, W, coverH);
+        c.fillStyle = 'rgba(30,91,71,.06)';
+        for (var gi = 1; gi < 12; gi++) c.fillRect(0, gi * (coverH / 12), W, 1);
+        c.fillStyle = 'rgba(30,91,71,.10)';
+        c.beginPath(); c.arc(W - 60, 120, 230, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#1E5B47';
+        c.font = '600 13px ui-monospace,SFMono-Regular,Menlo,monospace';
+        c.fillText('DECK STAGE  ·  PRESENTATION LIBRARY', M, 120);
+        c.fillStyle = '#14201B';
+        c.font = '600 86px "Songti SC","Noto Serif SC",Georgia,serif';
+        c.fillText('PPT 展示台', M, coverH * 0.52);
+        var totalAll = DECKS.filter(function (x) { return x.slug !== '__library'; })
+                            .reduce(function (a, x) { return a + (x.n_slides || 0); }, 0);
+        c.fillStyle = '#5C6B63';
+        c.font = '22px -apple-system,"PingFang SC",sans-serif';
+        c.fillText((DECKS.length - 1) + ' 套幻灯片 · ' + totalAll + ' 屏 · 打开即放映', M, coverH * 0.52 + 56);
+      } else if (im) {
+        var rs = Math.max(W / im.width, coverH / im.height);
+        c.drawImage(im, 0, (coverH - im.height * rs) / 2, im.width * rs, im.height * rs);
+      }
+      // 封面顶部信息：标签 + 状态（补充上半部分）
+      if (!isLib) {
+        var seen = {};
+        var chips = [zh ? '中文' : 'EN'].concat(share.tags)
+          .filter(function (x) { if (!x || seen[x]) return false; seen[x] = 1; return true; })
+          .slice(0, 3).join('   ·   ');
+        c.font = '600 13px ui-monospace,SFMono-Regular,Menlo,monospace';
+        c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 10;
+        c.fillStyle = 'rgba(255,255,255,.92)';
+        c.textAlign = 'right';
+        c.fillText(chips, W - M, 78);
+        c.textAlign = 'left';
+        c.shadowColor = 'transparent'; c.shadowBlur = 0;
+      }
+      // 底部渐隐
+      var g = c.createLinearGradient(0, coverH - 200, 0, coverH);
+      g.addColorStop(0, 'rgba(247,243,234,0)');
+      g.addColorStop(1, PAPER);
+      c.fillStyle = g; c.fillRect(0, coverH - 200, W, 200);
+      c.restore();
+
+      // ——— 页面 2：标题 ———
+      var title = share.title, subtitle = share.sub;
+      if (isLib) {
+        var others = DECKS.filter(function (x) { return x.slug !== '__library'; });
+        title = '全部幻灯片';
+        subtitle = others.slice(0, 3).map(function (x) { return x.title; }).join('  ·  ') +
+                    (others.length > 3 ? '  等 ' + others.length + ' 套' : '');
+      }
+      var y = coverH + 42;
+      c.fillStyle = '#14201B';
+      c.font = '600 50px "Songti SC","Noto Serif SC",Georgia,serif';
+      var lines = wrapText(c, title, M, y + 44, W - M * 2, 64, 2);
+      y += 44 + (lines - 1) * 64;
+      if (subtitle) {
+        y += 44;
+        c.fillStyle = '#5C6B63';
+        c.font = '20px -apple-system,"PingFang SC","Helvetica Neue",sans-serif';
+        wrapText(c, subtitle, M, y, W - M * 2, 30, 2);
+      }
+
+      if (!link) return;
+      // ——— 页面 3：二维码（放大）+ 右侧信息列 ———
+      var qs = 190;
+      var qx = M, qy = H - 120 - qs;
+      loadImg('/api/admin/qr?s=' + (qs * 3) + '&t=' + encodeURIComponent(url)).then(function (qr) {
+        if (share !== SHARE || gen !== share.gen) return;
+        if (qr) c.drawImage(qr, qx, qy, qs, qs);
+
+        var lx = qx + qs + 34;
+        c.fillStyle = '#8A9490';
+        c.font = '600 13px ui-monospace,SFMono-Regular,Menlo,monospace';
+        c.fillText(zh ? '扫码打开' : 'SCAN TO OPEN', lx, qy + 44);
+        c.fillStyle = '#14201B';
+        c.font = '20px ui-monospace,SFMono-Regular,Menlo,monospace';
+        var shown = url.slice(link.protocol.length + 2);
+        var maxW = W - M - lx;
+        while (c.measureText(shown).width > maxW && shown.length > 10) shown = shown.slice(0, -2) + '…';
+        c.fillText(shown, lx, qy + 84);
+
+        // 右侧信息列（屏数 / 版本 / 类型）
+        var rx = W - M, ry = qy + 52;
+        c.textAlign = 'right';
+        var facts = [];
+        if (share.n) facts.push([(share.n + (zh ? ' 屏' : ' slides')), '600 38px "Songti SC","Noto Serif SC",Georgia,serif', '#14201B']);
+        if (share.ver) facts.push([share.ver, '600 13px ui-monospace,SFMono-Regular,Menlo,monospace', '#8A9490']);
+        if (share.tags.length) facts.push([share.tags.join(' · '), '600 12px ui-monospace,SFMono-Regular,Menlo,monospace', '#9BA79F']);
+        facts.forEach(function (f) {
+          c.fillStyle = f[2]; c.font = f[1];
+          c.fillText(f[0], rx, ry);
+          ry += parseFloat(f[1].match(/([0-9]+)px/)[1]) + 16;
+        });
+        c.textAlign = 'left';
+
+        // 页脚
+        var foot = isLib ? 'PRESENTATION LIBRARY' : 'PRESENTATION';
+        c.fillStyle = '#9BA79F';
+        c.font = '12px ui-monospace,SFMono-Regular,Menlo,monospace';
+        c.fillText(foot, M, H - 54);
+        c.textAlign = 'right';
+        c.fillText(link.host, W - M, H - 54);
+        c.textAlign = 'left';
+        $('#shareDownload').disabled = !qr;
+        if (!qr) $('#shareHint').textContent = '二维码生成失败，请检查链接或刷新重试';
+      });
+    }
+
+    if (isLib) body(null);
+    else loadImg('/decks/' + share.slug + '/thumb.jpg?v=' + Date.now()).then(body);
+  }
+  function copyShareUrl() {
+    var v = $('#shareUrl').value.trim();
+    function done() { var b = $('#shareCopy'); var t = b.textContent; b.textContent = '✓ 已复制';
+      setTimeout(function () { b.textContent = t; }, 1400); }
+    if (navigator.clipboard && window.isSecureContext !== false) {
+      navigator.clipboard.writeText(v).then(done).catch(fallback);
+    } else fallback();
+    function fallback() { var i = $('#shareUrl'); i.select(); document.execCommand('copy'); done(); }
+  }
+  function downloadCard() {
+    // 2× 画布绘制 → 导出时缩回 1080×1350，文件小、手机上够清晰
+    var src = $('#shareCanvas');
+    var filename = (SHARE.slug === '__library' ? 'library' : SHARE.slug) + '-share.jpg';
+    var out = document.createElement('canvas');
+    out.width = 1080; out.height = 1350;
+    var oc = out.getContext('2d');
+    oc.imageSmoothingQuality = 'high';
+    oc.drawImage(src, 0, 0, out.width, out.height);
+    out.toBlob(function (blob) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    }, 'image/jpeg', 0.88);
+  }
+
   function refresh() {
     api('/api/admin/overview').then(function (r) { if (r && r.ok) { OVW = r.stats; renderOvw(r.stats); renderVisitorStats(); } });
     api('/api/admin/decks').then(function (r) { if (r && r.ok) { DECKS = r.decks; renderDecks(r.decks); renderDeckSel(r.decks); } });
@@ -412,7 +695,7 @@ _ADMIN = """<!doctype html>
     $('#visitorStats').innerHTML =
       '<span>今日新访客 <b>' + OVW.new_today + '</b></span> · ' +
       '<span>7 日内新访客 <b>' + OVW.new_7d + '</b></span> · ' +
-      '<span>老访客（回访）<b>' + OVW.returning + '</b></span>';
+      '<span>首访早于近 7 日 <b>' + OVW.returning + '</b></span>';
   }
   function renderVisitors(list) {
     if (!list.length) { $('#visitorBox').innerHTML = '<p class="empty">还没有访客数据。</p>'; return; }
@@ -486,6 +769,7 @@ _ADMIN = """<!doctype html>
         '<td class="num">' + ago(st.last || 0) + '</td>' +
         '<td><div class="rowbtns">' +
           (isLib ? '' : '<button class="mini act-en">' + (d.enabled ? '下架' : '上架') + '</button>') +
+          '<button class="mini share act-share">分享</button>' +
           '<button class="mini act-pw">' + (d.locked ? '改密码' : '设密码') + '</button>' +
           (d.locked ? '<button class="mini danger act-rm">移除密码</button>' : '') +
         '</div></td></tr>';
@@ -497,6 +781,17 @@ _ADMIN = """<!doctype html>
     var btn = e.target.closest('button'); if (!btn) return;
     var tr = e.target.closest('tr[data-slug]'); if (!tr) return;
     var slug = tr.getAttribute('data-slug');
+    if (btn.classList.contains('act-share')) {
+      var d0 = DECKS.filter(function (x) { return x.slug === slug; })[0] || {};
+      if (slug === '__library') {
+        var others = DECKS.filter(function (x) { return x.slug !== '__library'; });
+        var totalSlides = others.reduce(function (a, x) { return a + (x.n_slides || 0); }, 0);
+        openShare(slug, 'PPT 展示台', totalSlides, '', '', [others.length + ' 套']);
+      } else {
+        openShare(slug, d0.title || slug, d0.n_slides || 0, d0.subtitle, d0.version, d0.tags);
+      }
+      return;
+    }
     if (btn.classList.contains('act-en')) {
       api('/api/admin/deck', { method:'POST', body: JSON.stringify({ slug: slug, enabled: btn.textContent === '下架' ? false : true }) })
         .then(function (r) { if (!r.ok) alert(r.error || '操作失败'); refresh(); });

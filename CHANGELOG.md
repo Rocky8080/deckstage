@@ -4,6 +4,22 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.3.0] - 2026-11-20
+
+### 新增
+
+- 管理后台可为展示台首页或单套 deck 复制链接、生成二维码并下载竖版分享卡片。链接使用当前站点，可在生成卡片前编辑。详见 [管理后台](docs/ADMIN.md)。
+- 展示台首页可独立设访问密码，单套 deck 继续使用各自的门禁。访客分析按浏览器访客 ID 聚合访问次数、停留、浏览内容及 IP，可展开查看单次访问记录。
+- 新增写作审查命令 `frame` 和一键安装脚本。构建时默认运行表达检查，检测到 P0 即停止，P1、P2 提示后继续。详见 [写作能力包](capabilities/causal-value-chain/README.md)。
+- 新增 16:9 和 4:3 视觉检查，检查文字对比度、低对比大字和强调色面积。新增 PPTX 导出检查，实际下载文件并比对纯色背景和页数。详见 [设计检查](docs/DESIGN.md)和 [PPTX 导出](docs/PPTX.md)。
+- 静态视频支持 HTTP 单段字节范围请求，浏览器可按需加载和拖动进度。
+
+### 改进与修复
+
+- 用 `node build.mjs --deck <slug>` 构建后尝试重拍该套缩略图并刷新展示台。缩略图地址随文件更新时间变化，浏览器可加载新版封面。
+- 可编辑 PPTX 保留网页的纸色与深色背景，透明内联 SVG 按 PNG 导出，多行文本逐行写为可编辑文本框。
+- 提高亮色和深色主题中的橙棕与金色标签对比度，修正示例的 4:3 版面溢出。README 增加展示台、放映和深色主题实拍图。
+
 ## [1.2.0] - 2026-11-17
 
 ### 新增：deck 配色主题（六套预设一键切换）
@@ -49,9 +65,6 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
   可配门禁页提示语）与上下架 —— 下架后 `decks/<slug>/` 整目录 404，
   `library.html` 与 `decks.json` 服务端每请求实时过滤并即时生效；加密 deck 的缩略图
   换为占位图，内容不出网。
-- **展示台首页门禁**：管理端「展示台首页」行可设密码（默认所有人可访问）。设密码后
-  直接访问 `/`、`/library.html`、`/decks.json`（401）或从 deck 按返回首页，都会被
-  门禁页拦下；各 deck 直链的独立门禁不受影响。
 - **安全边界**：`/api/track/*`、`/api/access`、`/api/admin/*` 公网可达但分别有
   登录限流（10 分钟 8 次）与追踪 init 限流；导入 API 的本机 `Host` 守卫保持不变。
   运行时数据全部落在 `data/`（gitignore）：`admin.json`（密码哈希 + Cookie 签名密钥，
@@ -76,6 +89,7 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.3.0]: https://github.com/Rocky8080/deckstage/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Rocky8080/deckstage/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/Rocky8080/deckstage/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/Rocky8080/deckstage/releases/tag/v1.0.0
+[1.1.0]: https://github.com/Rocky8080/deckstage/compare/dce5a61...v1.1.0
+[1.0.0]: https://github.com/Rocky8080/deckstage/commit/dce5a61

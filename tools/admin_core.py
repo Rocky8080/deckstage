@@ -345,6 +345,9 @@ class Store:
             m = _RE_DT.search(text)
             out.append({"slug": name,
                         "title": meta.get("title") or (m.group(1) if m else name),
+                        "subtitle": meta.get("subtitle") or "",
+                        "version": meta.get("version") or meta.get("date") or "",
+                        "tags": meta.get("tags") or [],
                         "n_slides": slides})
         return out
 

@@ -1,6 +1,6 @@
 # 管理后台 /admin
 
-`tools/serve_deck.py` 内置的管理面：访问追踪、deck 门禁（密码 / 下架）。由服务端动态实现，
+`tools/serve_deck.py` 内置的管理面：访问追踪、访客分析、门禁、上下架与分享。由服务端动态实现，
 **不需要重新 build** —— 开关即时生效。
 
 ## 启动与登录
@@ -21,6 +21,7 @@ DECK_ADMIN_PASSWORD=xxx python3 tools/serve_deck.py  # 首次初始化用环境�
 | --- | --- |
 | 概览 | 累计访问 / 独立访客 / 总观看时长 / 今日 / 近 7 天 |
 | 内容管理 | 每个 deck：上架 ⇄ 下架（前端立即消失并 404）、设置 / 移除访问密码 + 门禁页提示语 |
+| 访客分析 | 按浏览器访客 ID 查看首次及最近访问、停留、内容和 IP，可展开单次访问。新访客按首次访问是否在最近 7 天划分 |
 | 逐屏热度 | 按内容查看每屏进入次数、平均 / 总停留（热度条） |
 | 访问记录 | 最近 100 条：时间、内容、时长、看到第几屏、访客、IP、客户端、来源 |
 
@@ -29,7 +30,7 @@ DECK_ADMIN_PASSWORD=xxx python3 tools/serve_deck.py  # 首次初始化用环境�
 ## 追踪机制
 
 - 展示台首页与每个 deck 的 HTML 由服务端注入追踪脚本（`?export=1` 的本机缩略图采集不注入）。
-- 访客 id 是 `localStorage` 里的随机 UUID，无任何个人身份信息。
+- 访客 ID 是 `localStorage` 中的随机 UUID。同一个浏览器更换访问 IP 时，记录仍可归入同一个访客 ID。记录还包含来源、客户端和观看时长。
 - 每 1 秒累计一次「页面可见」时间（后台标签页不计），每 15 秒批量上报；翻页时逐屏停留
   归属到对应屏（slide 序号取自引擎写的 `location.hash`）。
 - 接口：`POST /api/track/init`（建 visit）、`/api/track/beat`、`/api/track/end`
@@ -54,7 +55,8 @@ DECK_ADMIN_PASSWORD=xxx python3 tools/serve_deck.py  # 首次初始化用环境�
 | 方法 | 路径 | 鉴权 |
 | --- | --- | --- |
 | POST | `/api/admin/login` / `logout` / `password` | 密码 / 登录态 |
-| GET | `/api/admin/session` · `overview` · `visits` · `decks` · `slides` | 登录态（session 除外） |
+| GET | `/api/admin/session` · `overview` · `visits` · `visitors` · `decks` · `slides` | 登录态（session 除外） |
+| GET | `/api/admin/qr?t=<链接>&s=<尺寸>`，返回 PNG | 登录态 |
 | POST | `/api/admin/deck`（`{slug, enabled?, password?, hint?}`）· `stats/clear` | 登录态 |
 | POST | `/api/track/init` · `beat` · `end` | 公网（限流） |
 | POST | `/api/access` `{deck, password}` | 公网（限流） |
@@ -67,3 +69,12 @@ admin / track / access 不受导入 API 的本机 Host 守卫影响（那道守�
 - `admin.json` — 管理密码哈希、cookie 签名密钥
 - `access.json` — 各 deck 的 `enabled` / 密码哈希 / 提示语
 - `tracking.db` — 访问与逐屏统计
+
+## 分享
+
+在「内容管理」点展示台首页或单套 deck 旁的 **分享**。默认链接使用当前访问后台的站点地址。
+如果用本机地址打开后台，可在分享面板将链接改为受众可访问的地址，卡片预览与二维码会随之更新。
+
+- **复制链接**将地址复制到剪贴板，**打开链接**可预览访问者会看到的页面。
+- **下载卡片**保存 1080×1350 像素的竖版 JPG。单套 deck 卡片包含封面、标题、副标题、二维码和可用的屏数、版本及标签。展示台首页卡片使用展示台标题和内容摘要。
+- 生成二维码需要登录后台并安装 `requirements.txt` 中的 Segno。收件人打开链接时，页面仍按该内容的上架状态与门禁设置处理。对于加密内容，下载的卡片本身仍可能包含封面，转发前请检查预览。

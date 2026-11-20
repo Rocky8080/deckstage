@@ -19,24 +19,29 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 | **HTML 创作** | 一屏一个 HTML 文件，类名体系见 [docs/AUTHORING.md](docs/AUTHORING.md)；`reveal` 入场动效、数字滚动、演讲备注、导轨分章 |
 | **PPTX 导入** | 外部 PowerPoint 经六阶段 pipeline 自动转换（体检 → 字体 → 版式预修 → LibreOffice 渲染 → 补字层 → 组装），详见 [docs/IMPORT.md](docs/IMPORT.md) |
 | **展示台** | `library.html` 缩略图墙聚合所有 deck；`serve_deck.py` 本地起服务后右上角可「＋ 导入 PPTX」（四步向导，仅限本机） |
-| **管理后台** | `/admin/` 访问追踪（逐屏时长 / 来源 / 访客）· deck 密码门禁与上下架（即时生效），见 [docs/ADMIN.md](docs/ADMIN.md) 与 [CHANGELOG.md](CHANGELOG.md) |
+| **管理后台** | `/admin/` 支持访客分析、首页与 deck 门禁、内容上下架、分享链接与二维码卡片。详见 [管理后台](docs/ADMIN.md) |
 | **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（六套预设含深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
-| **导出** | 页面内一键导出可编辑 PPTX（pptxgenjs）；构建时可产出全内联的单机版 HTML |
-| **QA 工具** | 溢出/截断/重叠检查、放映交互自测、逐屏截图（见下文「质检」） |
+| **导出** | 页面内导出可编辑 PPTX，保留纯色背景与内联 SVG 的透明度。构建也可产出全内联的单机版 HTML。详见 [PPTX 导出](docs/PPTX.md) |
+| **质检** | 检查表达、版面、视觉对比度与 PPTX 导出，支持放映交互自测和逐屏截图 |
 
-零前端构建依赖：`build.mjs` 只用 Node 标准库；第三方运行时落盘在 `vendor/`（离线可用，不依赖 CDN）。
+`build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
+
+v1.3.0 的变更详见 [发布日志](CHANGELOG.md#130---2026-11-20)。
 
 ## 二、快速开始
 
 ```bash
-# 0) 依赖：Node ≥ 18（拼装）；放映与创作到此为止，浏览器打开即可。
-#    PPTX 导入另需：LibreOffice + Python 3.9+ 工具链：
-pip install -r requirements.txt
+# 0) 安装 Python 工具链、DSH 写作能力和 frame 命令
+python3 -m venv .venv
+source .venv/bin/activate
+./install.sh
+
+#    依赖已就绪，单独安装写作能力：./install.sh --no-deps
+#    只安装 Python 工具链：python3 -m pip install -r requirements.txt
 
 # 1) 拼装示例 deck 并起展示台
 #    sample-deck 是 12 屏《使用说明》：安装 / 最佳实践 / 放映 / 配色 / 创作 / 导入 / 管理
 node build.mjs --src src-sample --deck sample-deck
-python3 tools/build_library.py            # 生成 decks.json / library.html / 缩略图
 python3 tools/serve_deck.py               # → http://127.0.0.1:8899/
 
 # 2) 导入你自己的 PPTX（二选一）
@@ -49,7 +54,8 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
 node build.mjs --src src-mine --deck my-deck
 ```
 
-> 缩略图 / QA 需要 Chrome（Playwright 走 `channel="chrome"`）；PPTX 渲染需要 LibreOffice。
+运行需要 Node 18+、Python 3.9+。缩略图和浏览器质检需要 Chrome，PPTX 导入需要 LibreOffice。
+构建会尝试刷新缩略图和展示台。服务启动后可运行 `python3 tools/build_library.py --deck sample-deck` 重拍封面。
 
 ### 使用图例
 
@@ -97,20 +103,30 @@ tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md�
   pptx_*.py                  渲染前的版式预修工具链（nowrap / 缩字 / prefit / 字距…）
   check_slides.py            溢出 / 截断 / 重叠 / 图片 / 控制台报错体检
   test_deck.py               放映交互自测
-docs/                      AUTHORING（版式规范）/ DECK_SPEC（交互规范）/ IMPORT（导入）/ ADMIN（管理后台）
+  frame.py                  表达检查与写作框架
+  design_audit.py            文字对比度与强调色面积检查
+  export_audit.py            PPTX 背景与页数核验
+capabilities/              写作与视觉检查规则、提示词和幻灯片模板
+docs/                      AUTHORING / DECK_SPEC / IMPORT / ADMIN / DESIGN / PPTX
 vendor/                    pptxgen.bundle.js（MIT，落盘锁定）
 ```
 
 约定：**你的真实 deck 内容放哪都不入库**。本仓库的 `.gitignore` 默认排除
-`decks/`、`assets/`、`src/slides`、`src/shell.html`、`docs/本地笔记/` 下除示例以外的全部内容
+`decks/`、`assets/`、`src/slides`、`src/shell.html`、`exports/`、`docs/本地笔记/` 下除示例以外的全部内容
 （仓库只跟踪 `*/sample-deck` 与引擎）——想公开某套 deck 时自行调整白名单。
 
 ## 四、质检
 
 ```bash
-node build.mjs                                        # 拼装主树
-python3 tools/check_slides.py --shots                 # 溢出/截断/重叠体检，截图在 /tmp/qa
-python3 tools/test_deck.py                            # 放映交互自测
+node build.mjs --src src-sample --deck sample-deck
+python3 tools/test_deck.py                           # 对根 index.html 做放映交互自测
+python3 tools/frame.py audit "src-sample/slides/*.html"
+
+# 启动 python3 tools/serve_deck.py 后运行
+python3 tools/check_slides.py --index decks/sample-deck/index.html
+python3 tools/design_audit.py --index decks/sample-deck/index.html
+python3 tools/design_audit.py --index decks/sample-deck/index.html --ratio 4:3
+python3 tools/export_audit.py --index decks/sample-deck/index.html
 ```
 
 ## 五、安全模型
@@ -121,7 +137,7 @@ Host 是站点域名，一律 403。请勿修改或绕过该守卫后再绑定�
 
 其余 API 属于另一边界：`/api/track/*`（匿名访问统计）、`/api/access`（deck 门禁密码）
 与 `/api/admin/*`（管理后台，密码登录 + 登录限流）设计上可经隧道公网使用；
-追踪数据只含随机 UUID，不含个人身份信息。运行时数据在 `data/`（不入库）。
+追踪记录包含浏览器随机访客 ID、IP、客户端、来源和停留数据。服务端将记录保存到 `data/`，该目录由 Git 忽略。
 
 ## 六、授权
 
@@ -137,7 +153,16 @@ Host 是站点域名，一律 403。请勿修改或绕过该守卫后再绑定�
 pre-fits layouts, renders pages headlessly via LibreOffice, repairs unrendered/tofu text as a
 coordinate-accurate HTML overlay, and assembles a self-contained deck. See
 [docs/IMPORT.md](docs/IMPORT.md) for the validated recipe and knobs. It also ships an
-admin console at `/admin/` — anonymous visit tracking (per-slide dwell time), per-deck
-password protection and publish/unpublish switches; see [docs/ADMIN.md](docs/ADMIN.md).
+admin console at `/admin/` with visitor analytics, password gates for the library and
+individual decks, publish controls, and downloadable QR share cards. See [docs/ADMIN.md](docs/ADMIN.md).
 Issues and PRs welcome — please keep personal content out of PRs (the default `.gitignore`
 already guards this).
+
+## 写作能力包：因果链 / 价值链
+
+使用 `frame framework` 查看写作方法，`frame audit <路径>` 审查页面，`frame lint "<句子>"` 检查文案。
+也可在仓库直接运行 `python3 tools/frame.py` 加同样的参数。
+构建默认调用写作检查，遇到 P0 表达问题时停止。详见 [创作规范](docs/AUTHORING.md) 与 [AGENTS.md](AGENTS.md)。
+
+`./install.sh` 安装 DSH 技能、合并用户级写作规则，并将 `frame` 链到 `~/.local/bin`。
+运行 `./install.sh --check` 可检查安装状态。其他工作区可按需安装写作规则。详见 [写作能力包](capabilities/causal-value-chain/README.md)。

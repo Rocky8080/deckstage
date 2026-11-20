@@ -4,9 +4,12 @@
    · 每屏文件可携带 <style>（提取到 head，按屏顺序）
    · 每屏文件可携带 <script>（提取到 body 末尾）
    · 其余标记按文件名顺序放进 .slides
-   用法： node build.mjs
+   构建前会跑「因果链 / 价值链」门禁（tools/frame.py audit）：
+     P0 问题 → 构建失败；P1/P2 → 只提示。
+   跳过门禁：--no-frame（不推荐；仅用于应急排查）
    ============================================================ */
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +20,42 @@ const SRC = join(ROOT, srcIdx > -1 ? process.argv[srcIdx + 1] : 'src');
 const THEME = join(ROOT, 'src/css');   // 主题 token / base 永远共用主树的
 
 const read = (p) => readFileSync(p, 'utf8');
+
+/* ---------- 0. 写作门禁：因果链 / 价值链 ----------
+   P0（无基准倍数 / 表格无结论 / 量纲未统一）→ 直接失败，不允许产出 deck；
+   P1/P2 → 打印提示，不阻断。任何 agent（Codex / ZCode / DSH）构建时都会撞上这道门。 */
+function frameGate(slideGlob) {
+  if (process.argv.includes('--no-frame')) {
+    console.log('[frame] 已跳过写作门禁（--no-frame）');
+    return;
+  }
+  const r = spawnSync('python3', [join(ROOT, 'tools/frame.py'), 'audit', slideGlob, '--json'],
+    { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
+  if (r.error || r.status === 2) {
+    console.log('[frame] 检查器不可用，跳过门禁（可手动跑 python3 tools/frame.py audit）');
+    return;
+  }
+  let data = null;
+  try { data = JSON.parse(r.stdout || '{}'); } catch { /* 忽略解析失败 */ }
+  if (!data || !data.total) {
+    console.warn('[frame] 未收到可用的表达检查结果，跳过门禁');
+    return;
+  }
+  const { P0 = 0, P1 = 0, P2 = 0 } = data.total;
+  if (P0 > 0) {
+    console.error(`\n[frame] ✗ 写作门禁未通过：P0 ${P0} · P1 ${P1} · P2 ${P2}`);
+    for (const slide of data.slides || []) {
+      const hits = (slide.issues || []).filter(i => i.sev === 'P0');
+      if (!hits.length) continue;
+      console.error(`  · ${slide.slide}`);
+      hits.forEach(h => console.error(`      [P0] ${h.rule} — ${h.detail}`));
+    }
+    console.error('\n  修法见 capabilities/causal-value-chain/SKILL.md（数字三件套 / 人月口径 / 反事实）');
+    console.error('  确需临时跳过：node build.mjs ... --no-frame\n');
+    process.exit(1);
+  }
+  console.log(`[frame] 门禁通过（P0 0 · P1 ${P1} · P2 ${P2}）`);
+}
 
 /* ---------- 1. 样式 ---------- */
 const cssFiles = ['tokens.css', 'base.css', 'deck.css']
@@ -60,6 +99,7 @@ for (const f of files) {
 }
 
 /* ---------- 3. 组装 ---------- */
+frameGate(join(slideDir, '*.html'));
 const styles = [
   ...cssFiles.map(p => `/* ===== ${p.split('/src/').pop()} ===== */\n${read(p)}`),
   '/* ===== 各屏专属样式 ===== */',
@@ -129,6 +169,7 @@ if (process.argv.includes('--web')) {
 }
 
 /* ---------- 6. 可选：多套 PPT 展示工具 —— 输出到 decks/<slug>/ ---------- */
+let builtDeck = null;
 {
   const i = process.argv.indexOf('--deck');
   if (i > -1) {
@@ -179,6 +220,7 @@ if (process.argv.includes('--web')) {
 
     writeFileSync(join(outDir, 'index.html'), html, 'utf8');
     console.log(`[build] decks/${slug}/index.html  ${(Buffer.byteLength(html)/1024).toFixed(0)} KB  共享运行时 /_shared/`);
+    builtDeck = slug;
   }
 }
 
@@ -192,4 +234,15 @@ if (process.argv.includes('--web')) {
     writeFileSync(join(shared, to), body, 'utf8');
   }
   console.log(`[_shared] deck.js + deck.css 已同步`);
+}
+
+/* ---------- 8. 构建后自动刷新该 deck 的缩略图 / 展示台版本号 ---------- */
+if (builtDeck) {
+  const thumb = spawnSync('python3', ['tools/build_library.py', '--deck', builtDeck], {
+    cwd: ROOT,
+    stdio: 'inherit',
+  });
+  if (thumb.error || thumb.status !== 0) {
+    console.warn(`[build] 缩略图自动刷新失败（${builtDeck}），可手动运行 python3 tools/build_library.py --force`);
+  }
 }

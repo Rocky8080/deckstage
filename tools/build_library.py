@@ -227,7 +227,7 @@ PAGE = """<!doctype html>
 
 CARD = """    <a class="card" href="/{href}/" aria-label="打开 {title}">
       <div class="card__thumb">
-        <img src="/{href}/thumb.jpg" alt="{title} 首页缩略图" loading="lazy">
+        <img src="/{href}/thumb.jpg?v={thumb_version}" alt="{title} 首页缩略图" loading="lazy">
         <span class="card__open">打开 →</span>
       </div>
       <div class="card__body">
@@ -242,6 +242,7 @@ CARD = """    <a class="card" href="/{href}/" aria-label="打开 {title}">
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--force", action="store_true", help="全部重拍缩略图")
+    ap.add_argument("--deck", help="只强制重拍这一套 deck 的缩略图，然后重建展示台")
     args = ap.parse_args()
 
     if not DECKS.is_dir():
@@ -256,12 +257,15 @@ def main() -> int:
         if not meta:
             continue
         thumbs = (folder / "thumb.jpg").is_file()
-        if args.force or not thumbs:
+        target = bool(args.deck) and folder.name == args.deck
+        if args.force or target or not thumbs:
             try:
-                ensure_thumb(folder, args.force)
+                ensure_thumb(folder, args.force or target)
             except Exception as exc:                      # noqa: BLE001
                 print(f"  ⚠ {folder.name} 缩略图失败：{type(exc).__name__} {exc}", file=sys.stderr)
         meta["href"] = f"decks/{folder.name}"
+        thumb_path = folder / "thumb.jpg"
+        meta["thumb_version"] = str(int(thumb_path.stat().st_mtime_ns)) if thumb_path.is_file() else "0"
         decks.append(meta)
 
     decks.sort(key=lambda d: (d.get("order", 99), d.get("title", "")))
@@ -277,6 +281,7 @@ def main() -> int:
             date=html.escape(("v" + d["version"]) if d.get("version") else d.get("date", "")),
             author=(f'<i class="dot"></i><span>{html.escape(d["author"])}</span>' if d.get("author") else ""),
             tags=(f'<div class="tags">{tags}</div>' if tags else ""),
+            thumb_version=d.get("thumb_version", "0"),
         ))
 
     page = PAGE.format(

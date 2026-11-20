@@ -1,0 +1,42 @@
+<!--
+  幻灯片模板 —— 新写一屏时从这里复制。
+  三项写作检查：
+    1. 每个数字：口径 · 基准 · 结论（写在页面或讲稿里）
+    2. 一屏一个结论句：<p class="insight">…</p>（能被反驳的一句话）
+    3. 每张图：图注写"看这里"+“证明了什么”
+  参考：capabilities/causal-value-chain/SKILL.md
+-->
+<section class="slide" id="sNN" data-title="<导航用短标题>" data-rail="<量|物|法>">
+  <header class="head">
+    <p class="kicker"><!-- 02 / 物 · 03 OPEN --></p>
+    <h1 class="title">结论式标题：把"做了什么"写成"证明了什么"</h1>
+  </header>
+
+  <div class="body">
+    <p class="lead">一句话交代现状与成本（现状段）：原来要多少 / 多久 / 谁来做。</p>
+
+    <!-- 证据区：数字必须带口径与基准
+         假设示例：旧流程 4 人 × 6 个月 = 24 人月，新流程 2 人 × 6 个月 = 12 人月。 -->
+    <div class="evidence">
+      <p class="evidence__num">24 → 12 人月</p>
+      <p class="evidence__cap">假设示例 · 人数 × 全职月数 · 同一批月报与审核标准</p>
+    </div>
+
+    <!-- 图（可选）：图注 = 看这里 + 证明了什么 -->
+    <figure class="shot">
+      <img src="assets/img/<name>.jpg" alt="<可被第三方核对的内容>">
+      <figcaption>看 <b>&lt;具体位置/数字&gt;</b>：它证明了 &lt;一句结论&gt;。</figcaption>
+    </figure>
+
+    <!-- 结论位（必须有；build.mjs 之外，frame.py 也会检查缺结论） -->
+    <p class="insight">结论：能被复述、能被反驳的一句话（不要"我觉得/大幅/翻倍"）。</p>
+  </div>
+
+  <p class="bridge">过渡：下一屏要回答的问题。</p>
+
+  <aside class="notes">
+    口径与基准：&lt;分子分母、和谁比、什么场景（模拟/实盘）&gt;
+    反事实：&lt;不这么做相当于多花 X 人月 / X 年&gt;
+    机制：&lt;我到底做对了哪一件事（可复述）&gt;
+  </aside>
+</section>

@@ -288,8 +288,10 @@ a { color: inherit; }
   color: var(--green);
   white-space: nowrap;
 }
-.tag--terra { background: var(--terra-tint); color: var(--terra); }
-.tag--gold { background: var(--gold-tint); color: #8A6C28; }
+.tag--terra { background: var(--terra-tint); color: #8F4A23; }
+.tag--gold { background: var(--gold-tint); color: #74551B; }
+html[data-dtheme="ink-dark"] .tag--terra { color: var(--terra-2); }
+html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
 .tag--line { background: transparent; border: 1px solid var(--line); color: var(--ink-3); }
 .tag--dark { background: rgba(156, 199, 180, .14); color: #9CC7B4; }
 

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <title>DeckStage · 示例 deck</title>
 <meta name="description" content="DeckStage 引擎示例 deck：演示 HTML 幻灯片展示台的版式、动效与导入 pipeline。">
 <style>
@@ -381,8 +382,10 @@ a { color: inherit; }
   color: var(--green);
   white-space: nowrap;
 }
-.tag--terra { background: var(--terra-tint); color: var(--terra); }
-.tag--gold { background: var(--gold-tint); color: #8A6C28; }
+.tag--terra { background: var(--terra-tint); color: #8F4A23; }
+.tag--gold { background: var(--gold-tint); color: #74551B; }
+html[data-dtheme="ink-dark"] .tag--terra { color: var(--terra-2); }
+html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
 .tag--line { background: transparent; border: 1px solid var(--line); color: var(--ink-3); }
 .tag--dark { background: rgba(156, 199, 180, .14); color: #9CC7B4; }
 
@@ -642,6 +645,13 @@ a { color: inherit; }
     .ins-msg--ai b { color: var(--green); }
     .ins-cmd { background: var(--dark-2); border-radius: var(--r-md); padding: 18px 22px; }
     .ins-cmd pre { margin: 0; font: 12px/1.95 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap; }
+    .ins-detail { display: flex; flex-direction: column; gap: 18px; }
+    body.ratio-4x3 .ins-grid { gap: 28px; }
+    body.ratio-4x3 .ins-chat { gap: 6px; padding-block: 8px; }
+    body.ratio-4x3 .ins-detail { gap: 10px; }
+    body.ratio-4x3 .ins-cmd { padding: 12px 18px; }
+    body.ratio-4x3 #s02 .body { gap: 8px; }
+    body.ratio-4x3 #s02 .bridge { margin-top: 8px; }
 
 /* ---- 03-ai-workflow.html ---- */
 .bp-stage { display: grid; grid-template-columns: 1fr 84px 1.18fr 84px 1fr; gap: 0; align-items: stretch; }
@@ -668,7 +678,7 @@ a { color: inherit; }
       background: rgba(255,255,255,.18); border-radius: 6px; font-family: var(--font-mono); font-size: 11px; }
     .bp-msg--ai { align-self: flex-start; background: var(--green-tint); color: var(--ink-2); border-bottom-left-radius: 3px; }
     .bp-input { margin-top: auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-      border: 1px solid var(--line); border-radius: 9px; color: var(--ink-4); font: 12px/1 var(--font-sans); }
+      border: 1px solid var(--line); border-radius: 9px; color: var(--ink-3); font: 12px/1 var(--font-sans); }
     /* deck 成品 */
     .bp-slide { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--paper); }
     .bp-slide .cap { padding: 10px 12px 6px; }
@@ -1537,12 +1547,12 @@ body.ratio-4x3 #s16 .body { zoom: .70; }
           <div class="ins-msg ins-msg--ai">git clone https://github.com/Rocky8080/deckstage && cd deckstage</div>
           <div class="ins-msg ins-msg--ai">pip install -r requirements.txt</div>
           <div class="ins-msg ins-msg--ai">python3 tools/serve_deck.py
-<b>✓ 展示台已启动 → http://127.0.0.1:8899/</b>
-11 屏《使用说明》就在首页第一张卡片。</div>
+<b>展示台已启动 → http://127.0.0.1:8899/</b>
+12 屏《使用说明》就在首页第一张卡片。</div>
         </div>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:18px;">
+      <div class="ins-detail">
         <div class="ins-cmd reveal" style="--d:160ms">
           <p class="kv__k" style="margin-bottom: 12px;">等效手动命令（愿意自己敲的话）</p>
           <pre>git clone https://github.com/Rocky8080/deckstage
@@ -1626,7 +1636,7 @@ python3 tools/serve_deck.py
               把这份 Word 做成 8 屏 deck：配色藏青、每屏带演讲备注，跑质检改到 0 问题，最后刷新展示台。
             </div>
             <div class="bp-msg bp-msg--ai">
-              已生成 sample-deck（11 屏）：拼装、缩略图、质检全部通过，可以放映了。
+              已生成 sample-deck（12 屏）：拼装、缩略图、质检全部通过，可以放映了。
             </div>
             <div class="bp-input">说点什么，或把文件拖进来…</div>
           </div>
@@ -1655,7 +1665,7 @@ python3 tools/serve_deck.py
             <div class="blocks"><i></i><i></i><i></i></div>
           </div>
           <div class="bp-prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
-          <p class="note" style="margin:10px 0 0; font: 11px/1.6 var(--font-mono); color: var(--ink-4);">sample-deck · 11 屏 · 质检 0 问题</p>
+          <p class="note" style="margin:10px 0 0; font: 11px/1.6 var(--font-mono); color: var(--ink-3);">sample-deck · 12 屏 · 质检 0 问题</p>
         </div>
       </div>
     </div>
@@ -1915,7 +1925,7 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
       <pre style="margin:0; font: 12.5px/2.1 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">python3 tools/check_slides.py            # 溢出/截断/重叠/图片体检
 python3 tools/check_slides.py --shots    # 同上 + 逐屏截图到 /tmp/qa
 python3 tools/test_deck.py               # 放映交互自测（点按/翻页/抽屉）</pre>
-      <p class="note" style="margin-top: 12px;">QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+      <p class="note" style="margin-top: 12px; color: var(--ink-3);">QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
     </div>
 
     <p class="bridge reveal" style="--d:360ms">分享出去之后呢？<strong>管理后台</strong>负责运营与门禁。</p>
@@ -3386,7 +3396,10 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
         roundRectPath(ctx, 0, 0, ow, oh, r);
         ctx.clip();
       }
-      var useJpeg = !rounded && ow * oh > 120000 && !/\.(png|gif|svg|webp)(\?|#|$)/i.test(abs);
+      // data:image/svg+xml 不含 ".svg" 后缀；必须单独识别，否则会被误转成白底 JPEG，
+      // 透明 SVG 周围会出现白框，弧线后面也会盖一层白底。
+      var isSvg = /^data:image\/svg\+xml/i.test(abs) || /\.svg(\?|#|$)/i.test(abs);
+      var useJpeg = !rounded && !isSvg && ow * oh > 120000 && !/\.(png|gif|svg|webp)(\?|#|$)/i.test(abs);
       if (useJpeg) { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, ow, oh); }
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, ow, oh);
 
@@ -4027,7 +4040,12 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
       for (var p = 0; p < SVG_INLINE_PROPS.length; p++) {
         var prop = SVG_INLINE_PROPS[p];
         var v = cs.getPropertyValue(prop);
-        if (v && v !== 'none' && v !== 'normal') decl += prop + ':' + v + ';';
+        // fill:none / stroke:none 必须保留；否则克隆 SVG 会回到浏览器默认的黑色填充。
+        if (prop === 'fill' || prop === 'stroke') {
+          if (v) decl += prop + ':' + v + ';';
+        } else if (v && v !== 'none' && v !== 'normal') {
+          decl += prop + ':' + v + ';';
+        }
       }
       var prev = cl.getAttribute('style');
       cl.setAttribute('style', decl + (prev || ''));
@@ -4230,7 +4248,9 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
     for (var i = 0; i < models.length; i++) {
       var m = models[i];
       var slide = pptx.addSlide();
-      slide.bkgd = 'FFFFFF';
+      // 注意：pptxgenjs 3.x 里 slide.bkgd 会压过 slide.background；
+      // 先写 bkgd='FFFFFF' 会让所有页变成白底，纸色/深色页全部失真。
+      // 只在没有解析出背景时依赖默认白底，不要显式写 bkgd。
       if (m.background) {
         if (m.background.data) {
           slide.background = { data: m.background.data };
@@ -4243,28 +4263,68 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
       for (var j = 0; j < m.items.length; j++) {
         var it = m.items[j];
         if (it.kind === 'text') {
-          var opts = {
-            x: it.box.x * PX_TO_IN,
-            y: it.box.y * PX_TO_IN,
-            w: Math.max(0.02, it.box.w * PX_TO_IN),
-            h: Math.max(0.02, it.box.h * PX_TO_IN),
-            align: it.align,
-            valign: 'top',
-            inset: 0,
-            margin: 0,
-            wrap: it.wrap !== false,
-            fit: 'none',
-            fontFace: it.fontFace,
-            fontSize: it.fontSize,
-            color: it.color
-          };
-          if (it.lineSpacing) opts.lineSpacing = it.lineSpacing;
-          try {
-            slide.addText(it.runs, opts);
-            stats.texts++;
-            for (var r = 0; r < it.runs.length; r++) stats.chars += it.runs[r].text.length;
-          } catch (e) {
-            m.warnings.push('文本写入失败：' + e.message);
+          // 多行文本拆成逐行文本框：pptxgenjs 3.x 遇到「换行后紧跟不同颜色 run」
+          // 会把后面的 run 拆成额外段落，导致最后一行溢出、和下一块文字重叠。
+          var textLines = [], curLine = [];
+          for (var tr = 0; tr < it.runs.length; tr++) {
+            var rr = it.runs[tr];
+            var parts = String(rr.text).split('\n');
+            for (var pp = 0; pp < parts.length; pp++) {
+              if (parts[pp].length) curLine.push({ text: parts[pp], options: rr.options });
+              if (pp < parts.length - 1) { textLines.push(curLine); curLine = []; }
+            }
+          }
+          if (curLine.length) textLines.push(curLine);
+          if (textLines.length > 1) {
+            var lineHIn = (it.lineSpacing ? it.lineSpacing / 72 : (it.fontSize || 16) * 1.22 / 72);
+            for (var li = 0; li < textLines.length; li++) {
+              var lineOpts = {
+                x: it.box.x * PX_TO_IN,
+                y: it.box.y * PX_TO_IN + li * lineHIn,
+                w: Math.max(0.02, it.box.w * PX_TO_IN),
+                h: Math.max(0.02, lineHIn),
+                align: it.align,
+                valign: 'top',
+                inset: 0,
+                margin: 0,
+                wrap: false,
+                fit: 'none',
+                fontFace: it.fontFace,
+                fontSize: it.fontSize,
+                color: it.color
+              };
+              try {
+                slide.addText(textLines[li], lineOpts);
+                stats.texts++;
+                for (var lr = 0; lr < textLines[li].length; lr++) stats.chars += textLines[li][lr].text.length;
+              } catch (e2) {
+                m.warnings.push('文本写入失败：' + e2.message);
+              }
+            }
+          } else {
+            var opts = {
+              x: it.box.x * PX_TO_IN,
+              y: it.box.y * PX_TO_IN,
+              w: Math.max(0.02, it.box.w * PX_TO_IN),
+              h: Math.max(0.02, it.box.h * PX_TO_IN),
+              align: it.align,
+              valign: 'top',
+              inset: 0,
+              margin: 0,
+              wrap: it.wrap !== false,
+              fit: 'none',
+              fontFace: it.fontFace,
+              fontSize: it.fontSize,
+              color: it.color
+            };
+            if (it.lineSpacing) opts.lineSpacing = it.lineSpacing;
+            try {
+              slide.addText(it.runs, opts);
+              stats.texts++;
+              for (var r = 0; r < it.runs.length; r++) stats.chars += it.runs[r].text.length;
+            } catch (e) {
+              m.warnings.push('文本写入失败：' + e.message);
+            }
           }
         } else if (it.kind === 'image') {
           var imgOpts = {

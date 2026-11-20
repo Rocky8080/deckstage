@@ -18,6 +18,13 @@
     .ins-msg--ai b { color: var(--green); }
     .ins-cmd { background: var(--dark-2); border-radius: var(--r-md); padding: 18px 22px; }
     .ins-cmd pre { margin: 0; font: 12px/1.95 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap; }
+    .ins-detail { display: flex; flex-direction: column; gap: 18px; }
+    body.ratio-4x3 .ins-grid { gap: 28px; }
+    body.ratio-4x3 .ins-chat { gap: 6px; padding-block: 8px; }
+    body.ratio-4x3 .ins-detail { gap: 10px; }
+    body.ratio-4x3 .ins-cmd { padding: 12px 18px; }
+    body.ratio-4x3 #s02 .body { gap: 8px; }
+    body.ratio-4x3 #s02 .bridge { margin-top: 8px; }
   </style>
 
   <header class="head">
@@ -38,12 +45,12 @@
           <div class="ins-msg ins-msg--ai">git clone https://github.com/Rocky8080/deckstage && cd deckstage</div>
           <div class="ins-msg ins-msg--ai">pip install -r requirements.txt</div>
           <div class="ins-msg ins-msg--ai">python3 tools/serve_deck.py
-<b>✓ 展示台已启动 → http://127.0.0.1:8899/</b>
-11 屏《使用说明》就在首页第一张卡片。</div>
+<b>展示台已启动 → http://127.0.0.1:8899/</b>
+12 屏《使用说明》就在首页第一张卡片。</div>
         </div>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:18px;">
+      <div class="ins-detail">
         <div class="ins-cmd reveal" style="--d:160ms">
           <p class="kv__k" style="margin-bottom: 12px;">等效手动命令（愿意自己敲的话）</p>
           <pre>git clone https://github.com/Rocky8080/deckstage
