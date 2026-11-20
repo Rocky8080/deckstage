@@ -5,6 +5,7 @@ admin_core.py — /admin 后台数据层：管理员会话、deck 门禁配置�
 约定（运行时数据都在 <root>/data/，不入库 git）：
     data/admin.json    管理员密码哈希 + cookie 签名密钥（0600）
     data/access.json   每个 deck 的门禁：enabled / password_hash / hint
+    data/library.json  展示台首页的手工顺序：order = [slug, ...]（删除即恢复默认）
     data/tracking.db   SQLite：visits（一次访问一行，心跳续写）+ slide_stats（逐屏停留）
 """
 from __future__ import annotations
@@ -32,6 +33,95 @@ UNSET = object()
 def _hash_pw(pw: str, salt_hex: str) -> str:
     return hashlib.pbkdf2_hmac("sha256", pw.encode("utf-8"),
                                bytes.fromhex(salt_hex), PBKDF_ITERS).hex()
+
+
+# ------------------------------------------------------------ 展示台首页顺序
+# 手工顺序只覆盖「显示顺序」，不改 decks/<slug>/deck.json：
+#   · 管理端保存的 slug 序列优先，没列到的 deck 按 deck.json 的 order / 标题补在后面；
+#   · 新导入的 deck 因此默认落在末尾，管理员可以再把它移到想要的位置；
+#   · 删除 data/library.json 即恢复默认顺序。
+LIBRARY_ORDER_FILE = "library.json"
+
+
+def library_order_path(root: str) -> str:
+    return os.path.join(root, "data", LIBRARY_ORDER_FILE)
+
+
+def _deck_sort_key(deck: dict):
+    """deck.json 的默认顺序：order 缺省 99，坏数据也落到 99，别把首页排乱。"""
+    try:
+        order = int(deck.get("order", 99))
+    except (TypeError, ValueError):
+        order = 99
+    return order, str(deck.get("title") or "")
+
+
+def merge_library_order(manual: list[str], slugs: list[str]) -> list[str]:
+    """手工顺序在前（只保留仍存在的 deck），其余按传入顺序补在后面。"""
+    seen = set()
+    valid = set(slugs)
+    out = []
+    for slug in manual or []:
+        if slug in valid and slug not in seen:
+            out.append(slug)
+            seen.add(slug)
+    for slug in slugs:
+        if slug not in seen:
+            out.append(slug)
+            seen.add(slug)
+    return out
+
+
+def sort_library_decks(decks: list[dict], manual: list[str]) -> list[dict]:
+    """按首页显示顺序排序。decks 需含 slug / title / order 字段。"""
+    base = sorted(decks, key=_deck_sort_key)
+    order = merge_library_order(manual, [d.get("slug") or "" for d in base])
+    rank = {slug: i for i, slug in enumerate(order)}
+    return sorted(base, key=lambda d: rank.get(d.get("slug"), len(rank)))
+
+
+def order_from_catalog(decks: list[dict], manual: list[str]) -> list[str]:
+    """decks.json 的元数据 + 手工顺序 → 首页最终 slug 顺序（重置后也能回到默认）。"""
+    slugs = [d.get("slug") for d in sorted(decks, key=_deck_sort_key) if d.get("slug")]
+    return merge_library_order(manual, slugs)
+
+
+def read_library_order(root: str) -> list[str]:
+    """读取手工顺序；文件不存在 / 损坏都当作「没有自定义顺序」。"""
+    try:
+        with open(library_order_path(root), encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return []
+    order = data.get("order") if isinstance(data, dict) else None
+    if not isinstance(order, list):
+        return []
+    return [s for s in order if isinstance(s, str) and s]
+
+
+def write_library_order(root: str, slugs: list[str] | None):
+    """保存手工顺序；None / 空列表 = 删除覆盖文件，恢复默认顺序。"""
+    path = library_order_path(root)
+    if not slugs:
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+        return
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    payload = {"order": list(slugs),
+               "updated": datetime.now().isoformat(timespec="seconds")}
+    tmp = f"{path}.tmp"
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(payload, fh, ensure_ascii=False, indent=2)
+        os.replace(tmp, path)
+    finally:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
 
 
 class Store:
@@ -81,6 +171,14 @@ class Store:
         cfg["password_hash"] = _hash_pw(pw, cfg["salt"])
         with open(self.cfg_path, "w", encoding="utf-8") as fh:
             json.dump(cfg, fh, ensure_ascii=False, indent=2)
+
+    # ------------------------------------------------------------ 展示台首页顺序
+    def library_order(self) -> list[str]:
+        return read_library_order(self.root)
+
+    def set_library_order(self, slugs: list[str] | None):
+        with self._lock:
+            write_library_order(self.root, slugs)
 
     # ------------------------------------------------------------ 签名 token（admin 会话 / deck 免密 cookie）
     def _sign(self, msg: str) -> str:
@@ -348,6 +446,7 @@ class Store:
                         "subtitle": meta.get("subtitle") or "",
                         "version": meta.get("version") or meta.get("date") or "",
                         "tags": meta.get("tags") or [],
+                        "order": meta.get("order", 99),
                         "n_slides": slides})
         return out
 

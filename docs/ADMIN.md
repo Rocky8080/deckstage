@@ -1,7 +1,7 @@
 # 管理后台 /admin
 
-`tools/serve_deck.py` 内置的管理面：访问追踪、访客分析、门禁、上下架与分享。由服务端动态实现，
-**不需要重新 build** —— 开关即时生效。
+`tools/serve_deck.py` 内置的管理面：访问追踪、访客分析、门禁、上下架、首页排序与分享。由服务端动态实现，
+**不需要重新 build** —— 开关与排序都即时生效。
 
 ## 启动与登录
 
@@ -21,11 +21,22 @@ DECK_ADMIN_PASSWORD=xxx python3 tools/serve_deck.py  # 首次初始化用环境�
 | --- | --- |
 | 概览 | 累计访问 / 独立访客 / 总观看时长 / 今日 / 近 7 天 |
 | 内容管理 | 每个 deck：上架 ⇄ 下架（前端立即消失并 404）、设置 / 移除访问密码 + 门禁页提示语 |
+| 首页排序 | 拖动卡片或点 ↑↓ 调整展示台顺序，调整后首页与 `/decks.json` 立即生效；可一键恢复默认顺序 |
 | 访客分析 | 按浏览器访客 ID 查看首次及最近访问、停留、内容和 IP，可展开单次访问。新访客按首次访问是否在最近 7 天划分 |
 | 逐屏热度 | 按内容查看每屏进入次数、平均 / 总停留（热度条） |
 | 访问记录 | 最近 100 条：时间、内容、时长、看到第几屏、访客、IP、客户端、来源 |
 
 面板每 30 秒自动刷新；「清空统计」不可恢复。
+
+### 首页排序
+
+「首页排序」区块列出全部 deck，保存的自定义顺序优先，没列到的内容（例如之后新导入的 deck）
+按各自 `deck.json` 的 `order` 与标题排在末尾。下架的内容保留位置，重新上架后回到原处。
+顺序只保存在 `data/library.json`，不改 `deck.json`；点「恢复默认顺序」或删除该文件即可回到默认排序。
+
+展示台首页和 `decks.json` 由服务端每次请求实时重排，因此调整后无需重新 build。用
+`python3 tools/build_library.py` 重新生成静态页面时，也会把当前自定义顺序写进
+`library.html` / `decks.json`，两种访问方式看到的是同一顺序。
 
 ## 追踪机制
 
@@ -58,16 +69,25 @@ DECK_ADMIN_PASSWORD=xxx python3 tools/serve_deck.py  # 首次初始化用环境�
 | GET | `/api/admin/session` · `overview` · `visits` · `visitors` · `decks` · `slides` | 登录态（session 除外） |
 | GET | `/api/admin/qr?t=<链接>&s=<尺寸>`，返回 PNG | 登录态 |
 | POST | `/api/admin/deck`（`{slug, enabled?, password?, hint?}`）· `stats/clear` | 登录态 |
+| POST | `/api/admin/library/order`（`{slugs:[...]}` 或 `{reset:true}`） | 登录态 |
 | POST | `/api/track/init` · `beat` · `end` | 公网（限流） |
 | POST | `/api/access` `{deck, password}` | 公网（限流） |
 
 admin / track / access 不受导入 API 的本机 Host 守卫影响（那道守卫只管
 `/api/inventory|import|cancel|publish`，约定未变）。
 
+排序功能可单独自测（会在临时目录起独立服务，不碰本机 `data/`）：
+
+```bash
+python3 tools/test_admin_order.py   # 排序 API → 首页 / decks.json 联动
+python3 tools/test_admin_ui.py      # 面板 ↑↓ / 拖动 / 恢复默认（Chrome 无头）
+```
+
 ## 数据文件（均在 `data/`，gitignore）
 
 - `admin.json` — 管理密码哈希、cookie 签名密钥
 - `access.json` — 各 deck 的 `enabled` / 密码哈希 / 提示语
+- `library.json` — 展示台首页手工顺序（删除即恢复默认，不影响 `deck.json`）
 - `tracking.db` — 访问与逐屏统计
 
 ## 分享

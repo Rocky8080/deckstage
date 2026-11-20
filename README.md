@@ -19,15 +19,15 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 | **HTML 创作** | 一屏一个 HTML 文件，类名体系见 [docs/AUTHORING.md](docs/AUTHORING.md)；`reveal` 入场动效、数字滚动、演讲备注、导轨分章 |
 | **版式骨架** | 12 个可直接抄的页面骨架 + 选型 / 反单调规则，见 [LAYOUTS.md](capabilities/design-quality/LAYOUTS.md)；画廊 `src-archetypes/`，多样性检查 `layout_audit.py` |
 | **PPTX 导入** | 外部 PowerPoint 经六阶段 pipeline 自动转换（体检 → 字体 → 版式预修 → LibreOffice 渲染 → 补字层 → 组装），详见 [docs/IMPORT.md](docs/IMPORT.md) |
-| **展示台** | `library.html` 缩略图墙聚合所有 deck；`serve_deck.py` 本地起服务后右上角可「＋ 导入 PPTX」（四步向导，仅限本机） |
-| **管理后台** | `/admin/` 支持访客分析、首页与 deck 门禁、内容上下架、分享链接与二维码卡片。详见 [管理后台](docs/ADMIN.md) |
+| **展示台** | `library.html` 缩略图墙聚合所有 deck，右上角可切 2 / 3 / 4 列（记住在本机）；`serve_deck.py` 本地起服务后右上角可「＋ 导入 PPTX」（四步向导，仅限本机） |
+| **管理后台** | `/admin/` 支持访客分析、首页与 deck 门禁、内容上下架、首页排序、分享链接与二维码卡片。详见 [管理后台](docs/ADMIN.md) |
 | **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（七套预设含素白与深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
 | **导出** | 页面内导出可编辑 PPTX，保留纯色背景与内联 SVG 的透明度。构建也可产出全内联的单机版 HTML。详见 [PPTX 导出](docs/PPTX.md) |
 | **质检** | 检查表达、版面、视觉对比度与 PPTX 导出，支持放映交互自测和逐屏截图 |
 
 `build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
 
-v1.4.1 的变更详见 [发布日志](CHANGELOG.md#141---2026-11-20)。
+v1.5.0 的变更详见 [发布日志](CHANGELOG.md#150---2026-11-21)。
 
 ## 二、快速开始
 
@@ -61,7 +61,7 @@ node build.mjs --src src-mine --deck my-deck
 
 ### 使用图例
 
-**展示台**（`serve_deck.py` 起服务后的首页）：所有 deck 的缩略图墙，点卡片即放映。
+**展示台**（`serve_deck.py` 起服务后的首页）：所有 deck 的缩略图墙，点卡片即放映；右上角「每行列数」可在 2 / 3 / 4 列间切换。
 
 ![展示台首页](docs/img/library.jpg)
 
@@ -112,13 +112,16 @@ decks/<slug>/              成品：index.html + deck.json + thumb.jpg（sample-
 assets/<slug>/             导入 deck 的逐页渲染图
 tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md、各文件 docstring）
   import_pptx.py             PPTX → deck 六阶段 pipeline（单命令入口）
-  serve_deck.py              静态服务 + 导入 API（仅限本机）+ /admin 管理后台（追踪 / 门禁 / 上下架）
-  admin_core.py              管理后台数据层：管理员会话 / 门禁配置 / SQLite 访问统计
+  serve_deck.py              静态服务 + 导入 API（仅限本机）+ /admin 管理后台（追踪 / 门禁 / 上下架 / 首页排序）
+  admin_core.py              管理后台数据层：管理员会话 / 门禁配置 / 首页排序 / SQLite 访问统计
   admin_site.py              管理后台页面、追踪脚本、门禁页模板
   build_library.py           展示台聚合：缩略图 / decks.json / library.html
   pptx_*.py                  渲染前的版式预修工具链（nowrap / 缩字 / prefit / 字距…）
   check_slides.py            溢出 / 截断 / 重叠 / 图片 / 控制台报错体检
   test_deck.py               放映交互自测
+  test_admin_order.py        管理后台首页排序 API 自测（临时站点）
+  test_admin_ui.py           管理后台首页排序面板交互自测（↑↓ / 拖动 / 恢复）
+  test_library_columns.py    展示台首页 2/3/4 列切换自测
   frame.py                  表达检查与写作框架
   design_audit.py            文字对比度与强调色面积检查
   layout_audit.py            页面骨架覆盖与重复检查（版式多样性）
@@ -137,6 +140,9 @@ vendor/                    pptxgen.bundle.js（MIT，落盘锁定）
 ```bash
 node build.mjs --src src-sample --deck sample-deck
 python3 tools/test_deck.py                           # 对根 index.html 做放映交互自测
+python3 tools/test_admin_order.py                    # 后台首页排序 API（临时站点，不碰 data/）
+python3 tools/test_admin_ui.py                       # 后台排序面板交互（Chrome 无头）
+python3 tools/test_library_columns.py                # 首页 2/3/4 列切换（Chrome 无头）
 python3 tools/frame.py audit "src-sample/slides/*.html"
 
 # 启动 python3 tools/serve_deck.py 后运行

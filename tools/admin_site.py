@@ -66,8 +66,36 @@ def tracker_script(deck: str) -> str:
 
 
 # ============================================================ library.html 服务端实时过滤
-def filter_library_html(text: str, access: dict) -> str:
-    """下架的卡片从展示台移除、加密的卡片加 🔒 标签、页脚挂管理入口。"""
+_CARD_BLOCK = re.compile(r'<a class="card" href="/decks/([a-z0-9-]+)/"[\s\S]*?</a>')
+_GRID_BODY = re.compile(r'(<main class="grid">)([\s\S]*?)(</main>)')
+
+
+def reorder_library_cards(text: str, order: list[str] | None) -> str:
+    """按管理端保存的顺序重排展示台卡片；没列到的保持原顺序排在最后。"""
+    if not order:
+        return text
+    grid = _GRID_BODY.search(text)
+    if not grid:
+        return text
+    body = grid.group(2)
+    blocks = list(_CARD_BLOCK.finditer(body))
+    if len(blocks) < 2:
+        return text
+    rank = {}
+    for i, slug in enumerate(order):
+        rank.setdefault(slug, i)
+    ordered = sorted(blocks, key=lambda b: (rank.get(b.group(1), len(rank)), b.start()))
+    start = body.find('<a class="card"')
+    end = body.rfind("</a>") + len("</a>")
+    if start < 0 or end <= 0:
+        return text
+    cards = "\n    ".join(b.group(0).strip() for b in ordered)
+    new_body = body[:start] + cards + body[end:]
+    return text[:grid.start(2)] + new_body + text[grid.end(2):]
+
+
+def filter_library_html(text: str, access: dict, order: list[str] | None = None) -> str:
+    """下架的卡片从展示台移除、加密的卡片加 🔒 标签、按管理端顺序重排、页脚挂管理入口。"""
     disabled = [s for s, c in access.items() if c and c.get("enabled") is False]
     locked = [s for s, c in access.items() if c and c.get("password_hash")]
 
@@ -80,6 +108,8 @@ def filter_library_html(text: str, access: dict) -> str:
         text = re.sub(r'(<div class="stat"><b>)(\d+)(</b><span>套</span>)',
                       lambda m: f"{m.group(1)}{max(0, int(m.group(2)) - removed)}{m.group(3)}",
                       text, count=1)
+
+    text = reorder_library_cards(text, order)
 
     for slug in locked:
         m = re.search(r'<a class="card" href="/decks/%s/"[\s\S]*?</a>' % re.escape(slug), text)
@@ -290,6 +320,24 @@ _ADMIN = """<!doctype html>
   tr.editor input:focus { border-color:var(--green); }
   .editgrid { display:grid; grid-template-columns:1fr 1.6fr auto auto; gap:8px; align-items:center; }
 
+  /* 首页排序 */
+  .orderbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 10px; min-height:26px; }
+  .orderhint { color:var(--ink-4); font-size:12px; letter-spacing:.02em; }
+  .orderlist { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+  .orderlist li { display:grid; grid-template-columns:26px 30px minmax(0,1fr) auto; align-items:center;
+    gap:12px; background:var(--paper-2); border:1px solid var(--line); border-radius:10px;
+    padding:10px 14px; cursor:grab; }
+  .orderlist li.dragging { opacity:.45; }
+  .orderlist .pos { font-family:var(--mono); font-size:12px; color:var(--ink-4); text-align:right; }
+  .orderlist .grip { color:var(--ink-4); letter-spacing:-1px; user-select:none; }
+  .orderlist .name { min-width:0; }
+  .orderlist .name b { display:block; font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .orderlist .name span { font-family:var(--mono); font-size:11px; color:var(--ink-4); }
+  .orderlist .ordbtns { display:flex; gap:6px; }
+  .orderlist .ordbtns .mini { padding:5px 10px; }
+  .orderlist .ordbtns .mini[disabled] { opacity:.3; cursor:default; border-color:var(--line); color:var(--ink-2); }
+  @media (max-width:720px) { .orderlist li { grid-template-columns:20px 24px minmax(0,1fr) auto; gap:8px; padding:9px 10px; } }
+
   /* 屏热度条 */
   .heat { position:relative; background:rgba(30,91,71,.08); border-radius:4px; height:16px; min-width:60px; }
   .heat i { position:absolute; inset:0 auto 0 0; background:var(--green-2); border-radius:4px; opacity:.85; }
@@ -363,6 +411,13 @@ _ADMIN = """<!doctype html>
     <h2>内容管理</h2>
     <div id="deckBox"></div>
 
+    <h2>首页排序 <span class="muted" style="font-size:12px;font-family:var(--mono)">拖动卡片或点 ↑↓ 调整展示台顺序 · 调整后即时生效</span></h2>
+    <div class="orderbar">
+      <span class="orderhint" id="orderNote"></span>
+      <button class="mini" id="orderReset" hidden>恢复默认顺序</button>
+    </div>
+    <div id="orderBox"></div>
+
     <h2>逐屏热度</h2>
     <div class="selrow"><label for="deckSel">选择内容</label>
       <select id="deckSel"></select><span class="muted" id="slideNote"></span></div>
@@ -432,6 +487,9 @@ _ADMIN = """<!doctype html>
   }
   var TITLES = { __library: '展示台首页' };
   var DECKS = [];
+  var ORDER = [];          // 首页手工顺序（slug 数组，服务端返回）
+  var CUSTOM_ORDER = false;
+  var dragSlug = null;     // 正在拖动的卡片
 
   /* ---------- 登录 ---------- */
   function tryLogin() {
@@ -685,7 +743,16 @@ _ADMIN = """<!doctype html>
 
   function refresh() {
     api('/api/admin/overview').then(function (r) { if (r && r.ok) { OVW = r.stats; renderOvw(r.stats); renderVisitorStats(); } });
-    api('/api/admin/decks').then(function (r) { if (r && r.ok) { DECKS = r.decks; renderDecks(r.decks); renderDeckSel(r.decks); } });
+    api('/api/admin/decks').then(function (r) {
+      if (!r || !r.ok) return;
+      DECKS = r.decks;
+      ORDER = r.order || r.decks.filter(function (d) { return d.slug !== '__library'; })
+        .map(function (d) { return d.slug; });
+      CUSTOM_ORDER = !!r.custom_order;
+      renderDecks(r.decks);
+      renderDeckSel(r.decks);
+      if (!dragSlug) renderOrder(r.decks);   // 拖动中不要重画列表
+    });
     api('/api/admin/visits?limit=100').then(function (r) { if (r && r.ok) renderVisits(r.visits); });
     api('/api/admin/visitors').then(function (r) { if (r && r.ok) renderVisitors(r.visitors); });
     loadSlides();
@@ -760,7 +827,8 @@ _ADMIN = """<!doctype html>
         : '<span class="pill ' + (d.enabled ? 'on">公开' : 'off">已下架') + '</span>' +
           (d.locked ? '<span class="pill lock">🔒 密码</span>' : '');
       var st = d.stats || {};
-      var sub = isLib ? '首页门禁 · /admin/ 与追踪同源' : esc(d.slug) + ' · ' + d.n_slides + ' 屏';
+      var sub = isLib ? '首页门禁 · /admin/ 与追踪同源'
+        : '第 ' + (d.position || '—') + ' 位 · ' + esc(d.slug) + ' · ' + d.n_slides + ' 屏';
       return '<tr data-slug="' + esc(d.slug) + '">' +
         '<td><b>' + esc(d.title) + '</b><br><span class="slug">' + sub + '</span></td>' +
         '<td>' + pills + (d.hint ? '<br><span class="muted slug">提示：' + esc(d.hint) + '</span>' : '') + '</td>' +
@@ -777,6 +845,128 @@ _ADMIN = """<!doctype html>
     $('#deckBox').innerHTML = '<table><thead><tr><th>内容</th><th>状态</th><th class="num">访问</th>' +
       '<th class="num">总时长</th><th class="num">最近</th><th>操作</th></tr></thead><tbody>' + rows + '</tbody></table>';
   }
+
+  /* ---------- 首页排序（拖动 / ↑↓ / 恢复默认） ---------- */
+  function orderedDecks(list) {
+    var by = {};
+    list.forEach(function (d) { if (d.slug !== '__library') by[d.slug] = d; });
+    var slugs = ORDER.filter(function (s) { return by[s]; });
+    list.forEach(function (d) {
+      if (d.slug !== '__library' && slugs.indexOf(d.slug) < 0) slugs.push(d.slug);
+    });
+    return slugs.map(function (s) { return by[s]; });
+  }
+  function renderOrder(list) {
+    var decks = orderedDecks(list);
+    if (!decks.length) { $('#orderBox').innerHTML = '<p class="empty">decks/ 里还没有幻灯片。</p>'; return; }
+    ORDER = decks.map(function (d) { return d.slug; });
+    $('#orderBox').innerHTML = '<ol class="orderlist" id="orderList">' + decks.map(function (d, i) {
+      var extra = (d.enabled === false ? ' · 已下架（位置保留）' : '') +
+        (d.locked ? ' · 🔒 密码' : '');
+      return '<li draggable="true" data-slug="' + esc(d.slug) + '">' +
+        '<span class="grip" aria-hidden="true">⠿</span>' +
+        '<span class="pos">' + (i + 1) + '</span>' +
+        '<span class="name"><b>' + esc(d.title) + '</b><span>' + esc(d.slug) + ' · ' +
+          d.n_slides + ' 屏' + extra + '</span></span>' +
+        '<span class="ordbtns">' +
+          '<button class="mini ord-up" title="上移" aria-label="上移" draggable="false"' +
+            (i === 0 ? ' disabled' : '') + '>↑</button>' +
+          '<button class="mini ord-down" title="下移" aria-label="下移" draggable="false"' +
+            (i === decks.length - 1 ? ' disabled' : '') + '>↓</button>' +
+        '</span></li>';
+    }).join('') + '</ol>';
+    $('#orderReset').hidden = !CUSTOM_ORDER;
+    $('#orderNote').textContent = CUSTOM_ORDER
+      ? '当前为自定义顺序 · 下架内容保留位置'
+      : '当前为默认顺序（按 deck.json 的 order / 标题）';
+  }
+  function saveOrder(slugs) {
+    $('#orderNote').textContent = '保存中…';
+    api('/api/admin/library/order', { method:'POST', body: JSON.stringify({ slugs: slugs }) })
+      .then(function (r) {
+        if (!r || !r.ok) {
+          $('#orderNote').textContent = (r && r.error) || '保存失败';
+          alert((r && r.error) || '保存失败');
+          refresh();
+          return;
+        }
+        ORDER = r.order || slugs;
+        CUSTOM_ORDER = true;
+        $('#orderNote').textContent = '✓ 已保存 · 首页即时生效';
+        refresh();
+      })
+      .catch(function () { $('#orderNote').textContent = '网络错误，顺序未保存'; refresh(); });
+  }
+  function moveOrder(slug, delta) {
+    var i = ORDER.indexOf(slug);
+    var j = i + delta;
+    if (i < 0 || j < 0 || j >= ORDER.length) return;
+    var next = ORDER.slice();
+    next[i] = ORDER[j];
+    next[j] = slug;
+    ORDER = next;
+    renderOrder(DECKS);           // 先乐观更新，再落盘
+    saveOrder(next);
+  }
+  function orderFromDom() {
+    var list = document.getElementById('orderList');
+    if (!list) return null;
+    return [].map.call(list.querySelectorAll('li[data-slug]'), function (li) {
+      return li.getAttribute('data-slug');
+    });
+  }
+  $('#orderReset').addEventListener('click', function () {
+    if (!confirm('恢复默认顺序？首页将按各 deck.json 的 order 与标题排列。')) return;
+    api('/api/admin/library/order', { method:'POST', body: JSON.stringify({ reset: true }) })
+      .then(function (r) {
+        if (!r || !r.ok) { alert((r && r.error) || '操作失败'); return; }
+        CUSTOM_ORDER = false;
+        ORDER = r.order || [];
+        refresh();
+      });
+  });
+  $('#orderBox').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    var li = e.target.closest('li[data-slug]');
+    if (!btn || !li) return;
+    var slug = li.getAttribute('data-slug');
+    if (btn.classList.contains('ord-up')) moveOrder(slug, -1);
+    else if (btn.classList.contains('ord-down')) moveOrder(slug, 1);
+  });
+  $('#orderBox').addEventListener('dragstart', function (e) {
+    var li = e.target.closest('li[data-slug]');
+    if (!li) return;
+    dragSlug = li.getAttribute('data-slug');
+    li.classList.add('dragging');
+    try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragSlug); } catch (err) {}
+  });
+  $('#orderBox').addEventListener('dragover', function (e) {
+    if (!dragSlug) return;
+    e.preventDefault();
+    var list = document.getElementById('orderList');
+    var dragging = list && list.querySelector('li.dragging');
+    if (!dragging) return;
+    var over = e.target.closest('li[data-slug]');
+    if (!over || over === dragging) return;
+    var rect = over.getBoundingClientRect();
+    var after = (e.clientY - rect.top) > rect.height / 2;
+    list.insertBefore(dragging, after ? over.nextSibling : over);
+  });
+  $('#orderBox').addEventListener('drop', function (e) {
+    if (!dragSlug) return;
+    e.preventDefault();
+    var slugs = orderFromDom();
+    dragSlug = null;                       // 先结束拖动态，刷新回来才允许重画列表
+    var li = $('#orderBox .dragging');
+    if (li) li.classList.remove('dragging');
+    if (slugs && slugs.join('|') !== ORDER.join('|')) { ORDER = slugs; saveOrder(slugs); }
+  });
+  $('#orderBox').addEventListener('dragend', function () {
+    var li = $('#orderBox .dragging');
+    if (li) li.classList.remove('dragging');
+    dragSlug = null;
+  });
+
   function deckClicks(e) {
     var btn = e.target.closest('button'); if (!btn) return;
     var tr = e.target.closest('tr[data-slug]'); if (!tr) return;

@@ -22,6 +22,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import admin_core  # noqa: E402  展示台首页手工排序（data/library.json）
+
 ROOT = Path(__file__).resolve().parent.parent
 DECKS = ROOT / "decks"
 THUMB_W, THUMB_H = 800, 450
@@ -100,11 +103,22 @@ def ensure_thumb(folder: Path, force: bool) -> Path:
 
 
 PAGE = """<!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-cols="2">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PPT 展示台</title>
+<script>
+  // 先套用本机记住的列数，避免刷新时从 2 列闪一下再变
+  (function () {{
+    var n = 2;
+    try {{
+      var saved = parseInt(localStorage.getItem('deck_library_cols'), 10);
+      if (saved === 3 || saved === 4) n = saved;
+    }} catch (e) {{}}
+    document.documentElement.setAttribute('data-cols', String(n));
+  }})();
+</script>
 <style>
   :root {{
     --paper: #F7F3EA; --paper-2: #FCFAF4; --ink: #14201B; --ink-2: #33453D;
@@ -124,12 +138,24 @@ PAGE = """<!doctype html>
   .brand {{ font-family: var(--mono); font-size: 11px; letter-spacing: .22em; color: var(--green); margin: 0 0 14px; }}
   h1 {{ font-family: var(--serif); font-size: 48px; line-height: 1.1; letter-spacing: .02em; margin: 0 0 12px; font-weight: 600; }}
   .lede {{ margin: 0; color: var(--ink-3); font-size: 16px; line-height: 1.7; max-width: 56ch; }}
+  .topRight {{ display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }}
   .stats {{ display: flex; gap: 28px; }}
+  .colbar {{ display: flex; align-items: center; gap: 10px; }}
+  .colbar__label {{ font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--ink-4); }}
+  .cols {{ display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper-2); }}
+  .cols button {{ border: 0; background: transparent; color: var(--ink-3); font: 500 12px/1 var(--sans);
+    padding: 7px 13px; border-radius: 999px; cursor: pointer; letter-spacing: .04em;
+    transition: background .15s, color .15s; }}
+  .cols button:hover {{ color: var(--green); }}
+  .cols button:focus-visible {{ outline: 2px solid var(--green-2); outline-offset: 2px; }}
+  .cols button[aria-pressed="true"] {{ background: var(--green); color: var(--paper); }}
   .stat b {{ display: block; font-family: var(--mono); font-size: 30px; font-weight: 600; letter-spacing: -.02em; color: var(--ink); }}
   .stat span {{ font-size: 11px; letter-spacing: .1em; color: var(--ink-4); }}
   .rule {{ height: 1px; background: var(--line); margin: 40px 0 30px; }}
 
-  .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 520px)); justify-content: start; gap: 28px; }}
+  .grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 520px)); justify-content: start; gap: 28px; }}
+  html[data-cols="3"] .grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }}
+  html[data-cols="4"] .grid {{ grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }}
   .card {{
     display: block; background: var(--paper-2); border: 1px solid var(--line);
     border-radius: 14px; overflow: hidden; text-decoration: none; color: inherit;
@@ -157,17 +183,36 @@ PAGE = """<!doctype html>
   .tag {{ padding: 3px 8px; border-radius: 4px; background: rgba(30,91,71,.08); color: var(--green); font-size: 10px; letter-spacing: .04em; }}
   .empty {{ padding: 60px 0; color: var(--ink-3); font-size: 15px; }}
 
+  /* 4 列时卡片更窄，标题与内边距同步收紧 */
+  @media (min-width: 901px) {{
+    html[data-cols="4"] .card__body {{ padding: 15px 16px 16px; }}
+    html[data-cols="4"] .card__title {{ font-size: 19px; }}
+    html[data-cols="4"] .card__sub {{ font-size: 12.5px; }}
+    html[data-cols="4"] .card__meta {{ margin-top: 12px; }}
+  }}
+
   footer.bot {{ margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 26px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--ink-4); }}
   .import-btn {{ display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 999px;
     background: var(--green); color: var(--paper); font: 600 13px/1 var(--sans); letter-spacing: .04em;
     text-decoration: none; transition: transform .15s, box-shadow .15s; }}
   .import-btn:hover {{ transform: translateY(-1px); box-shadow: 0 8px 20px rgba(30,91,71,.28); }}
   footer.bot b {{ color: var(--ink-3); font-weight: 500; }}
+  @media (max-width: 1080px) {{
+    html[data-cols="4"] .grid {{ grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }}
+  }}
+  @media (max-width: 900px) {{
+    html[data-cols="3"] .grid,
+    html[data-cols="4"] .grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }}
+  }}
   @media (max-width: 720px) {{
     .wrap {{ padding: 36px 20px 56px; }}
     h1 {{ font-size: 32px; }}
+    .topRight {{ align-items: flex-start; }}
     .stats {{ gap: 20px; }}
-    .grid {{ grid-template-columns: 1fr; gap: 20px; }}
+    .colbar {{ display: none; }}
+    .grid,
+    html[data-cols="3"] .grid,
+    html[data-cols="4"] .grid {{ grid-template-columns: 1fr; gap: 20px; }}
   }}
 </style>
 </head>
@@ -179,10 +224,20 @@ PAGE = """<!doctype html>
       <h1>PPT 展示台</h1>
       <p class="lede">每一套都是可以直接放映的 HTML 幻灯片：方向键/空格翻页，两侧边缘点击翻页，G 总览，N 备注，F 全屏放映。</p>
     </div>
-    <div class="stats">
-      <a class="import-btn" href="/import.html" id="importBtn">＋ 导入 PPTX</a>
-      <div class="stat"><b>{n}</b><span>套</span></div>
-      <div class="stat"><b>{total}</b><span>屏</span></div>
+    <div class="topRight">
+      <div class="colbar">
+        <span class="colbar__label">每行列数</span>
+        <div class="cols" role="group" aria-label="首页每行显示列数">
+          <button type="button" data-cols="2" aria-pressed="true">2 列</button>
+          <button type="button" data-cols="3" aria-pressed="false">3 列</button>
+          <button type="button" data-cols="4" aria-pressed="false">4 列</button>
+        </div>
+      </div>
+      <div class="stats">
+        <a class="import-btn" href="/import.html" id="importBtn">＋ 导入 PPTX</a>
+        <div class="stat"><b>{n}</b><span>套</span></div>
+        <div class="stat"><b>{total}</b><span>屏</span></div>
+      </div>
     </div>
   </header>
 
@@ -219,6 +274,28 @@ PAGE = """<!doctype html>
         alert('导入功能只在本地可用：在项目目录运行 python3 tools/serve_deck.py，然后打开 http://127.0.0.1:8899/import.html');
       }});
     }});
+  }})();
+  // 首页列数：2 / 3 / 4 列，选择记在本机浏览器
+  (function () {{
+    var root = document.documentElement;
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('.cols button'));
+    if (!buttons.length) return;
+    function apply(n, persist) {{
+      root.setAttribute('data-cols', String(n));
+      buttons.forEach(function (btn) {{
+        btn.setAttribute('aria-pressed', String(Number(btn.getAttribute('data-cols')) === n));
+      }});
+      if (persist) {{
+        try {{ localStorage.setItem('deck_library_cols', String(n)); }} catch (e) {{}}
+      }}
+    }}
+    buttons.forEach(function (btn) {{
+      btn.addEventListener('click', function () {{
+        apply(Number(btn.getAttribute('data-cols')), true);
+      }});
+    }});
+    var current = Number(root.getAttribute('data-cols'));
+    apply(current === 3 || current === 4 ? current : 2, false);
   }})();
 </script>
 </body>
@@ -268,7 +345,8 @@ def main() -> int:
         meta["thumb_version"] = str(int(thumb_path.stat().st_mtime_ns)) if thumb_path.is_file() else "0"
         decks.append(meta)
 
-    decks.sort(key=lambda d: (d.get("order", 99), d.get("title", "")))
+    manual = admin_core.read_library_order(str(ROOT))
+    decks = admin_core.sort_library_decks(decks, manual)
 
     cards = []
     for d in decks:
@@ -295,7 +373,9 @@ def main() -> int:
         json.dumps({"generated": datetime.now().isoformat(timespec="seconds"), "decks": decks},
                    ensure_ascii=False, indent=2),
         encoding="utf-8")
-    print(f"[library] library.html · {len(decks)} 套 · {sum(d.get('slides', 0) for d in decks)} 屏")
+    print(f"[library] library.html · {len(decks)} 套 · "
+          f"{sum(d.get('slides', 0) for d in decks)} 屏 · "
+          f"{'自定义顺序' if manual else '默认顺序'}")
     return 0
 
 

@@ -79,7 +79,7 @@ class DeckHandler(SimpleHTTPRequestHandler):
         path = self.path.split("?")[0].lower()
         if path == "/api/admin/qr":
             self.send_header("Cache-Control", "private, no-store")
-        elif (path.endswith((".html", ".htm")) or path in ("/", "")
+        elif (path.endswith((".html", ".htm")) or path in ("/", "", "/decks.json")
               or path.startswith(("/api/", "/admin"))
               or re.match(r"^/decks/[^/]+/?$", path)):
             self.send_header("Cache-Control", "no-cache, must-revalidate")
@@ -229,16 +229,19 @@ class DeckHandler(SimpleHTTPRequestHandler):
             return self.send_error(404, "Not Found")
 
         rel = os.path.relpath(path, self.directory)
-        # decks.json 同步剔除下架 deck（公网直拉元数据也不泄漏）
+        # decks.json 同步剔除下架 deck（公网直拉元数据也不泄漏）并按首页最终顺序排列
         if rel == "decks.json" and self.command == "GET":
             disabled = {s for s, c in site.access_map().items() if c and c.get("enabled") is False}
-            if disabled:
-                try:
-                    dj = json.loads(data.decode("utf-8"))
-                    dj["decks"] = [d for d in dj.get("decks", []) if d.get("slug") not in disabled]
-                    data = json.dumps(dj, ensure_ascii=False, indent=2).encode("utf-8")
-                except (json.JSONDecodeError, AttributeError):
-                    pass
+            manual = site.library_order()
+            try:
+                dj = json.loads(data.decode("utf-8"))
+                decks = dj.get("decks", [])
+                if disabled:
+                    decks = [d for d in decks if d.get("slug") not in disabled]
+                dj["decks"] = _MODS["core"].sort_library_decks(decks, manual)
+                data = json.dumps(dj, ensure_ascii=False, indent=2).encode("utf-8")
+            except (json.JSONDecodeError, AttributeError, TypeError):
+                pass
         # HTML 注入追踪脚本（?export=1 的本机缩略图采集不注入）；展示台首页额外做门禁过滤
         if ctype.startswith("text/html") and self.command == "GET":
             if not (parse_qs(urlparse(self.path).query).get("export") == ["1"] and self._is_local()):
@@ -249,7 +252,9 @@ class DeckHandler(SimpleHTTPRequestHandler):
                                + _MODS["themes"].theme_assets(slug))
                 elif rel in ("library.html", "index.html", "index-web.html"):
                     if rel == "library.html":
-                        text = _MODS["site"].filter_library_html(text, site.access_map())
+                        text = _MODS["site"].filter_library_html(
+                            text, site.access_map(),
+                            self._library_display_order(site.library_order()))
                     tracker = _MODS["site"].tracker_script("__library")
                 else:
                     tracker = None
@@ -420,6 +425,19 @@ class DeckHandler(SimpleHTTPRequestHandler):
             pass
         return slug
 
+    def _library_display_order(self, manual):
+        """首页最终顺序：decks.json 的默认 order / 标题 + 后台手工顺序。
+
+        始终重算（而不只在有手工顺序时重排），这样在后台「恢复默认顺序」后，
+        即使静态 library.html 仍是上次按自定义顺序构建的，也能立刻回到默认顺序。
+        """
+        try:
+            with open(os.path.join(self.directory, "decks.json"), encoding="utf-8") as fh:
+                catalog = json.load(fh).get("decks", [])
+            return _MODS["core"].order_from_catalog(catalog, manual)
+        except (OSError, json.JSONDecodeError, AttributeError, TypeError):
+            return list(manual or [])
+
     def _send_html(self, code, text, headers=()):
         self._send_bytes(code, "text/html; charset=utf-8", text.encode("utf-8"), headers)
 
@@ -477,15 +495,20 @@ class DeckHandler(SimpleHTTPRequestHandler):
             return self._send_bytes(200, "image/png", data)
         if path == "/api/admin/decks":
             stats = st.deck_stats()
+            manual = st.library_order()
+            decks = _MODS["core"].sort_library_decks(st.deck_list(), manual)
             hcfg = st.deck_cfg("__library")
-            decks = [{"slug": "__library", "title": "展示台首页", "n_slides": 0,
-                      "enabled": True, "locked": hcfg["locked"], "hint": hcfg["hint"],
-                      "stats": stats.get("__library", {})}]
-            for d in st.deck_list():
+            rows = [{"slug": "__library", "title": "展示台首页", "n_slides": 0,
+                     "enabled": True, "locked": hcfg["locked"], "hint": hcfg["hint"],
+                     "stats": stats.get("__library", {})}]
+            for pos, d in enumerate(decks, 1):
                 d.update(st.deck_cfg(d["slug"]))
                 d["stats"] = stats.get(d["slug"], {})
-                decks.append(d)
-            return self._json_response(200, {"ok": True, "decks": decks})
+                d["position"] = pos
+                rows.append(d)
+            return self._json_response(200, {"ok": True, "decks": rows,
+                                             "order": [d["slug"] for d in decks],
+                                             "custom_order": bool(manual)})
         if path == "/api/admin/slides":
             q = parse_qs(urlparse(self.path).query)
             deck = (q.get("deck") or ["__library"])[0]
@@ -541,6 +564,27 @@ class DeckHandler(SimpleHTTPRequestHandler):
                 kwargs["hint"] = str(req["hint"])[:200]
             st.set_deck(slug, **kwargs)
             return self._json_response(200, {"ok": True, "cfg": st.deck_cfg(slug)})
+        if path == "/api/admin/library/order":
+            known = {d["slug"] for d in st.deck_list()}
+            if req.get("reset") is True:
+                st.set_library_order(None)
+                ordered = _MODS["core"].sort_library_decks(st.deck_list(), [])
+                return self._json_response(200, {"ok": True, "custom_order": False,
+                                                 "order": [d["slug"] for d in ordered]})
+            slugs = req.get("slugs")
+            if not isinstance(slugs, list) or not slugs or \
+                    not all(isinstance(s, str) and re.fullmatch(r"[a-z0-9-]{1,80}", s) for s in slugs):
+                return self._json_response(400, {"ok": False, "error": "顺序数据不合法"})
+            if len(set(slugs)) != len(slugs):
+                return self._json_response(400, {"ok": False, "error": "顺序里有重复内容"})
+            unknown = [s for s in slugs if s not in known]
+            if unknown:
+                return self._json_response(400, {"ok": False,
+                                                 "error": f"未知 deck：{unknown[0]}"})
+            st.set_library_order(slugs)
+            ordered = _MODS["core"].sort_library_decks(st.deck_list(), slugs)
+            return self._json_response(200, {"ok": True, "custom_order": True,
+                                             "order": [d["slug"] for d in ordered]})
         if path == "/api/admin/password":
             old, new = req.get("old"), req.get("new")
             if not isinstance(old, str) or not isinstance(new, str) or len(new) < 6:

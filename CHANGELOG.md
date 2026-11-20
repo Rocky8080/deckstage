@@ -4,6 +4,32 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.5.0] - 2026-11-21
+
+### 新增
+
+- **管理后台「首页排序」**：在 `/admin/` 拖动卡片或点 ↑↓ 调整展示台顺序，调整后首页与
+  `/decks.json` 立即生效，不需要重新 build；「恢复默认顺序」回到各 deck `deck.json` 的
+  `order` / 标题排序。顺序保存在 `data/library.json`（0600，gitignore），不改 `deck.json`；
+  新导入的 deck 默认落在末尾，下架内容保留位置，重新上架后回到原处。
+- **展示台首页列数切换**：右上角新增「2 列 / 3 列 / 4 列」按钮，默认 2 列；选择记在
+  `localStorage`，刷新后保留。窄窗口自动降级（4→3→2 列），手机单列并隐藏按钮；4 列时
+  卡片标题与内边距同步收紧。调整列数不需要重新构建。
+- 新增 `POST /api/admin/library/order`（`{slugs:[...]}` / `{reset:true}`）；后台内容管理
+  同步显示每套 deck 的首页位置。
+- 新增 `tools/test_admin_order.py`、`tools/test_admin_ui.py`、`tools/test_library_columns.py`
+  自测（临时站点，不碰本机 `data/`；UI 自测覆盖 ↑↓、拖动、恢复默认与 2/3/4 列切换）。
+
+### 修复
+
+- 后台「恢复默认顺序」后，即使静态 `library.html` 还是上次按自定义顺序构建的，首页也会
+  立即回到默认顺序（服务端始终按当前顺序重算，而不是只在有手工顺序时重排）。
+- `/decks.json` 改为 `no-cache`，避免浏览器缓存住旧的顺序或下架状态。
+
+### 文档
+
+- `docs/ADMIN.md` 补充首页排序的规则、API 与数据文件；README 同步能力清单与自测命令。
+
 ## [1.4.1] - 2026-11-20
 
 ### 修复
@@ -122,6 +148,7 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.5.0]: https://github.com/Rocky8080/deckstage/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/Rocky8080/deckstage/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Rocky8080/deckstage/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Rocky8080/deckstage/compare/v1.2.0...v1.3.0
