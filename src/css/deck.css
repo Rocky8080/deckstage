@@ -15,6 +15,14 @@ html, body { height: 100%; overflow: hidden; }
   overflow: hidden;
 }
 
+/* 玄墨：抬起的炭黑外壳，避免纯黑压住投影画面 */
+html[data-dtheme="ink-dark"] .deck {
+  background:
+    radial-gradient(1200px 700px at 50% -10%, #202C26 0%, transparent 62%),
+    radial-gradient(900px 600px at 110% 110%, #1C2621 0%, transparent 60%),
+    #121917;
+}
+
 /* ---------------------------------------------- 舞台 */
 .stage {
   position: absolute;

@@ -17,16 +17,17 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 | 能力 | 说明 |
 |---|---|
 | **HTML 创作** | 一屏一个 HTML 文件，类名体系见 [docs/AUTHORING.md](docs/AUTHORING.md)；`reveal` 入场动效、数字滚动、演讲备注、导轨分章 |
+| **版式骨架** | 12 个可直接抄的页面骨架 + 选型 / 反单调规则，见 [LAYOUTS.md](capabilities/design-quality/LAYOUTS.md)；画廊 `src-archetypes/`，多样性检查 `layout_audit.py` |
 | **PPTX 导入** | 外部 PowerPoint 经六阶段 pipeline 自动转换（体检 → 字体 → 版式预修 → LibreOffice 渲染 → 补字层 → 组装），详见 [docs/IMPORT.md](docs/IMPORT.md) |
 | **展示台** | `library.html` 缩略图墙聚合所有 deck；`serve_deck.py` 本地起服务后右上角可「＋ 导入 PPTX」（四步向导，仅限本机） |
 | **管理后台** | `/admin/` 支持访客分析、首页与 deck 门禁、内容上下架、分享链接与二维码卡片。详见 [管理后台](docs/ADMIN.md) |
-| **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（六套预设含深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
+| **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（七套预设含素白与深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
 | **导出** | 页面内导出可编辑 PPTX，保留纯色背景与内联 SVG 的透明度。构建也可产出全内联的单机版 HTML。详见 [PPTX 导出](docs/PPTX.md) |
 | **质检** | 检查表达、版面、视觉对比度与 PPTX 导出，支持放映交互自测和逐屏截图 |
 
 `build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
 
-v1.3.0 的变更详见 [发布日志](CHANGELOG.md#130---2026-11-20)。
+v1.4.0 的变更详见 [发布日志](CHANGELOG.md#140---2026-11-20)。
 
 ## 二、快速开始
 
@@ -50,7 +51,8 @@ python3 tools/serve_deck.py               # → http://127.0.0.1:8899/
 python3 tools/import_pptx.py 你的.pptx --slug my-deck --dry-run   # 先体检
 python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导入
 
-# 3) 写自己的 deck：抄 src-sample/ 的结构，一屏一个文件
+# 3) 写自己的 deck：先选页面骨架，再一屏一个文件
+node build.mjs --src src-archetypes --deck archetypes   # 12 个骨架的画廊，先看再抄
 node build.mjs --src src-mine --deck my-deck
 ```
 
@@ -80,6 +82,8 @@ node build.mjs --src src-mine --deck my-deck
 2. **一句话委托**：在 ZCode / WorkBuddy / DeepSeek Harness / Codex 等 AI 客户端里，
    把文件拖进去并说清三件事——素材位置、目标屏数与 slug、验收标准（如「质检 0 问题」）；
 3. **审片只看效果**：AI 调用本仓库工具链完成拼装、缩略图、质检自修，你翻一遍提修改即可。
+4. **先选骨架**：让 AI 先读 `capabilities/design-quality/LAYOUTS.md`，按「内容 → 骨架」列 8–12 屏清单
+   （一套 ≥10 屏至少 6 种骨架、相邻不重复），再复制骨架填内容；画廊见 `decks/archetypes/`。
 
 适用边界：内容型汇报最适合这条路；需要严格品牌版式 / 合规模板时，走 PPTX 导入保真路径。
 
@@ -92,6 +96,7 @@ library.html               展示台（build_library.py 生成）
 src/css/                   设计变量 tokens.css + 基础排版 base.css + 放映外壳 deck.css（引擎）
 src/js/                    放映引擎 deck.js + 页面内 PPTX 导出 pptx-export.js（引擎）
 src-sample/                示例 deck 源码（shell + slides），创作模板
+src-archetypes/            12 个页面骨架的画廊源码（slides 为符号链接，实际文件在 capabilities/design-quality/archetypes/）
 decks/<slug>/              成品：index.html + deck.json + thumb.jpg（sample-deck 已含）
 assets/<slug>/             导入 deck 的逐页渲染图
 tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md、各文件 docstring）
@@ -105,8 +110,9 @@ tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md�
   test_deck.py               放映交互自测
   frame.py                  表达检查与写作框架
   design_audit.py            文字对比度与强调色面积检查
+  layout_audit.py            页面骨架覆盖与重复检查（版式多样性）
   export_audit.py            PPTX 背景与页数核验
-capabilities/              写作与视觉检查规则、提示词和幻灯片模板
+capabilities/              写作与视觉检查规则、提示词、12 个页面骨架（design-quality/archetypes）
 docs/                      AUTHORING / DECK_SPEC / IMPORT / ADMIN / DESIGN / PPTX
 vendor/                    pptxgen.bundle.js（MIT，落盘锁定）
 ```
@@ -126,6 +132,7 @@ python3 tools/frame.py audit "src-sample/slides/*.html"
 python3 tools/check_slides.py --index decks/sample-deck/index.html
 python3 tools/design_audit.py --index decks/sample-deck/index.html
 python3 tools/design_audit.py --index decks/sample-deck/index.html --ratio 4:3
+python3 tools/layout_audit.py --index decks/sample-deck/index.html
 python3 tools/export_audit.py --index decks/sample-deck/index.html
 ```
 

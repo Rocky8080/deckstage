@@ -36,6 +36,8 @@ gui-test-screenshots/
 !/src/js/
 /src-*/
 !/src-sample/
+# 版式原型库：只有 shell 与指向 capabilities/design-quality/archetypes/ 的符号链接，属于引擎资产
+!/src-archetypes/
 /docs/本地笔记/
 tools/fixtures/
 

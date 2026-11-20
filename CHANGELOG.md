@@ -4,6 +4,30 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.4.0] - 2026-11-20
+
+### 新增
+
+- **版式骨架库**：`capabilities/design-quality/archetypes/` 提供 12 个可直接抄的页面骨架（封面 / 目录 / 单观点 / 三并列 / 对照矩阵 / 过程链 / 阶梯 / 数据看板 / 分层架构 / 闭环 / 反例正例 / 收尾），每个都带适用信号、容量上限和反例；选型规则与反单调指标见 `capabilities/design-quality/LAYOUTS.md`。
+- **12 屏骨架画廊**：新增 `src-archetypes/` 与 `src/css/base.css` 的 `.ax-*` 引擎样式；`node build.mjs --src src-archetypes --deck archetypes` 可预览。
+- **默认动效**：骨架默认带区块 `.reveal` 阶梯入场、数据看板数字从 0 滚动、阶梯条从左生长；静态导出自动落终态，时序与限制见 `LAYOUTS.md` 第 6 节。
+- **`tools/layout_audit.py`**：按页面骨架签名统计骨架种数、相邻重复与单骨架复用；默认建议级，`--strict` 可在 CI 中阻断。
+- **「素白」主题与七套配色**：新增纯白纸面 + 墨绿主色 + 赭石强调的素白方案；七套预设统一加约 3–8% 的多色环境光（绿 / 赭 / 蓝 / 青），第一眼仍是单一底色；地址加 `?dtheme=paper-white` / `?dtheme=ink-dark` 可直接打开指定配色。
+- **安装链路**：`install.sh` 同时安装写作与设计两个 DSH 技能；`install_capability.py --check` 校验 `design-quality` 的 `SKILL.md` 与 `LAYOUTS.md`。
+
+### 改进
+
+- `AGENTS.md`、`docs/AUTHORING.md`、README 增加「先选骨架、再填内容」的生成流程：一套 ≥10 屏至少 6 种骨架，相邻两屏不同骨架，同一骨架最多 3 次。
+- `LAYOUTS.md` 补充内容少时撑满版心的做法、默认动效约定，以及新增骨架必须在 `paper-white` / `ink-dark` 两套主题下检查图形对比度。
+- 示例 deck 的主题页改为七套 + 自定义卡；`05-overview`、主题说明与截图口径同步为七套；重新构建示例 deck，带上新增引擎样式。
+- `docs/DECK_SPEC.md` 补充 `?dtheme=` 约定、素白配色表与玄墨环境光说明。
+
+### 修复
+
+- 玄墨主题的阶梯条、矩阵圆点、架构芯片和小标签对比度不足；条形改为填充 + 完整描边，条形填充对纸面约 2.5:1、左缘亮边约 9.9:1。
+- 玄墨底色从 `#14171B` 抬到 `#1B211F`，外壳抬到 `#121917`，避免“死黑”。
+- 青瓷主色从 `#3E8577` 加深到 `#35766A`，12px 标签对比度从 3.95:1 提升到 4.83:1。
+
 ## [1.3.0] - 2026-11-20
 
 ### 新增
@@ -89,6 +113,7 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.4.0]: https://github.com/Rocky8080/deckstage/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Rocky8080/deckstage/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Rocky8080/deckstage/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Rocky8080/deckstage/compare/dce5a61...v1.1.0

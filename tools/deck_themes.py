@@ -15,6 +15,24 @@ deck_themes.py — 原生 deck 的预设配色方案 + 运行时切换（由 ser
 THEMES = [
     {"id": None, "name": "默认", "note": "deck 原配色", "vars": {}},
 
+    {"id": "paper-white", "name": "素白", "note": "纯白纸面 + 墨绿主色",
+     "vars": {
+         "--paper": "#FFFFFF", "--paper-2": "#FCFCFA", "--paper-3": "#F4F4F0",
+         "--ink": "#14171A", "--ink-2": "#353C3A", "--ink-3": "#5B6561",
+         "--ink-4": "#6E7873", "--line": "#E2E3DD", "--line-soft": "#EFF0EB",
+         "--green": "#16533F", "--green-2": "#226B52", "--green-3": "#4C8B74",
+         "--green-tint": "#E7EFEA", "--green-wash": "#F2F6F3",
+         "--terra": "#A8481F", "--terra-2": "#C25C32", "--terra-tint": "#F8E8E0",
+         "--gold": "#8B6B22", "--gold-tint": "#F5EFDC",
+         "--up": "#B3261E", "--up-2": "#D04A3F", "--up-soft": "#F7E2DE",
+         "--down": "#1F6B53", "--down-2": "#16533F", "--down-soft": "#E2EFE9",
+         "--dark": "#0E1512", "--dark-2": "#18211D", "--dark-3": "#222D28",
+         "--dark-line": "#33423A",
+         "--ambient-1": "rgba(22, 83, 63, .035)",
+         "--ambient-2": "rgba(168, 72, 31, .024)",
+         "--ambient-3": "rgba(37, 99, 235, .018)",
+         "--ambient-4": "transparent"}},
+
     {"id": "navy", "name": "藏青", "note": "冷调纸面 + 靛蓝主色",
      "vars": {
          "--paper": "#F3F5F9", "--paper-2": "#FBFCFE", "--paper-3": "#E8EDF4",
@@ -27,7 +45,11 @@ THEMES = [
          "--up": "#C0392B", "--up-2": "#D9574A", "--up-soft": "#F5E0DC",
          "--down": "#2F6BAD", "--down-2": "#1D4E89", "--down-soft": "#E0EAF6",
          "--dark": "#0F1728", "--dark-2": "#16203A", "--dark-3": "#1E2A46",
-         "--dark-line": "#2C3A58"}},
+         "--dark-line": "#2C3A58",
+         "--ambient-1": "rgba(29, 78, 137, .06)",
+         "--ambient-2": "rgba(168, 58, 85, .032)",
+         "--ambient-3": "rgba(44, 120, 160, .028)",
+         "--ambient-4": "transparent"}},
 
     {"id": "terra", "name": "暖赭", "note": "暖纸面 + 赭陶主色",
      "vars": {
@@ -41,7 +63,11 @@ THEMES = [
          "--up": "#C0392B", "--up-2": "#D9574A", "--up-soft": "#F5E0DC",
          "--down": "#BF6B45", "--down-2": "#A65232", "--down-soft": "#F3E2D6",
          "--dark": "#1C130C", "--dark-2": "#2A1D13", "--dark-3": "#38271A",
-         "--dark-line": "#4A3624"}},
+         "--dark-line": "#4A3624",
+         "--ambient-1": "rgba(166, 82, 50, .06)",
+         "--ambient-2": "rgba(169, 134, 60, .038)",
+         "--ambient-3": "rgba(29, 78, 137, .02)",
+         "--ambient-4": "transparent"}},
 
     {"id": "violet", "name": "紫藤", "note": "冷紫纸面 + 绛紫主色",
      "vars": {
@@ -55,35 +81,47 @@ THEMES = [
          "--up": "#C0392B", "--up-2": "#D9574A", "--up-soft": "#F5E0DC",
          "--down": "#72619F", "--down-2": "#5B4A8A", "--down-soft": "#E8E3F4",
          "--dark": "#171226", "--dark-2": "#221B36", "--dark-3": "#2D2446",
-         "--dark-line": "#3E3359"}},
+         "--dark-line": "#3E3359",
+         "--ambient-1": "rgba(91, 74, 138, .06)",
+         "--ambient-2": "rgba(174, 58, 102, .032)",
+         "--ambient-3": "rgba(29, 78, 137, .022)",
+         "--ambient-4": "transparent"}},
 
     {"id": "celadon", "name": "青瓷", "note": "灰绿纸面 + 青瓷主色",
      "vars": {
          "--paper": "#F1F5F2", "--paper-2": "#FAFCFA", "--paper-3": "#E2EBE5",
          "--ink": "#13221C", "--ink-2": "#2F443B", "--ink-3": "#4E635A",
          "--ink-4": "#74857D", "--line": "#CFDDD5", "--line-soft": "#DFE9E3",
-         "--green": "#3E8577", "--green-2": "#55A08F", "--green-3": "#8CC2B2",
+         "--green": "#35766A", "--green-2": "#438C7E", "--green-3": "#8CC2B2",
          "--green-tint": "#DEECE6", "--green-wash": "#E8F1EC",
          "--terra": "#C05A42", "--terra-2": "#D4755D", "--terra-tint": "#F7E1DA",
          "--gold": "#A9863C", "--gold-tint": "#F3EAD5",
          "--up": "#C0392B", "--up-2": "#D9574A", "--up-soft": "#F5E0DC",
-         "--down": "#55A08F", "--down-2": "#3E8577", "--down-soft": "#DEECE6",
+         "--down": "#35766A", "--down-2": "#2F6B60", "--down-soft": "#DEECE6",
          "--dark": "#10201B", "--dark-2": "#182B25", "--dark-3": "#20362E",
-         "--dark-line": "#2E453B"}},
+         "--dark-line": "#2E453B",
+         "--ambient-1": "rgba(53, 118, 106, .06)",
+         "--ambient-2": "rgba(192, 90, 66, .03)",
+         "--ambient-3": "rgba(29, 78, 137, .02)",
+         "--ambient-4": "transparent"}},
 
-    {"id": "ink-dark", "name": "玄墨", "note": "深色放映 · 高对比",
+    {"id": "ink-dark", "name": "玄墨", "note": "抬起的炭黑 · 墨绿冷光",
      "vars": {
-         "--paper": "#14171B", "--paper-2": "#1B1F24", "--paper-3": "#23282E",
-         "--ink": "#ECE8DF", "--ink-2": "#C8C3B8", "--ink-3": "#9C968A",
-         "--ink-4": "#6E6961", "--line": "#3A3F46", "--line-soft": "#2E3339",
-         "--green": "#4FA07F", "--green-2": "#66B694", "--green-3": "#8FCDB0",
-         "--green-tint": "#1F2C26", "--green-wash": "#1A2721",
-         "--terra": "#D06A42", "--terra-2": "#E08055", "--terra-tint": "#35261E",
-         "--gold": "#C9A75A", "--gold-tint": "#322B1B",
-         "--up": "#E05545", "--up-2": "#EC6E5F", "--up-soft": "#3A221E",
-         "--down": "#4FA07F", "--down-2": "#66B694", "--down-soft": "#1E2C26",
-         "--dark": "#0B0D10", "--dark-2": "#101318", "--dark-3": "#151920",
-         "--dark-line": "#262B31"}},
+         "--paper": "#1B211F", "--paper-2": "#222926", "--paper-3": "#2A322E",
+         "--ink": "#ECE8DF", "--ink-2": "#CBC6BB", "--ink-3": "#A39D91",
+         "--ink-4": "#8C867D", "--line": "#3C443F", "--line-soft": "#313834",
+         "--green": "#5BB08D", "--green-2": "#70C4A1", "--green-3": "#9AD6BA",
+         "--green-tint": "#26342D", "--green-wash": "#202C26",
+         "--terra": "#D87047", "--terra-2": "#E58860", "--terra-tint": "#38281F",
+         "--gold": "#CDAB5F", "--gold-tint": "#342C1D",
+         "--up": "#E4594A", "--up-2": "#EE7466", "--up-soft": "#3D2420",
+         "--down": "#5BB08D", "--down-2": "#70C4A1", "--down-soft": "#1F2C26",
+         "--dark": "#101513", "--dark-2": "#161C19", "--dark-3": "#1D2521",
+         "--dark-line": "#2D3732",
+         "--ambient-1": "rgba(91, 176, 141, .08)",
+         "--ambient-2": "rgba(216, 112, 71, .055)",
+         "--ambient-3": "rgba(80, 140, 190, .05)",
+         "--ambient-4": "rgba(90, 180, 190, .04)"}},
 ]
 
 ORDER = [t["id"] for t in THEMES]
@@ -156,7 +194,7 @@ var DOTS = __DOTS__;
 var KEY = "dtheme:" + SLUG;
 var root = document.documentElement, cur = null;
 function apply(id, save){
-  if (id){ root.setAttribute("data-dtheme", id); } else { root.removeAttribute("data-dtheme"); }
+  root.setAttribute("data-dtheme", id || "default");
   cur = id;
   if (save){
     try { if (id) localStorage.setItem(KEY, id); else localStorage.removeItem(KEY); } catch(e){}
@@ -226,6 +264,12 @@ function buildUI(){
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildUI);
 else buildUI();
 (function(){
+  var wanted = null;
+  try { wanted = new URLSearchParams(location.search).get("dtheme"); } catch(e){}
+  if (wanted !== null) {
+    if (wanted === "default" || wanted === "") { apply(null, false); return; }
+    if (ORDER.indexOf(wanted) >= 0) { apply(wanted, false); return; }
+  }
   var saved = null;
   try { saved = localStorage.getItem(KEY); } catch(e){}
   if (saved && ORDER.indexOf(saved) >= 0) apply(saved, false);

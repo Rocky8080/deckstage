@@ -68,6 +68,8 @@
 - SVG 描边绘制：给 `<path>` 加 `pathLength="1"` 和 class `draw` + `style="--d:300ms"`。
 - 数字滚动：`<span class="stat__num num" data-count="466.4" data-dec="1">0</span>`（会自动从 0 滚到目标值）。
 - 逐步揭示（讲演时按空格一条条出）：给元素加 `.frag`。——同一屏最多 4 个 `.frag`。
+- 版式原型库默认已带三类动效：标题/区块 `.reveal`、数字 `data-count`、条形 `.grow-x`；复制骨架即继承。
+  数字滚动的单位要放在 `data-count` 的 `<span>` **外面**，否则会被计数替换掉。
 - 不要写 JS 动画、不要用 GIF。
 - 尊重 `prefers-reduced-motion`（base.css 已处理，只要用上面的类即可）。
 
@@ -116,6 +118,20 @@ python3 tools/check_slides.py --shots   # 同时截图到 /tmp/qa/，可以 read
 ```
 
 检查器会列出：超出画布的元素、body 溢出、图片 404、控制台报错。**必须清零再交付。**
+
+## 9. 版式骨架库（推荐首次使用先看）
+
+仓库自带 **12 个页面骨架**，源文件在 `capabilities/design-quality/archetypes/`，画廊 deck 用下面的命令构建：
+
+```bash
+node build.mjs --src src-archetypes --deck archetypes
+python3 tools/layout_audit.py --index decks/archetypes/index.html
+```
+
+- 选型信号、容量上限、反单调指标：`capabilities/design-quality/LAYOUTS.md`
+- 引擎样式：`src/css/base.css` 末尾的 `.ax-*`；骨架页用 `<section ... data-arch="cover|toc|...">` 标记
+- 硬指标：一套 ≥10 屏至少 6 种骨架，相邻两屏不同骨架，同一骨架最多 3 次
+- 骨架里的文案和数字是演示占位，必须替换；骨架只管版式，结论 / 口径仍走写作门禁
 
 
 ## 写作门禁（自动生效）

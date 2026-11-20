@@ -1,0 +1,58 @@
+<!-- 骨架 09 · 分层架构｜适用：系统分层、规则落点、输入输出关系｜容量：3–4 层，每层 ≤ 4 个组件 -->
+<section class="slide" id="s09" data-title="分层架构 · 三层结构" data-rail="结构" data-arch="arch">
+  <header class="head reveal" style="--d:40ms">
+    <p class="kicker">08 / 结构 · ARCHITECTURE</p>
+    <h1 class="title">三层结构，规则集中在<em>中间</em></h1>
+  </header>
+
+  <div class="body">
+    <div class="ax-arch">
+      <div class="ax-arch__layers">
+        <div class="ax-arch__layer reveal" style="--d:80ms">
+          <span class="ax-arch__k">输入层</span>
+          <div class="ax-arch__body">
+            <div class="ax-arch__chips">
+              <span class="ax-arch__chip">原文</span>
+              <span class="ax-arch__chip">术语表</span>
+              <span class="ax-arch__chip">口径清单</span>
+            </div>
+            <p class="ax-arch__d">原文、术语、口径先摆齐；缺一项，后面就会返工。</p>
+          </div>
+        </div>
+        <div class="ax-arch__layer ax-arch__layer--key reveal" style="--d:180ms">
+          <span class="ax-arch__k">规则层</span>
+          <div class="ax-arch__body">
+            <div class="ax-arch__chips">
+              <span class="ax-arch__chip">结构检查</span>
+              <span class="ax-arch__chip">事实核对</span>
+              <span class="ax-arch__chip">术语替换</span>
+              <span class="ax-arch__chip">长度约束</span>
+            </div>
+            <p class="ax-arch__d">检查项写成清单并版本化；所有稿子共用这一层。</p>
+          </div>
+        </div>
+        <div class="ax-arch__layer reveal" style="--d:280ms">
+          <span class="ax-arch__k">输出层</span>
+          <div class="ax-arch__body">
+            <div class="ax-arch__chips">
+              <span class="ax-arch__chip">修改稿</span>
+              <span class="ax-arch__chip">改动说明</span>
+              <span class="ax-arch__chip">待确认清单</span>
+            </div>
+            <p class="ax-arch__d">修改稿、改动说明、待确认清单一起交；不只交结果。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ax-arch__side reveal" style="--d:380ms">
+        <h3 class="h3">规则只写一次</h3>
+        <p class="txt txt--sm">同一套规则服务所有稿子；改规则要留版本，不要每次重写。</p>
+        <p class="ax-note">反过来做：把规则塞进每次的 prompt，改一次漏一次。</p>
+      </div>
+    </div>
+
+    <p class="bridge ax-bottom reveal" style="--d:460ms">规则就位后，剩下的是<strong>一轮只改一个变量</strong>。</p>
+  </div>
+
+  <aside class="notes">分层只画三层，中间那层加底色表示「规则落在这里」。右侧只放一条判断和一条反例，不写第二套说明。层数再多就拆成两屏。</aside>
+</section>

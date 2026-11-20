@@ -5,6 +5,7 @@
 - `check_slides.py` 检查溢出、截断、重叠、图片加载和控制台报错。
 - `frame.py` 检查口径、基准、结论和图文因果链。
 - `design_audit.py` 检查文字对比度、强调色块面积和低对比水印。
+- `layout_audit.py` 检查页面骨架种数、相邻重复与单骨架复用（建议级，`--strict` 可阻断）。
 
 ## 1. 先跑命令
 
@@ -61,6 +62,8 @@ python3 tools/design_audit.py --index decks/sample-deck/index.html --ratio 4:3
 - 用**字号阶梯**（如 96 / 48 / 28 / 18 / 13）和**字重**建立层级；
 - 用**留白**分组，不要把每个区域都填满；
 - 收尾页（Q&A/谢谢）可以留白，但必须有一个明确的视觉锚点；不要把“空”误当成“留白”。
+- 内容少时**放大已有模块**（大数字、条宽、行高、行列间距），或让模块内部上下对齐（标签顶、结论底），
+  内容组占到版心 70–85%、上下留白接近；不要用新卡片/图标/色块去填满。
 
 ### 2.5 网格与对齐
 
@@ -68,7 +71,13 @@ python3 tools/design_audit.py --index decks/sample-deck/index.html --ratio 4:3
 - 一张页最多一套主网格；细线统一 1px；
 - 图、标题、正文共享同一条左边线或同一中心线。
 
-### 2.6 颜色纪律
+### 2.6 版式骨架
+
+- 一套 ≥10 屏的 deck 至少 **6 种骨架**，相邻两屏不同骨架，同一骨架最多 3 次。
+- 不要连续三屏「标题 + 三张卡」；每隔几屏换一次结构（对照 / 过程链 / 阶梯 / 数据 / 闭环）。
+- 选型信号与 12 个可抄骨架见 `capabilities/design-quality/LAYOUTS.md`；检查用 `layout_audit.py`。
+
+### 2.7 颜色纪律
 
 - 品牌色只做“标点”，不做“背景板”；
 - 不在低对比纸底上叠同明度的淡色大字；
@@ -117,6 +126,7 @@ python3 tools/check_slides.py --index decks/sample-deck/index.html
 python3 tools/check_slides.py --index decks/sample-deck/index.html --ratio 4:3
 python3 tools/design_audit.py --index decks/sample-deck/index.html
 python3 tools/design_audit.py --index decks/sample-deck/index.html --ratio 4:3
+python3 tools/layout_audit.py --index decks/sample-deck/index.html
 python3 tools/frame.py audit "src-sample/slides/*.html"
 ```
 

@@ -43,6 +43,7 @@ python3 tools/frame.py lint "<要写的句子>"                 # 单句检查�
 node build.mjs --src src-sample --deck sample-deck     # 或对应 deck
 python3 tools/check_slides.py                # 版面：0 问题
 python3 tools/design_audit.py --index decks/<slug>/index.html   # 视觉：0 问题
+python3 tools/layout_audit.py --index decks/<slug>/index.html    # 版式：骨架不单调
 python3 tools/frame.py audit "src/slides/*.html"   # 表达：P0 = 0
 ```
 
@@ -62,13 +63,16 @@ python3 tools/design_audit.py --index decks/<slug>/index.html --ratio 4:3
 3. 单块高饱和强调色面积 ≤8%；>12% 视为问题；有意为之必须加 `data-design-allow` 并写理由。
 4. 一页一个焦点；强调色是标点，不是背景板；层级优先用字号、字重、留白、细线。
 5. 收尾页可以留白，但要有明确视觉锚点；不要用大色块硬填。
+6. 页面骨架要换：一套 ≥10 屏至少 6 种骨架，相邻两屏不同骨架，同一骨架最多 3 次；
+   先用 `capabilities/design-quality/LAYOUTS.md` 选型，再填内容，不要连续三屏「标题 + 卡片」。
 
 详细规则、修法和参考见 `docs/DESIGN.md`，能力包见 `capabilities/design-quality/SKILL.md`。
 
 ### 改完必须验证（补充视觉）
 
 ```bash
-python3 tools/design_audit.py --index decks/<slug>/index.html
+python3 tools/design_audit.py --index decks/<slug>/index.html --ratio 4:3
+python3 tools/layout_audit.py --index decks/<slug>/index.html
 ```
 
 ## 6. PPTX 导出
