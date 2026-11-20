@@ -27,17 +27,18 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 
 `build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
 
-v1.5.1 的变更详见 [发布日志](CHANGELOG.md#151---2026-11-21)。
+v1.6.0 的变更详见 [发布日志](CHANGELOG.md#160---2026-11-21)。
 
 ## 二、快速开始
 
 ```bash
-# 0) 安装 Python 工具链、DSH 写作能力和 frame 命令
+# 0) 安装 Python 工具链、把两套技能装进本机所有 AI 客户端、链出 frame 命令
 python3 -m venv .venv
 source .venv/bin/activate
 ./install.sh
 
-#    依赖已就绪，单独安装写作能力：./install.sh --no-deps
+#    依赖已就绪，单独安装技能与规则：./install.sh --no-deps
+#    只装某个客户端：python3 tools/install_capability.py --agents codex,zcode --user
 #    只安装 Python 工具链：python3 -m pip install -r requirements.txt
 
 # 1) 拼装示例 deck 并起展示台
@@ -193,5 +194,26 @@ already guards this).
 也可在仓库直接运行 `python3 tools/frame.py` 加同样的参数。
 构建默认调用写作检查，遇到 P0 表达问题时停止。详见 [创作规范](docs/AUTHORING.md) 与 [AGENTS.md](AGENTS.md)。
 
-`./install.sh` 安装 DSH 技能、合并用户级写作规则，并将 `frame` 链到 `~/.local/bin`。
-运行 `./install.sh --check` 可检查安装状态。其他工作区可按需安装写作规则。详见 [写作能力包](capabilities/causal-value-chain/README.md)。
+`./install.sh` 会把 **因果链 / 价值链** 与 **设计质量** 两套技能装进本机已检测到的 AI 客户端，
+把用户级写作规则并入各自的规则文件，并把 `frame` 链到 `~/.local/bin`：
+
+| 客户端 | 技能目录 | 用户级规则 |
+|---|---|---|
+| DSH | `~/.dsh/skills/` | `~/.dsh/AGENTS.md` |
+| Codex | `~/.codex/skills/` | `~/.codex/AGENTS.md` |
+| ZCode | `~/.zcode/skills/` | `~/.zcode/AGENTS.md` |
+| WorkBuddy | `~/.workbuddy/skills/` | `~/.workbuddy/AGENTS.md` |
+| Claude Code | `~/.claude/skills/` | `~/.claude/CLAUDE.md` |
+
+装完即刻可用：DSH 新开会话 · Codex 重启 · ZCode 设置 → 技能 → 刷新（确认开关开启） ·
+WorkBuddy 新开对话（技能页确认启用） · Claude Code 新开会话。
+以后装了新客户端，重跑一次 `./install.sh` 就会补装。
+
+```bash
+./install.sh --check                                   # 按客户端列出缺什么 / 哪个是旧版本
+python3 tools/install_capability.py --agents codex,workbuddy --user  # 只装指定客户端（all=全部）
+python3 tools/install_capability.py --list-agents      # 看本机检测到哪些客户端
+python3 tools/install_capability.py --uninstall        # 撤销（只删本系统装的，不动同名技能）
+```
+
+其他工作区可按需装写作规则：`python3 tools/install_capability.py --workspace <目录>`。详见 [写作能力包](capabilities/causal-value-chain/README.md)。

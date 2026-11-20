@@ -4,6 +4,26 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.6.0] - 2026-11-21
+
+### 新增
+
+- **技能装进本机所有 AI 客户端**：`install_capability.py` 现在把「因果链 / 价值链」与
+  「设计质量」两套技能装进本机已检测到的客户端 —— DSH（`~/.dsh/skills`）、Codex
+  （`~/.codex/skills`）、ZCode（`~/.zcode/skills`）、WorkBuddy（`~/.workbuddy/skills`）、
+  Claude Code（`~/.claude/skills`），并把用户级写作规则并入各自的 `AGENTS.md` / `CLAUDE.md`。
+  `--agents` 指定客户端（`all` / `auto` / `dsh,codex,zcode,workbuddy,claude`），
+  `--list-agents` 查看检测结果；WorkBuddy 支持官方 `WORKBUDDY_DIR` 数据目录。
+- 每个装好的技能目录写入 `.deckstage.json`（来源 / 内容摘要 / 时间）：`--check` 按客户端
+  列出缺什么、哪个是旧版本；`--uninstall` 只删本系统装的技能与规则块，不动用户自己同名的技能。
+
+### 改进
+
+- `install.sh` 一步装全：依赖 → 技能与规则（所有已检测客户端）→ 按客户端自检；以后装了
+  新客户端重跑一次即补装。
+- `README-AGENTS-user.md` 用户级约定标题改为客户端中立（不再写「所有 DSH 会话自动加载」）；
+  README 与两个能力包文档补充「装哪些客户端 / 怎么生效 / 怎么撤销」。
+
 ## [1.5.1] - 2026-11-21
 
 ### 新增

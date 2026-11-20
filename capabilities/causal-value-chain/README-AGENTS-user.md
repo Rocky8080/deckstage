@@ -1,4 +1,4 @@
-# 用户级约定（所有 DSH 会话自动加载）
+# 用户级约定（本机所有 AI 客户端自动加载：DSH / Codex / ZCode / WorkBuddy / Claude Code）
 
 ## 写 PPT / 汇报 / 复盘时的表达纪律
 
