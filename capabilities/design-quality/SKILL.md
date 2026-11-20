@@ -17,6 +17,7 @@ whenToUse: 写或改幻灯片、封面、Q&A、收尾页、图表页；用户反
 - 先列「内容 → 骨架」清单，再动笔；不要从「标题 + 三张卡」开始套。
 - 骨架只解决版式；结论、证据、口径仍归 `tools/frame.py` 和写作能力包。
 - 骨架默认带动效（`.reveal` / `data-count` / `.grow-x`）；不要另写 JS 动画。
+- 字号下限：解释性正文 18–20px，标签 11.5–13.5px；13.5px 以下不做解释性文字。
 
 ```bash
 node build.mjs --src src-archetypes --deck archetypes   # 先看 12 个骨架长什么样

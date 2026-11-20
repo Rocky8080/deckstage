@@ -65,6 +65,8 @@ python3 tools/design_audit.py --index decks/<slug>/index.html --ratio 4:3
 5. 收尾页可以留白，但要有明确视觉锚点；不要用大色块硬填。
 6. 页面骨架要换：一套 ≥10 屏至少 6 种骨架，相邻两屏不同骨架，同一骨架最多 3 次；
    先用 `capabilities/design-quality/LAYOUTS.md` 选型，再填内容，不要连续三屏「标题 + 卡片」。
+7. 字号下限：解释性正文 18–20px；过渡句 / 脚注 / 口径 14.5–17.5px；标签 11.5–13.5px。
+   13.5px 以下只做标签；不要用缩小正文字号来塞内容。
 
 详细规则、修法和参考见 `docs/DESIGN.md`，能力包见 `capabilities/design-quality/SKILL.md`。
 

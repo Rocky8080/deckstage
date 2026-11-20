@@ -4,6 +4,15 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.4.1] - 2026-11-20
+
+### 修复
+
+- 提升骨架主体说明字号：过程链 / 闭环 / 数据看板 / 分层架构 / 反例正例的说明统一到 18px，过渡句 17.5px，口径脚注 15px；避免在 1440 宽窗口下正文只剩 14px 左右。
+- 阶梯标签 17→18px、架构说明 15→18px、反例说明 15→18px；看板口径脚注 12.5→15px。
+- 同步更新 `AUTHORING.md` / `DECK_SPEC.md` / `LAYOUTS.md` / `AGENTS.md`：解释性正文 18–20px，辅助说明 14.5–17.5px，13.5px 以下只做标签。
+- 重新构建 12 屏画廊、示例 deck 与封面拼图。
+
 ## [1.4.0] - 2026-11-20
 
 ### 新增
@@ -113,6 +122,7 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.4.1]: https://github.com/Rocky8080/deckstage/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Rocky8080/deckstage/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Rocky8080/deckstage/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Rocky8080/deckstage/compare/v1.1.0...v1.2.0
