@@ -5,6 +5,7 @@
 - `check_slides.py` 检查溢出、截断、重叠、图片加载和控制台报错。
 - `frame.py` 检查口径、基准、结论和图文因果链。
 - `design_audit.py` 检查文字对比度、强调色块面积和低对比水印。
+- `theme_contrast.py` 逐套检查预设主题（`C` 键切换）下的文字对比度。
 - `layout_audit.py` 检查页面骨架种数、相邻重复与单骨架复用（建议级，`--strict` 可阻断）。
 
 ## 1. 先跑命令
@@ -21,6 +22,7 @@ python3 tools/serve_deck.py
 ```bash
 python3 tools/design_audit.py --index decks/sample-deck/index.html
 python3 tools/design_audit.py --index decks/sample-deck/index.html --ratio 4:3
+python3 tools/theme_contrast.py --index decks/sample-deck/index.html --warn-only
 ```
 
 - `contrast-low` 表示普通文字对比度低于 4.5:1。
@@ -29,6 +31,8 @@ python3 tools/design_audit.py --index decks/sample-deck/index.html --ratio 4:3
 - `accent-block` 标记占该页至少 8% 的高饱和色块。超过 12% 记为 P1。
 
 有发现时命令返回非零。可加 `--only s01,s02` 检查指定页，或用 `--warn-only` 查看报告并继续。带背景图的文字需在实际画面中检查对比度。
+
+`theme_contrast.py` 会逐屏、逐文字节点把六套预设主题注入页面再计算对比度；默认配色仍由 `design_audit.py` 检查。加 `--theme navy` 只看一套，`--json` 输出机器可读结果，`--warn-only` 只报告不阻断。
 
 ## 2. 硬规则
 

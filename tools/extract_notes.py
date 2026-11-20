@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SLIDES = sorted((ROOT / "src" / "slides").glob("*.html"))
+SLIDES = [p for p in sorted((ROOT / "src" / "slides").glob("*.html"))
+          if "<section" in p.read_text(encoding="utf-8")]   # 纯样式片段（如 99-readability.html）不算一屏
 OUT = ROOT / "docs" / "本地笔记" / "讲稿.md"
 
 # 中文讲稿语速：约 240 字/分钟

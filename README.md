@@ -23,11 +23,11 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 | **管理后台** | `/admin/` 支持访客分析、首页与 deck 门禁、内容上下架、首页排序、分享链接与二维码卡片。详见 [管理后台](docs/ADMIN.md) |
 | **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（七套预设含素白与深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
 | **导出** | 页面内导出可编辑 PPTX，保留纯色背景与内联 SVG 的透明度。构建也可产出全内联的单机版 HTML。详见 [PPTX 导出](docs/PPTX.md) |
-| **质检** | 检查表达、版面、视觉对比度与 PPTX 导出，支持放映交互自测和逐屏截图 |
+| **质检** | 检查表达、版面、视觉对比度（含六套预设主题）、PPTX 导出，支持放映交互自测和逐屏截图 |
 
 `build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
 
-v1.5.0 的变更详见 [发布日志](CHANGELOG.md#150---2026-11-21)。
+v1.5.1 的变更详见 [发布日志](CHANGELOG.md#151---2026-11-21)。
 
 ## 二、快速开始
 
@@ -124,6 +124,7 @@ tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md�
   test_library_columns.py    展示台首页 2/3/4 列切换自测
   frame.py                  表达检查与写作框架
   design_audit.py            文字对比度与强调色面积检查
+  theme_contrast.py          六套预设配色下的逐主题文字对比度检查
   layout_audit.py            页面骨架覆盖与重复检查（版式多样性）
   export_audit.py            PPTX 背景与页数核验
 capabilities/              写作与视觉检查规则、提示词、12 个页面骨架（design-quality/archetypes）
@@ -149,9 +150,13 @@ python3 tools/frame.py audit "src-sample/slides/*.html"
 python3 tools/check_slides.py --index decks/sample-deck/index.html
 python3 tools/design_audit.py --index decks/sample-deck/index.html
 python3 tools/design_audit.py --index decks/sample-deck/index.html --ratio 4:3
+python3 tools/theme_contrast.py --index decks/sample-deck/index.html --warn-only
 python3 tools/layout_audit.py --index decks/sample-deck/index.html
 python3 tools/export_audit.py --index decks/sample-deck/index.html
 ```
+
+`theme_contrast.py` 检查 `C` 键切换的六套预设主题；默认配色仍由 `design_audit.py` 检查。
+预设主题会整体替换强调色，默认配色通过不代表每套主题都通过。
 
 ## 五、安全模型
 

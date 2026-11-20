@@ -4,6 +4,25 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.5.1] - 2026-11-21
+
+### 新增
+
+- `tools/theme_contrast.py`：逐套预设配色（素白 / 藏青 / 暖赭 / 紫藤 / 青瓷 / 玄墨）按
+  WCAG 阈值检查每屏文字对比度，支持 `--theme`、`--json`、`--warn-only`；默认配色仍由
+  `design_audit.py` 检查。
+
+### 改进
+
+- 校准多套预设主题的 `--ink-4` / `--gold` / `--terra` / `--green-2` 等色值，改善 11–15px
+  小字与强调标签在部分主题下的对比度；现有 deck 的残留问题可用新工具逐主题定位。
+- `extract_notes.py` 跳过纯样式片段（如 `src/slides/99-readability.html`），只按含
+  `<section>` 的页面统计屏数与讲稿字数。
+
+### 文档
+
+- README 与 `docs/DESIGN.md` 补充预设主题对比度检查的命令与适用范围。
+
 ## [1.5.0] - 2026-11-21
 
 ### 新增
@@ -148,6 +167,7 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.5.1]: https://github.com/Rocky8080/deckstage/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Rocky8080/deckstage/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/Rocky8080/deckstage/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Rocky8080/deckstage/compare/v1.3.0...v1.4.0
