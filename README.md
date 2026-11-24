@@ -18,21 +18,22 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 |---|---|
 | **HTML 创作** | 一屏一个 HTML 文件，类名体系见 [docs/AUTHORING.md](docs/AUTHORING.md)；`reveal` 入场动效、数字滚动、演讲备注、导轨分章 |
 | **版式骨架** | 12 个可直接抄的页面骨架 + 选型 / 反单调规则，见 [LAYOUTS.md](capabilities/design-quality/LAYOUTS.md)；画廊 `src-archetypes/`，多样性检查 `layout_audit.py` |
+| **观点层级** | 一页一句断言 + 模块认领制：`hierarchy.py` 检查标题、孤儿模块、同页 / 跨页重复、章节结论页、页间接力与字数过载（H1–H10），规则见 [SKILL.md](capabilities/point-hierarchy/SKILL.md) |
 | **PPTX 导入** | 外部 PowerPoint 经六阶段 pipeline 自动转换（体检 → 字体 → 版式预修 → LibreOffice 渲染 → 补字层 → 组装），详见 [docs/IMPORT.md](docs/IMPORT.md) |
 | **展示台** | `library.html` 缩略图墙聚合所有 deck，右上角可切 2 / 3 / 4 列（记住在本机）；`serve_deck.py` 本地起服务后右上角可「＋ 导入 PPTX」（四步向导，仅限本机） |
 | **管理后台** | `/admin/` 支持访客分析、首页与 deck 门禁、内容上下架、首页排序、分享链接与二维码卡片。详见 [管理后台](docs/ADMIN.md) |
 | **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（七套预设含素白与深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
 | **导出** | 页面内导出可编辑 PPTX，保留纯色背景与内联 SVG 的透明度。构建也可产出全内联的单机版 HTML。详见 [PPTX 导出](docs/PPTX.md) |
-| **质检** | 检查表达、版面、视觉对比度（含六套预设主题）、PPTX 导出，支持放映交互自测和逐屏截图 |
+| **质检** | 检查结构、表达、版面、视觉对比度（含六套预设主题）、PPTX 导出，支持放映交互自测和逐屏截图 |
 
 `build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
 
-v1.6.0 的变更详见 [发布日志](CHANGELOG.md#160---2026-11-21)。
+v1.7.0 的变更详见 [发布日志](CHANGELOG.md#170---2026-11-25)。
 
 ## 二、快速开始
 
 ```bash
-# 0) 安装 Python 工具链、把两套技能装进本机所有 AI 客户端、链出 frame 命令
+# 0) 安装 Python 工具链、把三套技能装进本机所有 AI 客户端、链出 frame 命令
 python3 -m venv .venv
 source .venv/bin/activate
 ./install.sh
@@ -124,11 +125,12 @@ tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md�
   test_admin_ui.py           管理后台首页排序面板交互自测（↑↓ / 拖动 / 恢复）
   test_library_columns.py    展示台首页 2/3/4 列切换自测
   frame.py                  表达检查与写作框架
+  hierarchy.py              观点层级审查（每页断言 / 模块认领 / 重复合并 / 观点地图）
   design_audit.py            文字对比度与强调色面积检查
   theme_contrast.py          六套预设配色下的逐主题文字对比度检查
   layout_audit.py            页面骨架覆盖与重复检查（版式多样性）
   export_audit.py            PPTX 背景与页数核验
-capabilities/              写作与视觉检查规则、提示词、12 个页面骨架（design-quality/archetypes）
+capabilities/              写作 / 结构 / 视觉检查规则、提示词、12 个页面骨架（design-quality/archetypes）
 docs/                      AUTHORING / DECK_SPEC / IMPORT / ADMIN / DESIGN / PPTX
 vendor/                    pptxgen.bundle.js（MIT，落盘锁定）
 ```
@@ -146,6 +148,7 @@ python3 tools/test_admin_order.py                    # 后台首页排序 API（
 python3 tools/test_admin_ui.py                       # 后台排序面板交互（Chrome 无头）
 python3 tools/test_library_columns.py                # 首页 2/3/4 列切换（Chrome 无头）
 python3 tools/frame.py audit "src-sample/slides/*.html"
+python3 tools/hierarchy.py audit "src-sample/slides/*.html"
 
 # 启动 python3 tools/serve_deck.py 后运行
 python3 tools/check_slides.py --index decks/sample-deck/index.html
@@ -194,8 +197,8 @@ already guards this).
 也可在仓库直接运行 `python3 tools/frame.py` 加同样的参数。
 构建默认调用写作检查，遇到 P0 表达问题时停止。详见 [创作规范](docs/AUTHORING.md) 与 [AGENTS.md](AGENTS.md)。
 
-`./install.sh` 会把 **因果链 / 价值链** 与 **设计质量** 两套技能装进本机已检测到的 AI 客户端，
-把用户级写作规则并入各自的规则文件，并把 `frame` 链到 `~/.local/bin`：
+`./install.sh` 会把 **因果链 / 价值链**、**观点层级** 与 **设计质量** 三套技能装进本机已检测到的 AI 客户端，
+把用户级写作与结构规则并入各自的规则文件，并把 `frame` 链到 `~/.local/bin`：
 
 | 客户端 | 技能目录 | 用户级规则 |
 |---|---|---|
@@ -216,4 +219,19 @@ python3 tools/install_capability.py --list-agents      # 看本机检测到哪�
 python3 tools/install_capability.py --uninstall        # 撤销（只删本系统装的，不动同名技能）
 ```
 
-其他工作区可按需装写作规则：`python3 tools/install_capability.py --workspace <目录>`。详见 [写作能力包](capabilities/causal-value-chain/README.md)。
+其他工作区可按需装写作与结构规则：`python3 tools/install_capability.py --workspace <目录>`。详见 [写作能力包](capabilities/causal-value-chain/README.md)。
+
+## 结构能力包：观点层级
+
+`hierarchy.py` 回答「这页到底在说什么、每块内容凭什么留在这儿」：标题必须是断言、模块必须认领、
+重复必须合并、并列要分主次、每章要有结论页、页与页要接得上。规则与自检 12 问见
+[point-hierarchy/SKILL.md](capabilities/point-hierarchy/SKILL.md)，安装说明见
+[观点层级能力包](capabilities/point-hierarchy/README.md)。
+
+```bash
+python3 tools/hierarchy.py outline "src-sample/slides/*.html"   # 每页断言 + 模块清单 + 相似度
+python3 tools/hierarchy.py audit   "src-sample/slides/*.html"   # H1–H10，P0 必须为 0
+python3 tools/hierarchy.py map     "src-sample/slides/*.html"   # 全册观点地图 + 跨页重复对
+```
+
+构建会在表达检查之外跑同一套结构检查：P0 直接失败。详见 [AGENTS.md](AGENTS.md) 第 5 节。

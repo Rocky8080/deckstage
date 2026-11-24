@@ -150,3 +150,13 @@ python3 tools/layout_audit.py --index decks/archetypes/index.html
 
 写作方法和作者模板见 [因果链 / 价值链能力包](../capabilities/causal-value-chain/README.md)。
 出片前的对比度与强调色面积检查见 [设计质量检查](DESIGN.md)，可编辑导出的验证步骤见 [PPTX 导出](PPTX.md)。
+
+## 结构门禁（自动生效）
+
+写作门禁之后，构建还会调用 `tools/hierarchy.py audit`：
+
+- **P0**（同页两个模块说的是同一件事）→ 构建失败
+- **P1/P2** → 只计数提示，不阻断；明细运行 `python3 tools/hierarchy.py audit "src/slides/*.html"` 查看
+- 应急跳过：`--no-hierarchy`（不推荐）
+
+一页一断言、模块认领、页间接力等规则见 [观点层级能力包](../capabilities/point-hierarchy/README.md)。
