@@ -6,7 +6,8 @@
    · 其余标记按文件名顺序放进 .slides
    构建前会跑「因果链 / 价值链」门禁（tools/frame.py audit）：
      P0 问题 → 构建失败；P1/P2 → 只提示。
-   跳过门禁：--no-frame（不推荐；仅用于应急排查）
+   构建前还会跑「观点层级」结构门禁（tools/hierarchy.py）：P0 问题 → 构建失败。
+    跳过门禁：--no-frame / --no-hierarchy（不推荐；仅用于应急排查）
    ============================================================ */
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -57,6 +58,47 @@ function frameGate(slideGlob) {
   console.log(`[frame] 门禁通过（P0 0 · P1 ${P1} · P2 ${P2}）`);
 }
 
+/* ---------- 0b. 结构门禁：观点层级（一页一断言 / 模块认领 / 重复必合并）
+   P0（同页高度重复的模块）→ 直接失败；P1/P2 → 只计数提示。
+   跳过门禁：--no-hierarchy。 */
+function hierarchyGate(slideGlob) {
+  if (process.argv.includes('--no-hierarchy')) {
+    console.log('[hierarchy] 已跳过结构门禁（--no-hierarchy）');
+    return;
+  }
+  const script = join(ROOT, 'tools/hierarchy.py');
+  if (!existsSync(script)) {
+    console.log('[hierarchy] 未安装 tools/hierarchy.py，跳过结构门禁');
+    return;
+  }
+  const r = spawnSync('python3', [script, 'audit', slideGlob, '--json'],
+    { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
+  if (r.error || r.status === 2) {
+    console.log('[hierarchy] 检查器不可用，跳过门禁（可手动跑 python3 tools/hierarchy.py audit）');
+    return;
+  }
+  let data = null;
+  try { data = JSON.parse(r.stdout || '{}'); } catch { /* 忽略解析失败 */ }
+  if (!data || !data.total) {
+    console.warn('[hierarchy] 未收到可用的结构检查结果，跳过门禁');
+    return;
+  }
+  const { P0 = 0, P1 = 0, P2 = 0 } = data.total;
+  if (P0 > 0) {
+    console.error(`\n[hierarchy] ✗ 结构门禁未通过：P0 ${P0} · P1 ${P1} · P2 ${P2}`);
+    for (const slide of data.slides || []) {
+      const hits = (slide.issues || []).filter(i => i.sev === 'P0');
+      if (!hits.length) continue;
+      console.error(`  · ${slide.slide || slide.file || ''}`);
+      hits.forEach(h => console.error(`      [P0] ${h.rule} — ${h.detail}`));
+    }
+    console.error('\n  修法见 capabilities/point-hierarchy/SKILL.md（一页一断言 / 模块认领 / 重复必合并）');
+    console.error('  确需临时跳过：node build.mjs ... --no-hierarchy\n');
+    process.exit(1);
+  }
+  console.log(`[hierarchy] 门禁通过（P0 0 · P1 ${P1} · P2 ${P2}）`);
+}
+
 /* ---------- 1. 样式 ---------- */
 const cssFiles = ['tokens.css', 'base.css', 'deck.css']
   .map(f => join(THEME, f));
@@ -100,8 +142,15 @@ for (const f of files) {
 
 /* ---------- 3. 组装 ---------- */
 frameGate(join(slideDir, '*.html'));
+hierarchyGate(join(slideDir, '*.html'));
+// deck 级样式：<src>/deck.css 与 --deck 构建保持一致，
+// 否则「本机实例」根构建会漏掉它（新增的 .take / 降级的 .bridge 会失效）。
+const srcDeckCss = join(SRC, 'deck.css');
 const styles = [
   ...cssFiles.map(p => `/* ===== ${p.split('/src/').pop()} ===== */\n${read(p)}`),
+  ...(existsSync(srcDeckCss)
+    ? [`/* ===== ${SRC.split('/').pop()}/deck.css（deck 级） ===== */\n${read(srcDeckCss)}`]
+    : []),
   '/* ===== 各屏专属样式 ===== */',
   ...slideStyles,
 ].join('\n\n');

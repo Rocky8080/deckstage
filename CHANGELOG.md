@@ -4,6 +4,49 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.7.0] - 2026-11-25
+
+### 新增
+
+- **观点层级能力包** `capabilities/point-hierarchy/`：审查「这页到底在说什么、每块内容凭什么留在这儿」——
+  一页一断言、模块认领制、同页 / 跨页重复合并、并列分类与主次、章节结论页；含 `SKILL.md`
+  （方法 + H1–H10 规则 + 自检 12 问）、用户级 / 工作区规则块与审查提示词。
+- **`tools/hierarchy.py`**：`outline` / `audit` / `map` 三个子命令——每页断言与模块清单、
+  H1–H10 问题（P0/P1/P2，`--json` 机器可读）与全册观点地图。
+- **页间接力与展示程度两条规则**：`H9 承接断点`（同一章节内，上一页结论句与下一页标题既无共同实词、
+  标题也无转折词 → P2）与 `H10 细节过载`（单页可见字数 > 520 → P2）。`tools/hierarchy.py` 已实现并校准：
+  H9 对写了 `.bridge` 过渡句的页面豁免、收尾页不判；H10 阈值取自两套校准 deck 校准时的单页可见字数（平均 273 / 352 字）。
+  `SKILL.md` 对应两节：**§2.5 页间接力**（承接 / 转折 / 过渡句三种合法接法，以及「把一章标题连读」的断链判定）
+  与 **§2.6 展示程度**（论据 ≤3 块、每块 1 句解释 + 1 证据、可见字数 ≤520、实现细节下沉讲稿）。
+- **构建门禁**：`node build.mjs` 在表达检查之外跑同一套结构检查，P0 直接失败，P1/P2 只计数提示；
+  应急跳过：`--no-hierarchy`（不推荐）。
+
+### 改进
+
+- `tools/install_capability.py` 增加第三套能力：观点层级技能与用户级「观点层级纪律」随
+  `./install.sh` 一起装进本机已检测到的客户端；工作区约定现在会并入写作与结构两个规则块。
+  `--check` 按能力分别列出技能与规则块状态，并校验 `build.mjs` 同时含表达门禁与结构门禁，文案改为三套能力。
+- 仓库根 `AGENTS.md` 新增「观点层级」一节（触发条件 + 硬性规则 + 工具命令），原设计质量、
+  PPTX 导出两节顺延为第 6、7 节；「改完必须验证」补 `hierarchy.py audit`。
+- 用户级与工作区规则块补三条：「接得住上一页」「一页别放太多」「写之前先填两行」。
+- `install.sh` 说明改为写作、结构与设计三套能力，完成提示补结构检查命令。
+
+### 修复
+
+- 根构建（不带 `--deck`）现在与 `--deck` 构建一样并入 `<src>/deck.css`（deck 级样式）；
+  此前根构建会漏掉它，写在 deck 级样式里的类（如 `.take` / `.bridge`）在根 `index.html` 上不生效。
+
+### 文档
+
+- 新增 `capabilities/point-hierarchy/README.md`、两份 `README-AGENTS-*.md` 与 `prompts/audit-deck.md`；
+  README 补能力表一行、工具清单与「结构能力包」小节；`docs/AUTHORING.md` 补「结构门禁」一节。
+
+### 说明
+
+- H9 / H10 的触发来源是一次真实事故：新加的一页只讲「系统怎么运转」，没有回答「为什么上一页那个答案不够」，
+  且把实现细节塞满整页。原规则（重复 / 孤儿 / 名词标题）在这两个维度上都是盲区——
+  **只查「多说了什么」，不查「少说了哪一步」**。
+
 ## [1.6.0] - 2026-11-21
 
 ### 新增
@@ -187,6 +230,8 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.7.0]: https://github.com/Rocky8080/deckstage/compare/85691d1...v1.7.0
+[1.6.0]: https://github.com/Rocky8080/deckstage/compare/v1.5.1...85691d1
 [1.5.1]: https://github.com/Rocky8080/deckstage/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Rocky8080/deckstage/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/Rocky8080/deckstage/compare/v1.4.0...v1.4.1

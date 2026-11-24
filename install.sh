@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DeckStage 一键安装：依赖 + 写作与设计能力（因果链 / 价值链 + 设计质量）
+# DeckStage 一键安装：依赖 + 写作、结构与设计能力（因果链 / 价值链 + 观点层级 + 设计质量）
 #
 #   ./install.sh                      # 装依赖 + 把技能装进本机所有 AI 客户端 + 自检
 #   ./install.sh --no-deps            # 只装技能与规则（依赖已就绪时）
@@ -7,7 +7,7 @@
 #   ./install.sh --agents codex,workbuddy # 只装指定客户端（all=全部，auto=自动检测）
 #
 # 技能装进本机已检测到的客户端：DSH ~/.dsh/skills、Codex ~/.codex/skills、ZCode ~/.zcode/skills、
-# WorkBuddy ~/.workbuddy/skills、Claude Code ~/.claude/skills；用户级写作规则分别并入
+# WorkBuddy ~/.workbuddy/skills、Claude Code ~/.claude/skills；用户级写作与结构规则分别并入
 # 各客户端的 AGENTS.md / CLAUDE.md。仓库内的 AGENTS.md、构建门禁和视觉检查随代码提供。
 set -euo pipefail
 SELF="$0"
@@ -34,7 +34,7 @@ done
 say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 
 if [ "$CHECK_ONLY" = "1" ]; then
-  say "1/1 写作与设计能力自检"
+  say "1/1 写作、结构与设计能力自检"
   python3 tools/install_capability.py ${AGENT_ARGS[@]+"${AGENT_ARGS[@]}"} --check
   exit $?
 fi
@@ -51,7 +51,7 @@ else
   echo "  ✓ requirements.txt 已安装"
 fi
 
-say "3/3 写作与设计能力 → AI 客户端（因果链 / 价值链 + 设计质量）"
+say "3/3 写作、结构与设计能力 → AI 客户端（因果链 / 价值链 + 观点层级 + 设计质量）"
 python3 tools/install_capability.py ${AGENT_ARGS[@]+"${AGENT_ARGS[@]}"} --all || echo "  ⚠ 有客户端没装全，下面的自检会指出缺什么；修好后重跑即可。"
 echo
 python3 tools/install_capability.py ${AGENT_ARGS[@]+"${AGENT_ARGS[@]}"} --check
@@ -59,7 +59,8 @@ python3 tools/install_capability.py ${AGENT_ARGS[@]+"${AGENT_ARGS[@]}"} --check
 say "完成"
 echo "  生效：DSH 新开会话 · Codex 重启 · ZCode 设置→技能→刷新 · WorkBuddy 新开对话（技能页确认启用） · Claude Code 新开会话"
 echo "  只装指定客户端：python3 tools/install_capability.py --agents codex,zcode --user"
-echo "  构建：node build.mjs --deck <slug>      （P0 表达问题会阻断构建）"
+echo "  构建：node build.mjs --deck <slug>      （P0 表达 / 结构问题会阻断构建）"
+echo "  结构：python3 tools/hierarchy.py audit \"src/slides/*.html\"   （P0 必须为 0）"
 echo "  视觉：python3 tools/design_audit.py --index decks/<slug>/index.html"
 echo "  展示台：python3 tools/serve_deck.py     → http://127.0.0.1:8899/"
 echo "  撤销能力：python3 tools/install_capability.py --uninstall"

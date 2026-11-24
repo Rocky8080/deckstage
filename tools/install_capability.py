@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""install_capability.py — 把「因果链 / 价值链」与「设计质量」两套能力装进本机所有 AI 客户端
+"""install_capability.py — 把「观点层级」「因果链 / 价值链」「设计质量」三套能力装进本机所有 AI 客户端
 
 装的东西：
   1. 技能        <客户端>/skills/<name>/（SKILL.md 与它引用的文件）
@@ -8,16 +8,16 @@
        每个装好的技能里写一个 .deckstage.json（来源 / 内容摘要 / 时间）：
        重装 = 覆盖更新；--check 能看出「旧版本」；--uninstall 只删本系统装的技能，
        不会动用户自己同名的技能。
-  2. 用户级约定   <客户端>/AGENTS.md（Claude Code 为 CLAUDE.md）里的写作规则标记块，
+  2. 用户级约定   <客户端>/AGENTS.md（Claude Code 为 CLAUDE.md）里的写作与结构规则标记块，
        幂等合并，链到已有内容后面，可单独撤销。
-  3. 工作区约定   <workspace>/AGENTS.md。
-  4. 构建门禁     本仓库 build.mjs / design_audit.py 已内置，不重复安装。
+  3. 工作区约定   <workspace>/AGENTS.md（写作 + 结构两个标记块）。
+  4. 构建门禁     本仓库 build.mjs（表达 + 结构）与 design_audit.py（视觉）已内置，不重复安装。
 
 客户端范围：默认只装「这台机器上已安装」的客户端（DSH 是本体，始终装）；
   装了新客户端后重跑一次即可补装；也可手动指定 --agents。
 
 用法：
-  python3 tools/install_capability.py --check                 # 只体检，按客户端列出缺什么
+  python3 tools/install_capability.py --check                 # 只体检，按客户端列出三套能力缺什么、哪个是旧版本
   python3 tools/install_capability.py --all                   # 技能 + 用户级规则 + 工作区规则
   python3 tools/install_capability.py --user                  # 只装用户级（技能 + 规则）
   python3 tools/install_capability.py --agents codex,zcode    # 只装指定客户端
@@ -47,7 +47,7 @@ TOOL_ID = "deckstage-capability-installer"
 
 # 能力清单：--user / --all 会把这个目录整体复制到 <客户端>/skills/<name>/。
 # required 是 --check 判定「技能就位」所需的文件（目录存在 + 文件齐全才算 ✓）。
-# user_block / workspace_block 只有写作能力有；设计能力为 None，不碰规则文件。
+# user_block / workspace_block 写作与结构能力有；设计能力为 None，不碰规则文件。
 CAPABILITIES = (
     {
         "name": "causal-value-chain",
@@ -64,6 +64,14 @@ CAPABILITIES = (
         "required": ("SKILL.md", "LAYOUTS.md"),
         "user_block": None,
         "workspace_block": None,
+    },
+    {
+        "name": "point-hierarchy",
+        "label": "结构",
+        "dir": REPO / "capabilities" / "point-hierarchy",
+        "required": ("SKILL.md",),
+        "user_block": "README-AGENTS-user.md",
+        "workspace_block": "README-AGENTS-workspace.md",
     },
 )
 
@@ -420,16 +428,19 @@ def install_workspace(ws: Path) -> None:
     if ws == REPO and agents.is_file():
         status("✓", "工作区约定", str(agents))
         return
-    cap = next((c for c in CAPABILITIES if c["workspace_block"]), None)
-    if cap is None:
-        return
-    src = cap["dir"] / cap["workspace_block"]
-    begin, end = markers(cap["name"])
-    if not src.is_file():
-        status("✗", "工作区约定", f"{agents}（缺 {src}）")
-        return
-    action = merge_block(agents, block_from(src, begin, end), begin, end)
-    status("✓", "工作区约定", f"{agents}（{action}）")
+    done = []
+    for cap in CAPABILITIES:
+        if not cap["workspace_block"]:
+            continue
+        src = cap["dir"] / cap["workspace_block"]
+        begin, end = markers(cap["name"])
+        if not src.is_file():
+            status("✗", "工作区约定", f"{agents}（缺 {src}）")
+            continue
+        action = merge_block(agents, block_from(src, begin, end), begin, end)
+        done.append(f"{cap['name']}（{action}）")
+    if done:
+        status("✓", "工作区约定", f"{agents}（{'，'.join(done)}）")
 
 
 # ---------------------------------------------------------------- 体检
@@ -476,28 +487,35 @@ def check(agents: list[dict], skipped: list[dict], ws: Path, explicit: bool) -> 
             begin, end = markers(cap["name"])
             text = target.read_text(encoding="utf-8") if target.is_file() else ""
             has = bool(text) and begin in text and end in text
-            status("✓" if has else "✗", f"用户级 · {agent['label']}", str(target), indent=1)
+            status("✓" if has else "✗", f"用户级 · {cap['label']} · {agent['label']}",
+                   str(target), indent=1)
             ok &= has
 
-    wscap = next((c for c in CAPABILITIES if c["workspace_block"]), None)
-    if wscap is not None:
+    wscaps = [c for c in CAPABILITIES if c["workspace_block"]]
+    if wscaps:
         group("工作区约定")
         p = ws.resolve() / "AGENTS.md"
-        begin, end = markers(wscap["name"])
         text = p.read_text(encoding="utf-8") if p.is_file() else ""
-        has = p.is_file() and (p == REPO / "AGENTS.md" or (begin in text and end in text))
-        status("✓" if has else "✗", "工作区", str(p), indent=1)
-        ok &= has
+        for cap in wscaps:
+            begin, end = markers(cap["name"])
+            has = p.is_file() and (p == REPO / "AGENTS.md" or (begin in text and end in text))
+            status("✓" if has else "✗", f"工作区 · {cap['label']}", str(p), indent=1)
+            ok &= has
 
     group("仓库工具")
     gate_file = REPO / "build.mjs"
-    gate = gate_file.is_file() and "frameGate" in gate_file.read_text(encoding="utf-8")
-    status("✓" if gate else "✗", "构建门禁", "build.mjs frameGate()", indent=1)
+    gate_text = gate_file.read_text(encoding="utf-8") if gate_file.is_file() else ""
+    gate = "frameGate" in gate_text and "hierarchyGate" in gate_text
+    status("✓" if gate else "✗", "构建门禁", "build.mjs frameGate() + hierarchyGate()", indent=1)
     ok &= gate
 
     cli = REPO / "tools" / "frame.py"
     status("✓" if cli.exists() else "✗", "检查器", str(cli), indent=1)
     ok &= cli.exists()
+
+    hcli = REPO / "tools" / "hierarchy.py"
+    status("✓" if hcli.exists() else "✗", "检查器（结构）", str(hcli), indent=1)
+    ok &= hcli.exists()
 
     link = cli_link()
     linked = link.is_symlink() and link.resolve() == cli
@@ -506,7 +524,7 @@ def check(agents: list[dict], skipped: list[dict], ws: Path, explicit: bool) -> 
         print("  将 ~/.local/bin 加到 PATH 后可直接调用 frame")
     ok &= linked
 
-    print("\n结论：" + ("已装全，各客户端都能用到这两套技能" if ok
+    print("\n结论：" + ("已装全，各客户端都能用到这三套技能" if ok
                        else "没装全：跑 python3 tools/install_capability.py --all"))
     return 0 if ok else 1
 
@@ -544,7 +562,7 @@ def uninstall(ws: Path) -> None:
         begin, end = markers(cap["name"])
         if cap["workspace_block"] and strip_block(ws.resolve() / "AGENTS.md", begin, end):
             print(f"✓ 已从 {ws.resolve() / 'AGENTS.md'} 移除约定块")
-    print("（技能目录与规则标记块已撤销；仓库内 frame.py / 门禁仍在）")
+    print("（技能目录与规则标记块已撤销；仓库内工具链与门禁仍在）")
 
 
 # ---------------------------------------------------------------- 入口
@@ -607,7 +625,7 @@ def main() -> int:
         install_workspace(workspace)
 
     print("\n生效方式：DSH 新开会话 · Codex 重启 · ZCode 设置 → 技能 → 刷新\n          WorkBuddy 新开对话 · Claude Code 新开会话。")
-    print("构建时门禁（frameGate / design_audit）随仓库提供，对所有 agent 都生效。")
+    print("构建时的表达 / 结构门禁与视觉检查随仓库提供，对所有 agent 都生效。")
     return 0 if ok else 1
 
 

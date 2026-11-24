@@ -1,7 +1,8 @@
 # AGENTS.md — 本仓库的写作与审查纪律
 
 任何 agent（Codex / ZCode / DSH / Claude Code 等）在本仓库里**写或改内容**时，必须遵守下面这套纪律。
-它对应一个可执行的能力包：`capabilities/causal-value-chain/`（DSH 技能名 `causal-value-chain`）。
+它对应三个可执行的能力包：`capabilities/causal-value-chain/`（表达）、`capabilities/point-hierarchy/`（结构）
+与 `capabilities/design-quality/`（视觉）。
 
 ## 1. 触发条件
 
@@ -45,9 +46,41 @@ python3 tools/check_slides.py                # 版面：0 问题
 python3 tools/design_audit.py --index decks/<slug>/index.html   # 视觉：0 问题
 python3 tools/layout_audit.py --index decks/<slug>/index.html    # 版式：骨架不单调
 python3 tools/frame.py audit "src/slides/*.html"   # 表达：P0 = 0
+python3 tools/hierarchy.py audit "src/slides/*.html"   # 结构：P0 = 0
 ```
 
-## 5. 设计质量门禁
+## 5. 观点层级
+
+出现以下任一情况，先审结构再改文案：
+
+- 一页塞了多张卡 / 多个步骤，说不出「所以这页要我相信什么」
+- 两个模块讲同一件事，或同一句话在相邻两页各讲一遍
+- 要从一堆素材往上提炼观点（汇报、复盘、方案、路演）
+
+```bash
+python3 tools/hierarchy.py outline "src/slides/*.html"   # 每页断言 + 模块清单 + 相似度
+python3 tools/hierarchy.py audit   "src/slides/*.html"   # H1–H10，P0 必须为 0
+python3 tools/hierarchy.py map     "src/slides/*.html"   # 全册观点地图 + 跨页重复对
+```
+
+硬性规则：
+
+1. **一页一断言**：每页标题是一句能被反驳的话；名词短语标题（核心功能 / 概述 / 价值 / 背景）不算观点，一页只承载一个观点。
+2. **模块认领**：页面里每块内容（卡片 / 步骤 / 图 / 表 / 引文）都要认领一句——它支撑标题里的哪个词；认不出来就是孤儿模块，删或移页。
+3. **重复必合并**：同页两块说同一件事就合并；跨页重复就合成一页，或把其中一处降成一句。
+4. **并列要分类 + 主次**：三块以上并列时先判断是重复还是不同侧面——不同侧面加分类标签，不要硬合并；支撑同一句的模块只许一个「主」。
+5. **接得住上一页**：每页开头要回答或追问上一页留下的问题——共用实词（承接）/ 带转折词（但·不够·还差·除了·反过来）/ 上一页写一句过渡句，三者有其一；都没有就是断链：换标题，或补桥。
+6. **一页别放太多**：论据 ≤ 3 块、每块 1 句解释 + 1 个证据、可见字数 ≤ 520；「何时用 / 边界 / 参数」写进讲稿，现场被问再展开。
+7. **每章要有结论页**：每个章节至少一页承担「结果 / 结论」；确实还没有结果就明说，不要用口号补。
+8. **交付观点地图**：L0 全册主张 → L1 章节结论 → L2 页面断言 → L3 模块（主 / 次 + 证据）。
+
+**写之前先填两行**：这页回答上一页提出的哪个问题？看完这页，对方会问什么？——填不出来就别开始排模块。
+
+`P0` 必须为 0；`P1` 逐条解释为什么保留；`H9`（承接断点）/ `H10`（细节过载）是 P2 候选，逐条确认。
+构建会跑同一套结构检查，P0 阻断。
+详细规则、自检 12 问与观点地图格式见 `capabilities/point-hierarchy/SKILL.md`。
+
+## 6. 设计质量门禁
 
 任何封面、内容页、Q&A/收尾页、图表页改完，必须过视觉质量门禁。
 
@@ -77,7 +110,7 @@ python3 tools/design_audit.py --index decks/<slug>/index.html --ratio 4:3
 python3 tools/layout_audit.py --index decks/<slug>/index.html
 ```
 
-## 6. PPTX 导出
+## 7. PPTX 导出
 
 页面导出的可编辑 PPTX，**不要同时使用 `slide.bkgd` 和 `slide.background`**；pptxgenjs 3.x 会让 `bkgd` 覆盖背景色，导致所有页变白、纸色/深色页失真。
 

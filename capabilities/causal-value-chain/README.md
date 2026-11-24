@@ -6,8 +6,8 @@
 ## 安装与使用
 
 仓库内的 `AGENTS.md` 和构建检查已随代码提供。
-`./install.sh` 还会安装 Python 工具链，并把本能力与 `design-quality` 两套技能装进本机
-**已检测到的所有 AI 客户端**，同时把用户级写作规则并入各客户端的规则文件、把 `frame` 链到 `~/.local/bin`：
+`./install.sh` 还会安装 Python 工具链，并把本能力、`point-hierarchy` 与 `design-quality` 三套技能装进本机
+**已检测到的所有 AI 客户端**，同时把用户级写作与结构规则并入各客户端的规则文件、把 `frame` 链到 `~/.local/bin`：
 
 | 客户端 | 技能目录 | 用户级规则 | 生效方式 |
 |---|---|---|---|
