@@ -17,19 +17,19 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 | 能力 | 说明 |
 |---|---|
 | **HTML 创作** | 一屏一个 HTML 文件，类名体系见 [docs/AUTHORING.md](docs/AUTHORING.md)；`reveal` 入场动效、数字滚动、演讲备注、导轨分章 |
-| **版式骨架** | 12 个可直接抄的页面骨架 + 选型 / 反单调规则，见 [LAYOUTS.md](capabilities/design-quality/LAYOUTS.md)；画廊 `src-archetypes/`，多样性检查 `layout_audit.py` |
+| **版式骨架** | 17 个可直接抄的页面骨架（12 结构 + 5 图示）+ 选型 / 反单调规则，见 [LAYOUTS.md](capabilities/design-quality/LAYOUTS.md)；画廊 `src-archetypes/`，多样性检查 `layout_audit.py` |
 | **观点层级** | 一页一句断言 + 模块认领制：`hierarchy.py` 检查标题、孤儿模块、同页 / 跨页重复、章节结论页、页间接力与字数过载（H1–H10），规则见 [SKILL.md](capabilities/point-hierarchy/SKILL.md) |
 | **PPTX 导入** | 外部 PowerPoint 经六阶段 pipeline 自动转换（体检 → 字体 → 版式预修 → LibreOffice 渲染 → 补字层 → 组装），详见 [docs/IMPORT.md](docs/IMPORT.md) |
 | **展示台** | `library.html` 缩略图墙聚合所有 deck，右上角可切 2 / 3 / 4 列（记住在本机）；`serve_deck.py` 本地起服务后右上角可「＋ 导入 PPTX」（四步向导，仅限本机） |
 | **管理后台** | `/admin/` 支持访客分析、首页与 deck 门禁、内容上下架、首页排序、分享链接与二维码卡片。详见 [管理后台](docs/ADMIN.md) |
-| **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（七套预设含素白与深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
+| **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（默认 + 六套预设，含素白与深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
 | **导出** | 页面内导出可编辑 PPTX，保留纯色背景与内联 SVG 的透明度。构建也可产出全内联的单机版 HTML。详见 [PPTX 导出](docs/PPTX.md) |
 | **性能** | 首屏只下 HTML：PPTX 导出包按需注入（468 KB 不进首屏）、截图按 2× 压成 Web 版、第 2 屏起图片按屏懒加载。16 屏 deck 首屏 ≈83 KB（brotli），详见 [性能](docs/PERFORMANCE.md) |
 | **质检** | 检查结构、表达、版面、视觉对比度（含六套预设主题）、PPTX 导出，支持放映交互自测和逐屏截图；`tools/perf_probe.py` 量首屏 FCP / LCP / DCL |
 
 `build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
 
-v1.7.1 的变更详见 [发布日志](CHANGELOG.md#171---2026-11-27)。
+v1.8.0 的变更详见 [发布日志](CHANGELOG.md#180---2026-11-28)。
 
 ## 二、快速开始
 
@@ -55,12 +55,16 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck --dry-run   # 先体检
 python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导入
 
 # 3) 写自己的 deck：先选页面骨架，再一屏一个文件
-node build.mjs --src src-archetypes --deck archetypes   # 12 个骨架的画廊，先看再抄
+node build.mjs --src src-archetypes --deck archetypes   # 17 个骨架的画廊，先看再抄
 node build.mjs --src src-mine --deck my-deck
 ```
 
 运行需要 Node 18+、Python 3.9+。缩略图和浏览器质检需要 Chrome，PPTX 导入需要 LibreOffice。
 构建会尝试刷新缩略图和展示台。服务启动后可运行 `python3 tools/build_library.py --deck sample-deck` 重拍封面。
+
+**Windows**：用 `powershell -ExecutionPolicy Bypass -File install.ps1` 一键安装；工具链命令把 `python3` 换成 `py -3`。
+缩略图 / 质检优先用 Chrome，没有时自动回退 Edge；LibreOffice 默认识别 `C:\Program Files\LibreOffice`，
+装在别处时设环境变量 `SOFFICE` 指向 soffice.exe。`frame` 全局命令装为 `%USERPROFILE%\.local\bin\frame.bat`。
 
 ### 使用图例
 
@@ -92,9 +96,9 @@ node build.mjs --src src-mine --deck my-deck
 
 ## 二·六、版式骨架库（v1.4.0）
 
-![12 个页面骨架](docs/img/archetypes-12.jpg)
+![17 个页面骨架](docs/img/archetypes-12.jpg)
 
-12 个可直接抄的页面骨架：封面 / 目录 / 单观点 / 三并列 / 对照矩阵 / 过程链 / 阶梯 / 数据看板 / 分层架构 / 闭环 / 反例正例 / 收尾。每个都带适用信号、容量上限和反例，选型与反单调规则见 [LAYOUTS.md](capabilities/design-quality/LAYOUTS.md)。
+17 个可直接抄的页面骨架：封面 / 目录 / 单观点 / 三并列 / 对照矩阵 / 过程链 / 阶梯 / 数据看板 / 分层架构 / 闭环 / 反例正例 / 收尾，以及基准柱状图 / 因果链桥 / 2×2 象限 / 时间轴 / 痛点对策。每个都带适用信号、容量上限和反例，选型与反单调规则见 [LAYOUTS.md](capabilities/design-quality/LAYOUTS.md)。
 
 ```bash
 node build.mjs --src src-archetypes --deck archetypes   # 12 屏画廊
@@ -110,7 +114,7 @@ library.html               展示台（build_library.py 生成）
 src/css/                   设计变量 tokens.css + 基础排版 base.css + 放映外壳 deck.css（引擎）
 src/js/                    放映引擎 deck.js + 页面内 PPTX 导出 pptx-export.js（引擎）
 src-sample/                示例 deck 源码（shell + slides），创作模板
-src-archetypes/            12 个页面骨架的画廊源码（slides 为符号链接，实际文件在 capabilities/design-quality/archetypes/）
+src-archetypes/            17 个页面骨架的画廊源码（slides 为符号链接，实际文件在 capabilities/design-quality/archetypes/）
 decks/<slug>/              成品：index.html + deck.json + thumb.jpg（sample-deck 已含）
 assets/<slug>/             导入 deck 的逐页渲染图
 tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md、各文件 docstring）
@@ -131,7 +135,7 @@ tools/                     全部工具链（见 docs/IMPORT.md、docs/ADMIN.md�
   theme_contrast.py          六套预设配色下的逐主题文字对比度检查
   layout_audit.py            页面骨架覆盖与重复检查（版式多样性）
   export_audit.py            PPTX 背景与页数核验
-capabilities/              写作 / 结构 / 视觉检查规则、提示词、12 个页面骨架（design-quality/archetypes）
+capabilities/              写作 / 结构 / 视觉检查规则、提示词、17 个页面骨架（design-quality/archetypes）
 docs/                      AUTHORING / DECK_SPEC / IMPORT / ADMIN / DESIGN / PPTX
 vendor/                    pptxgen.bundle.js（MIT，落盘锁定）
 ```

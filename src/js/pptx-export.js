@@ -46,20 +46,41 @@
     author: docMeta('author')
   };
 
+  /* 导出端平台：同一套字体栈在不同 OS 上解析到不同字体。PPTX 里写死的字体名
+     在打开端不一定存在，Windows PowerPoint 会任意替代导致版式漂移——
+     mac 专属名映射到本机等价字体，Windows 端映射到 Segoe UI / Consolas。 */
+  var EXPORT_PLATFORM = (function () {
+    var uad = (navigator.userAgentData && navigator.userAgentData.platform) || '';
+    var p = String(uad || navigator.platform || '').toLowerCase();
+    if (p.indexOf('win') >= 0) return 'windows';
+    if (p.indexOf('mac') >= 0 || p.indexOf('iphone') >= 0 || p.indexOf('ipad') >= 0) return 'mac';
+    return 'other';
+  })();
+
+  var FONT_MAP_MAC = {
+    'Inter': 'Helvetica Neue',
+    'SF Pro Display': 'Helvetica Neue',
+    'SF Pro Text': 'Helvetica Neue',
+    'SF Pro': 'Helvetica Neue',
+    'SF Mono': 'Menlo',
+    'ui-monospace': 'Menlo'
+  };
+  var FONT_MAP_WIN = {
+    'Inter': 'Segoe UI',
+    'SF Pro Display': 'Segoe UI',
+    'SF Pro Text': 'Segoe UI',
+    'SF Pro': 'Segoe UI',
+    'SF Mono': 'Consolas',
+    'ui-monospace': 'Consolas'
+  };
+
   var DEFAULTS = Object.assign({}, _docDefaults, global.DECK_EXPORT_DEFAULTS || {}, {
     slideSelector: 'section.slide',
     scriptPath: null,             // 不填则自动探测
     skipSelector: '[data-pptx-skip], .no-export, .pptx-skip',
-    // 本机没装 Inter / SF 系列，浏览器实际用系统回退渲染；
-    // 这里映射到 macOS 自带、Windows 会回退到 Arial 的等价字体，避免 PowerPoint 各自猜。
-    fontMap: {
-      'Inter': 'Helvetica Neue',
-      'SF Pro Display': 'Helvetica Neue',
-      'SF Pro Text': 'Helvetica Neue',
-      'SF Pro': 'Helvetica Neue',
-      'SF Mono': 'Menlo',
-      'ui-monospace': 'Menlo'
-    },
+    // mac: 本机没装 Inter / SF 系列，浏览器实际用系统回退渲染，映射到 macOS 自带字体；
+    // windows: 映射到 Windows 自带字体。避免 PowerPoint 各自猜。
+    fontMap: Object.assign({}, FONT_MAP_MAC, EXPORT_PLATFORM === 'windows' ? FONT_MAP_WIN : {}),
     fallbackFont: 'Microsoft YaHei',
     minShapeArea: 600,            // 小于该面积(设计px²)的色块不导出
     minRuleLen: 16,               // 细线/分隔线最短长度
@@ -1477,7 +1498,7 @@
     pptx.title = c.title;
     pptx.author = c.author;
     pptx.subject = c.title;
-    pptx.company = 'AI learning report';
+    pptx.company = (document.body && document.body.dataset.brand) || '';
 
     var SHAPE = pptx.ShapeType || {};
     var report = [];

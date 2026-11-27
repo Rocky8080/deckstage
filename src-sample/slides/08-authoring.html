@@ -1,38 +1,34 @@
-<section class="slide" id="s08" data-title="创作规范 · 亲手写一屏" data-rail="创作">
-  <header class="head">
+<section class="slide" id="s08" data-title="创作规范 · 亲手写一屏" data-rail="创作" data-arch="contrast">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">07 / AUTHORING</p>
     <h1 class="title">一屏 = <em>一个 HTML 文件</em></h1>
   </header>
 
-  <div class="body" style="display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: start;">
-    <div class="card card--dark" style="padding: 22px 24px;">
-      <p class="kv__k" style="margin-bottom: 12px;">src-sample/slides/06-authoring.html</p>
-      <pre style="margin:0; font: 12px/1.85 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" id="s08"
-         data-title="创作规范"
-         data-rail="创作"&gt;
-  &lt;header class="head"&gt;
-    &lt;p class="kicker"&gt;07 / AUTHORING&lt;/p&gt;
-    &lt;h1 class="title"&gt;一屏 =
-      &lt;em&gt;一个 HTML 文件&lt;/em&gt;&lt;/h1&gt;
-  &lt;/header&gt;
+  <div class="body">
+    <div class="ax-contrast">
+      <div class="ax-contrast__panel ax-contrast__panel--bad reveal" style="--d:80ms">
+        <p class="ax-contrast__k"><span>反例</span><span>换主题就漏</span></p>
+        <p class="ax-contrast__q">标题写「概述」；颜色写死 <code>#1E5B47</code>；一屏塞 400 字正文。</p>
+        <p class="ax-contrast__note">名词标题立不住观点；配色主题整套失效；放映时溢出截断。</p>
+      </div>
+      <div class="ax-contrast__panel ax-contrast__panel--good reveal" style="--d:220ms">
+        <p class="ax-contrast__k"><span>正例</span><span>左边这屏的源码</span></p>
+        <pre style="margin:0; padding: 12px 16px; border-radius: 10px; background: var(--dark-2); font: 12px/1.8 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" data-arch="contrast"
+         data-title="…" data-rail="创作"&gt;
+  &lt;h1 class="title"&gt;一屏 =
+    &lt;em&gt;一个 HTML 文件&lt;/em&gt;&lt;/h1&gt;
   &lt;div class="body"&gt; … &lt;/div&gt;
   &lt;aside class="notes"&gt;演讲备注&lt;/aside&gt;
 &lt;/section&gt;</pre>
+        <p class="ax-contrast__note">data-rail 分章、data-title 进度条悬停可见、aside.notes 备注不占画面；颜色只用 tokens.css 变量。</p>
+      </div>
     </div>
 
-    <ul class="list" style="margin-top: 6px;">
-      <li class="list__item reveal" style="--d:80ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>data-rail</code> 决定顶部导轨分章；<code>data-title</code> 进度条悬停可见</p></li>
-      <li class="list__item reveal" style="--d:180ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>reveal</code> + <code>--d</code> 控制逐步入场；<code>data-count</code> 数字滚动；<code>.frag</code> 空格分步</p></li>
-      <li class="list__item reveal" style="--d:280ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>aside.notes</code> 是演讲备注，按 <b>N</b> 呼出，不占画面</p></li>
-      <li class="list__item reveal" style="--d:380ms"><i class="list__dot"></i>
-        <p class="list__txt">颜色只用 <code>tokens.css</code> 变量、不写死——配色主题才能整套生效</p></li>
-      <li class="list__item reveal" style="--d:480ms"><i class="list__dot"></i>
-        <p class="list__txt">写完跑 <code>python3 tools/check_slides.py</code> 自查溢出与截断</p></li>
-    </ul>
+    <div class="ax-bottom reveal" style="--d:420ms">
+      <p class="insight">所以规范就两条：标题是一句能被反驳的话，颜色只用变量。</p>
+      <p class="bridge" style="margin-top:16px">写完跑 <code>python3 tools/check_slides.py</code> 自查溢出——下一屏看外部 PPTX 怎么进来。</p>
+    </div>
   </div>
 
-  <aside class="notes">创作模型：一屏一个文件放 src-slides 目录，类名体系见 docs/AUTHORING.md。左侧深色卡片就是本屏的真实源码。最关键的两条：高度预算不要超、颜色只用变量。</aside>
+  <aside class="notes">创作模型：一屏一个文件放 slides 目录，类名体系见 docs/AUTHORING.md。正例面板就是本屏的真实源码（节选）。最关键的两条：高度预算不要超、颜色只用变量——其余规范都从这里推出来。</aside>
 </section>

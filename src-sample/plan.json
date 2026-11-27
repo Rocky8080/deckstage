@@ -1,0 +1,137 @@
+{
+  "l0": "DeckStage 让 deck 从素材到放映、导出、管理全程可自查：每屏是一个可审计的 HTML 文件，门禁 P0 不过就构建失败。",
+  "slides": [
+    {
+      "file": "01-cover.html",
+      "arch": "cover",
+      "claim": "一套幻灯片系统的完整用法",
+      "answers": "—（封面：本套 deck 即活示例）",
+      "asks": "这套系统是什么、怎么装？",
+      "modules": [
+        { "role": "主", "supports": "完整用法", "evidence": "本页即由该引擎渲染；12 屏边看边用" },
+        { "role": "次", "supports": "系统是什么", "evidence": "三张卡：HTML FIRST / PPTX IMPORT / ADMIN" }
+      ]
+    },
+    {
+      "file": "02-install.html",
+      "arch": null,
+      "claim": "安装，就是发一个链接",
+      "answers": "怎么装——回答封面留下的「怎么用」第一步",
+      "asks": "装好之后，AI 代工长什么样？",
+      "modules": [
+        { "role": "主", "supports": "发一个链接", "evidence": "仓库链接 + 本机 127.0.0.1:8899 实景会话" },
+        { "role": "次", "supports": "装", "evidence": "等效手动命令（愿意自己敲的话）" }
+      ]
+    },
+    {
+      "file": "03-ai-workflow.html",
+      "arch": null,
+      "claim": "一句话需求，AI 全程代工",
+      "answers": "装好之后 AI 代工的样子——承接「装好之后呢」",
+      "asks": "想手动执行每一步怎么办？",
+      "modules": [
+        { "role": "主", "supports": "AI 全程代工", "evidence": "三窗口实景：Word 素材 → WorkBuddy 会话 → sample-deck 成品" },
+        { "role": "次", "supports": "不限客户端", "evidence": "ZCode / DeepSeek Harness / Codex 同样适用" }
+      ]
+    },
+    {
+      "file": "04-quickstart.html",
+      "arch": "chain",
+      "claim": "五分钟，跑通全流程",
+      "answers": "手动执行每一步的完整命令——回答「想手动怎么办」",
+      "asks": "系统由哪几块能力组成？",
+      "modules": [
+        { "role": "主", "supports": "跑通全流程", "evidence": "装 → 拼 → 放 → 改 四节点命令与各自产出" },
+        { "role": "次", "supports": "五分钟", "evidence": "依赖两档说明：创作零依赖，导入/质检需要 LibreOffice 与 Chrome" }
+      ]
+    },
+    {
+      "file": "05-overview.html",
+      "arch": "arch",
+      "claim": "四个能力，一条流水线",
+      "answers": "跑通之后看全貌——系统由哪几块组成",
+      "asks": "放映怎么操作？",
+      "modules": [
+        { "role": "主", "supports": "一条流水线", "evidence": "侧栏命令链 src → build.mjs → serve_deck → library" },
+        { "role": "次", "supports": "四个能力", "evidence": "四层：创作 / 放映 / 导入导出 / 管理，各带组件与职责" }
+      ]
+    },
+    {
+      "file": "06-presenting.html",
+      "arch": "toc",
+      "claim": "放映，全在指尖",
+      "answers": "放映怎么操作——回答总览页留下的问题",
+      "asks": "配色不喜欢怎么办？",
+      "modules": [
+        { "role": "主", "supports": "全在指尖", "evidence": "五行键位表：翻页 / 总览备注 / 画幅 / 指针 / 深链" },
+        { "role": "次", "supports": "指尖", "evidence": "键盘、指针、通用三类归组，任何焦点位置都生效" }
+      ]
+    },
+    {
+      "file": "07-themes.html",
+      "arch": null,
+      "claim": "七套配色，一键切换",
+      "answers": "配色不喜欢怎么办——承接放映页的「按 C 试试」",
+      "asks": "怎么亲手写一屏？",
+      "modules": [
+        { "role": "主", "supports": "一键切换", "evidence": "8 张色卡 = C 键浮窗同一组预设（默认 + 六套 + 玄墨）" },
+        { "role": "次", "supports": "切换", "evidence": "主题记忆在本机；deck 各自记忆" }
+      ]
+    },
+    {
+      "file": "08-authoring.html",
+      "arch": "contrast",
+      "claim": "一屏 = 一个 HTML 文件",
+      "answers": "创作的基本单位与写法——承接「怎么亲手写」",
+      "asks": "外部 PPTX 能进来吗？",
+      "modules": [
+        { "role": "主", "supports": "一屏一个 HTML", "evidence": "正例面板即本屏真实源码（节选）" },
+        { "role": "次", "supports": "规范", "evidence": "反例：名词标题 / 写死颜色 / 超预算；正例：断言标题 + tokens 变量" }
+      ]
+    },
+    {
+      "file": "09-import.html",
+      "arch": "board",
+      "claim": "外部 PPTX，一条流水线进展示台",
+      "answers": "既有 PPTX 能不能进来——回答创作页留下的问题",
+      "asks": "导出去还能编辑吗？",
+      "modules": [
+        { "role": "主", "supports": "一条流水线", "evidence": "六阶段全自动、四步向导、1600×900 源分辨率，口径写在 .source 行" },
+        { "role": "次", "supports": "两条路径", "evidence": "UI 四步向导与 CLI 同一条流水线；API 仅限本机" }
+      ]
+    },
+    {
+      "file": "10-export-qa.html",
+      "arch": "chain",
+      "claim": "能放出去，也能带回来",
+      "answers": "导出后能不能编辑——承接导入页「随时导出回 PPTX」",
+      "asks": "谁在访问、怎么管？",
+      "modules": [
+        { "role": "主", "supports": "能放出去", "evidence": "改 → 导 → 查 → 离线 四节点链，页内生成可编辑 PPTX" },
+        { "role": "次", "supports": "带回来", "evidence": "check_slides / test_deck 质检命令，0 问题再分发" }
+      ]
+    },
+    {
+      "file": "11-admin.html",
+      "arch": null,
+      "claim": "管理后台：/admin 一站管理",
+      "answers": "谁在访问、怎么管——回答导出页留下的问题",
+      "asks": "讲完了，剩下的去哪看？",
+      "modules": [
+        { "role": "主", "supports": "一站管理", "evidence": "访客追踪 / 密码门禁 / 上下架三卡即后台实景" },
+        { "role": "次", "supports": "入口", "evidence": "展示台页脚「管理后台」进入；首次启动打印初始口令" }
+      ]
+    },
+    {
+      "file": "12-closing.html",
+      "arch": "closing",
+      "claim": "讲完了，剩下交给文档",
+      "answers": "还有问题去哪看——收束全册",
+      "asks": "—（收尾页）",
+      "modules": [
+        { "role": "主", "supports": "交给文档", "evidence": "六份文档路径即可点开：AUTHORING / DECK_SPEC / IMPORT / ADMIN / CHANGELOG / README" },
+        { "role": "次", "supports": "讲完", "evidence": "12 屏 · 0 前端构建依赖 · 100% 离线放映" }
+      ]
+    }
+  ]
+}

@@ -27,9 +27,9 @@
 | **页面骨架** | 本文件 + `archetypes/` + `base.css` 的 `.ax-*` | 12 个，可扩展 | 中 |
 | 内容结论 | `tools/frame.py`、`capabilities/causal-value-chain/` | 每一屏 | 高 |
 
-换骨架不等于换风格：12 个骨架全部使用同一套米色纸面、墨绿主色、赭石强调、衬线标题。
+换骨架不等于换风格：17 个骨架全部使用同一套米色纸面、墨绿主色、赭石强调、衬线标题。
 
-## 2. 十二个骨架（v1）
+## 2. 十七个骨架（v2）
 
 每个文件顶部都有注释：`骨架编号 · 名称｜适用｜容量`；`<section data-arch="...">` 供机器识别。页面里的数字与文案是**演示用占位**，必须全部替换。
 
@@ -47,6 +47,11 @@
 | 10 | 闭环 | [archetypes/10-loop.html](archetypes/10-loop.html) | 复盘循环、运营节奏 | 3–4 步，回路线 1 句 | 画环形箭头、步骤超过 5 |
 | 11 | 反例 / 正例 | [archetypes/11-contrast.html](archetypes/11-contrast.html) | 错误示范、prompt 前后对照 | 每侧 ≤ 4 行，结论 1 句 | 只放反例、两侧字号不同 |
 | 12 | 收尾 | [archetypes/12-closing.html](archetypes/12-closing.html) | 一句话结论 + 下一步 | 一句话 ≤ 24 字，元信息 ≤ 3 条 | 写「谢谢聆听」、铺满色块 |
+| 13 | 基准柱状图 | [archetypes/13-bars.html](archetypes/13-bars.html) | 一组数字里只有一个主角 | 5–7 根柱，标签 ≤ 8 字 | 无基准线、每根柱都强调 |
+| 14 | 因果链桥 | [archetypes/14-bridge.html](archetypes/14-bridge.html) | 现状 → 机制 → 结果 → 反事实 | 4 格，同尺 | 机制写成口号、缺反事实 |
+| 15 | 2×2 象限 | [archetypes/15-quadrant.html](archetypes/15-quadrant.html) | 两个维度定位多个对象 | 4 格，焦点 1 格 | 轴没有方向、对象跨格 |
+| 16 | 时间轴 | [archetypes/16-timeline.html](archetypes/16-timeline.html) | 里程碑、分阶段推进 | 3–5 个节点，焦点 1 个 | 精确到天、每节点一段 |
+| 17 | 痛点 → 对策 | [archetypes/17-versus.html](archetypes/17-versus.html) | 问题与整改一一对应 | ≤ 4 行，左右成对 | 对策写成「加强 / 重视」 |
 
 ## 3. 选型：内容信号 → 骨架
 
@@ -83,14 +88,15 @@
 12 closing   把改稿从重写变成校对
 ```
 
-## 4. 反单调硬指标（建议级，先别挂构建）
+## 4. 反单调硬指标（建议级；要进 CI / 构建门禁时加 `--strict`）
 
 - 骨架种数：≥ 6 种 / 套（≥ 10 屏）；≤ 6 屏的短 deck ≥ 4 种（检查时传 `--min 4`）。
 - 相邻两屏不得同骨架。
 - 同一骨架全 deck 最多出现 3 次。
 - 每 5 屏至少有 1 屏不是「卡片 + 网格」结构（用 03/05/06/07/09/10/11 之一）。
 - 纯列表页不超过全 deck 的 1/5。
-- 机器检查：
+- 机器检查（全部已实现，另加结构族统计：`grid3+card` 与 `grid4+list+card` 会被归并成
+  同一「卡片 + 网格」结构族，同一结构族超过 3 屏也会提示）：
 
 ```bash
 python3 tools/layout_audit.py --src src-<名字>/slides

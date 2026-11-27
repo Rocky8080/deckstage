@@ -8,6 +8,7 @@ make_pptx.py — 像素保真版 PPTX（每屏 3200×1800 截图，全出血贴�
 
 特点：所见即所得，不可改字。需要改字请用页面内「导出 PPTX（可编辑）」。
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import io
 import sys
@@ -37,7 +38,7 @@ def main():
     shots = []
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel="chrome", headless=True)
+        browser = _platform.launch_chromium(p, headless=True)
         page = browser.new_context(
             viewport={"width": args.width, "height": args.height},
             device_scale_factor=args.dpi,

@@ -12,6 +12,7 @@ Playwright 打开 http://127.0.0.1:PORT/index.html?export=1（导出模式，隐
 
 退出码：0 成功，1 失败
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import json
 import os
@@ -147,7 +148,7 @@ def main(argv=None):
     shots = []
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(channel="chrome", headless=not a.headed)
+            browser = _platform.launch_chromium(p, headless=not a.headed)
             context = browser.new_context(
                 viewport={"width": CSS_W, "height": CSS_H},
                 device_scale_factor=DSF,

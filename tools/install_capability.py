@@ -32,11 +32,13 @@
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import hashlib
 import json
 import os
 import shutil
+import sys
 import unicodedata
 from datetime import datetime
 from pathlib import Path
@@ -346,9 +348,23 @@ def cli_link() -> Path:
     return Path.home() / ".local" / "bin" / "frame"
 
 
+def _win_cli_bat() -> Path:
+    """Windows 没有 symlink 权限保障：装一个 .bat 包装器代替符号链接。"""
+    return cli_link().with_suffix(".bat")
+
+
 def install_cli() -> Path:
     link = cli_link()
     src = REPO / "tools" / "frame.py"
+    if sys.platform == "win32":
+        bat = _win_cli_bat()
+        if bat.exists():
+            if str(src) in bat.read_text(encoding="utf-8", errors="ignore"):
+                return bat
+            raise FileExistsError(f"{bat} 已存在且指向别处。可直接运行 python3 {src}")
+        link.parent.mkdir(parents=True, exist_ok=True)
+        bat.write_text(f'@echo off\r\npython "{src}" %*\r\n', encoding="utf-8")
+        return bat
     if link.is_symlink() and link.resolve() == src:
         return link
     if link.is_symlink() or link.exists():
@@ -360,7 +376,14 @@ def install_cli() -> Path:
 
 def cli_on_path() -> bool:
     found = shutil.which("frame")
-    return found is not None and Path(found).resolve() == REPO / "tools" / "frame.py"
+    if found is None:
+        return False
+    found = Path(found)
+    if sys.platform == "win32":
+        return found.suffix.lower() == ".bat" and (
+            str(REPO / "tools" / "frame.py")
+            in found.read_text(encoding="utf-8", errors="ignore"))
+    return found.resolve() == REPO / "tools" / "frame.py"
 
 
 # ---------------------------------------------------------------- 安装
@@ -518,7 +541,11 @@ def check(agents: list[dict], skipped: list[dict], ws: Path, explicit: bool) -> 
     ok &= hcli.exists()
 
     link = cli_link()
-    linked = link.is_symlink() and link.resolve() == cli
+    if sys.platform == "win32":
+        bat = _win_cli_bat()
+        linked = bat.exists() and str(cli) in bat.read_text(encoding="utf-8", errors="ignore")
+    else:
+        linked = link.is_symlink() and link.resolve() == cli
     status("✓" if linked else "✗", "全局命令", str(link), indent=1)
     if linked and not cli_on_path():
         print("  将 ~/.local/bin 加到 PATH 后可直接调用 frame")
@@ -553,7 +580,12 @@ def uninstall(ws: Path) -> None:
         print("（没有找到本系统安装的技能目录）")
 
     global_cli = cli_link()
-    if global_cli.is_symlink() and global_cli.resolve() == REPO / "tools" / "frame.py":
+    if sys.platform == "win32":
+        bat = _win_cli_bat()
+        if bat.exists() and str(REPO / "tools" / "frame.py") in bat.read_text(encoding="utf-8", errors="ignore"):
+            bat.unlink()
+            print(f"✓ 已移除全局命令 {bat}")
+    elif global_cli.is_symlink() and global_cli.resolve() == REPO / "tools" / "frame.py":
         global_cli.unlink()
         print(f"✓ 已移除全局命令 {global_cli}")
     for cap in CAPABILITIES:

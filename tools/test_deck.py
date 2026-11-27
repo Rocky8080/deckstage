@@ -5,6 +5,7 @@ test_deck.py — 演示模式交互自测（键盘导航 / 逐步揭示 / 总览
 用法: python3 tools/test_deck.py
 退出码 0 = 全部通过
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import sys
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -22,7 +23,7 @@ def check(name, cond, extra=""):
 
 def main():
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel="chrome", headless=True)
+        browser = _platform.launch_chromium(p, headless=True)
         page = browser.new_context(viewport={"width": 1440, "height": 900}).new_page()
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))

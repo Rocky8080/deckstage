@@ -40,6 +40,15 @@
   · 全 deck 只有 1 种骨架 → 单独强提示
   覆盖 = 骨架种数 ÷ 屏数，只表示「每屏平均能摊到多少种结构」，不是验收分数。
 
+结构族（第二把尺子，防「换了个栅格但还是同一堵卡片墙」）：
+  有 data-arch 的屏直接采用声明值；未标注的屏按特征归并成结构族：table /
+  diagram / card-grid / board / flow / list / card / grid / plain（无结构信息，
+  不参与族判定）
+  · 同一结构族 > --max-repeat 次            → family_repeat
+  · 连续 ≥5 屏「卡片 + 网格」               → card_grid_run
+    （LAYOUTS.md：每 5 屏至少有 1 屏不是「卡片 + 网格」结构）
+  · 纯列表页超过全 deck 的 1/5（≥5 屏才查） → pure_list_ratio
+
 输出：
   先一张「屏 / 标题 / 骨架」表，再一行摘要，最后列出 violations（每条带屏号和
   改法）。--json 输出机器可读结果（source/mode/total/kinds/coverage/distribution/
@@ -50,8 +59,8 @@
   1 = --strict 且存在 violation
   2 = 输入错误（缺 --src/--index、路径不存在、切不出任何一屏）
 
---self-test 会在 /tmp 下生成两套临时 deck（一套 8 屏 6 骨架、一套 6 屏全同骨架），
-断言骨架种数、单调重复、坑位检测正确，跑完自动清理，不碰仓库里的文件。
+--self-test 会在 /tmp 下生成三套临时 deck（10 屏 6 骨架、6 屏全同骨架、6 屏含 2 屏纯列表），
+断言骨架种数、单调重复、结构族与坑位检测正确，跑完自动清理，不碰仓库里的文件。
 
 限制：本工具只读 HTML，不解析外部 CSS（<style> 会被剥掉），所以自定义版式请
 用 data-arch 或约定的类名（.grid/.g3/.card/.list/.stat/.insight 等）表达结构；
@@ -59,6 +68,7 @@ presenter notes 请使用 <aside class="notes">，否则备注里的箭头会被
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import json
 import re
@@ -317,6 +327,53 @@ def infer_features(html):
     return [f for f in FEATURE_ORDER if f in feats]
 
 
+# ------------------------------------------------------------------ 结构族
+# 特征签名会把「grid3+card」和「grid4+list+card」算成两种骨架，但对观众它们是
+# 同一种「标题 + 卡片栅格」。结构族把它们归并，用来识别换栅格不换结构的单调。
+CARD_GRID_PARTS = ("grid2", "grid3", "grid4", "split")
+PURE_LIST_EXEMPT = ("table", "svg", "image", "stat", "card", "flow", "steps")
+
+
+def family_of(features, arch=""):
+    """把一屏归入结构族。
+
+    有 data-arch 时直接采用声明值（作者已声明骨架，签名 = arch，无需归并）；
+    未标注的屏按特征归并，识别「换了个栅格但还是同一堵卡片墙」。
+    """
+    if arch:
+        return arch
+    fset = set(features)
+    if "table" in fset:
+        return "table"
+    if "svg" in fset:
+        return "diagram"
+    if "card" in fset and fset.intersection(CARD_GRID_PARTS):
+        return "card-grid"
+    if "stat" in fset:
+        return "board"
+    if fset.intersection(("flow", "steps")):
+        return "flow"
+    if "list" in fset:
+        return "list"
+    if "card" in fset:
+        return "card"
+    if fset.intersection(CARD_GRID_PARTS):
+        return "grid"
+    return "plain"
+
+
+def is_card_grid(features):
+    """「卡片 + 网格」结构：卡片放进栅格 / 分栏（LAYOUTS.md 反单调规则的对象）。"""
+    fset = set(features)
+    return "card" in fset and bool(fset.intersection(CARD_GRID_PARTS))
+
+
+def is_pure_list(features):
+    """纯列表页：只有列表，没有表格 / 图 / 看板 / 卡片 / 流程等其他结构。"""
+    fset = set(features)
+    return "list" in fset and not fset.intersection(PURE_LIST_EXEMPT)
+
+
 def make_slide(section, file_label, fallback_title):
     """把一屏 HTML 变成一条待统计的记录（含 data-arch / 特征 / 骨架签名）。"""
     opening = _opening_tag(section)
@@ -400,6 +457,23 @@ def _adjacent_runs(signatures):
     return runs
 
 
+def _runs_of(flags, min_len):
+    """布尔序列里连续为 True 的区段（0 基闭区间 [start, end]），长度 ≥ min_len。"""
+    runs = []
+    start = -1
+    for i, flag in enumerate(flags):
+        if flag:
+            if start < 0:
+                start = i
+        elif start >= 0:
+            if i - start >= min_len:
+                runs.append((start, i - 1))
+            start = -1
+    if start >= 0 and len(flags) - start >= min_len:
+        runs.append((start, len(flags) - 1))
+    return runs
+
+
 def _numbers_text(nums, limit=8):
     if not nums:
         return "—"
@@ -444,6 +518,21 @@ def build_report(slides, min_kinds=6, max_repeat=3, check_adjacent=True):
 
     arch_tagged = sum(1 for s in slides if s["arch"])
     violations = []
+
+    # ---- 结构族统计：防「换了个栅格但还是同一堵卡片墙」 ----
+    for s in slides:
+        s["family"] = family_of(s["features"], s["arch"])
+    fam_counts = {}
+    fam_slides = {}
+    for s in slides:
+        fam_counts[s["family"]] = fam_counts.get(s["family"], 0) + 1
+        fam_slides.setdefault(s["family"], []).append(s["no"])
+    family_kinds = len([f for f in fam_counts if f != "plain"])
+    fam_top = max(fam_counts, key=lambda f: (fam_counts[f], -fam_slides[f][0]))
+    family_distribution = [
+        {"family": fam, "count": fam_counts[fam], "slides": fam_slides[fam]}
+        for fam in sorted(fam_counts, key=lambda f: (-fam_counts[f], fam_slides[f][0]))
+    ]
 
     if kinds == 1:
         violations.append({
@@ -491,10 +580,44 @@ def build_report(slides, min_kinds=6, max_repeat=3, check_adjacent=True):
             "suggestion": "把其中一屏换骨架，或在这两屏之间插一屏过渡 / 对照页",
         })
 
+    if fam_top != "plain" and fam_counts[fam_top] > max_repeat:
+        violations.append({
+            "rule": "family_repeat",
+            "level": "建议",
+            "title": "结构族重复过多",
+            "slides": fam_slides[fam_top],
+            "detail": "结构族 `%s` 占了 %d 屏（%s），超过上限 %d 次——换栅格、换列数不等于换结构" % (
+                fam_top, fam_counts[fam_top], _numbers_text(fam_slides[fam_top]), max_repeat),
+            "suggestion": "把其中 1–2 屏换成对照矩阵 / 过程链 / 数据看板 / 图示页，让非卡片栅格的结构也有戏份",
+        })
+    for begin, end in _runs_of([is_card_grid(s["features"]) for s in slides], 5):
+        violations.append({
+            "rule": "card_grid_run",
+            "level": "建议",
+            "title": "连续卡片墙",
+            "slides": list(range(begin + 1, end + 2)),
+            "detail": "第 %d–%d 屏连续 %d 屏都是「卡片 + 网格」结构；每 5 屏至少要有 1 屏换掉" % (
+                begin + 1, end + 1, end - begin + 1),
+            "suggestion": "插一屏单观点 / 图示 / 对照矩阵 / 看板页，或把其中一屏的卡片改成表格与流程",
+        })
+    pure_list = [s["no"] for s in slides if is_pure_list(s["features"])]
+    if total >= 5 and len(pure_list) * 5 > total:
+        violations.append({
+            "rule": "pure_list_ratio",
+            "level": "建议",
+            "title": "纯列表页过多",
+            "slides": pure_list,
+            "detail": "纯列表页 %d 屏（%s），超过全 deck 的 1/5（%d 屏的上限是 %d 屏）" % (
+                len(pure_list), _numbers_text(pure_list), total, total // 5),
+            "suggestion": "把其中一屏升格为卡片 / 对照矩阵 / 流程 / 看板，别让大纲页的形态反复出现",
+        })
+
     return {
         "total": total,
         "kinds": kinds,
         "coverage": coverage,
+        "family_kinds": family_kinds,
+        "family_distribution": family_distribution,
         "distribution": distribution,
         "slides": slides,
         "adjacent_checked": check_adjacent,
@@ -581,9 +704,10 @@ def format_report(report, strict=False):
     adjacent = "—（已关闭）" if not report["adjacent_checked"] else str(report["adjacent_repeat"])
     lines.append("")
     lines.append(
-        "摘要：骨架 %d 种 / %d 屏 · 相邻重复 %s · 最多重复 %d 次（%s） · 覆盖 %s"
+        "摘要：骨架 %d 种 / %d 屏 · 结构族 %d 种 · 相邻重复 %s · 最多重复 %d 次（%s） · 覆盖 %s"
         % (
-            report["kinds"], report["total"], adjacent,
+            report["kinds"], report["total"], report.get("family_kinds", report["kinds"]),
+            adjacent,
             report["max_repeat"], report["max_repeat_signature"],
             _fmt_pct(report["coverage"]),
         )
@@ -600,6 +724,13 @@ def format_report(report, strict=False):
     for item in report["distribution"]:
         lines.append("  %s ×%d  %s" % (
             _pad(_clip(item["signature"], SIGNATURE_MAX), sig_w),
+            item["count"],
+            _numbers_text(item["slides"]),
+        ))
+    lines.append("结构族分布：")
+    for item in report.get("family_distribution", []):
+        lines.append("  %s ×%d  %s" % (
+            _pad(_clip(item["family"], SIGNATURE_MAX), sig_w),
             item["count"],
             _numbers_text(item["slides"]),
         ))
@@ -629,7 +760,7 @@ def _check(cond, message):
 
 
 def _selftest_decks(base):
-    """返回 (deck-a 的 8 个 section 文本, deck-a 目录, deck-b 目录)。"""
+    """返回 (deck-a 的 10 个 section 文本, deck-a 目录, deck-b 目录, deck-c 目录)。"""
     # 1) data-arch 优先：签名是 cover，但特征仍应算出来（grid2/split/card）
     cover = (
         '<section class="slide" data-title="封面" data-arch="cover">'
@@ -665,7 +796,7 @@ def _selftest_decks(base):
         '<section class="slide" data-title="看板" data-arch="board">'
         '<div class="stat">42</div></section>'
     )
-    sections = [cover, trio, list_slide, table, flow, board, list_slide, trio]
+    sections = [cover, trio, list_slide, table, flow, board, list_slide, trio, table, board]
 
     deck_a = base / "deck-a"
     deck_a.mkdir(parents=True, exist_ok=True)
@@ -683,7 +814,13 @@ def _selftest_decks(base):
             '<div class="card">%d</div></div></section>\n' % (i, i),
         )
 
-    return sections, deck_a, deck_b
+    # 6 屏里 2 屏纯列表（2/6 超过 1/5）：验证 pure_list_ratio
+    deck_c = base / "deck-c"
+    deck_c.mkdir(parents=True, exist_ok=True)
+    for i, section in enumerate([list_slide, trio, list_slide, trio, trio, trio], 1):
+        _write(deck_c / ("%02d-slide.html" % i), section + "\n")
+
+    return sections, deck_a, deck_b, deck_c
 
 
 def run_self_test():
@@ -693,20 +830,23 @@ def run_self_test():
     print("layout_audit self-test")
     print("  临时目录：%s" % tmp)
     try:
-        sections, deck_a, deck_b = _selftest_decks(tmp)
+        sections, deck_a, deck_b, deck_c = _selftest_decks(tmp)
 
-        # A. 干净 deck：8 屏 6 骨架，不应有任何 violation
+        # A. 干净 deck：10 屏 6 骨架（5 结构族），不应有任何 violation
         slides_a = collect_src(deck_a)
         report_a = build_report(slides_a, min_kinds=6, max_repeat=3, check_adjacent=True)
-        _check(report_a["total"] == 8, "8 屏 deck 切出了 %d 屏" % report_a["total"])
-        _check(report_a["kinds"] == 6, "8 屏 deck 应是 6 种骨架，实际 %d 种：%s" % (
+        _check(report_a["total"] == 10, "10 屏 deck 切出了 %d 屏" % report_a["total"])
+        _check(report_a["kinds"] == 6, "10 屏 deck 应是 6 种骨架，实际 %d 种：%s" % (
             report_a["kinds"], [s["signature"] for s in report_a["slides"]]))
+        _check(report_a["family_kinds"] == 6, "deck-a 应是 6 种结构族，实际 %d：%s" % (
+            report_a["family_kinds"], report_a["family_distribution"]))
         _check(not report_a["violations"], "干净 deck 不应有 violation：%s" % report_a["violations"])
         _check(decide_exit(report_a, True) == 0, "干净 deck 加 --strict 也应退出 0")
         _check(slides_a[0]["signature"] == "cover", "data-arch 应优先于特征推断")
         _check("card" in slides_a[0]["features"], "data-arch 屏仍应计算特征")
+        _check(report_a["slides"][0]["family"] == "cover", "有 data-arch 的屏结构族应取声明值")
         _check(report_a["slides"][4]["title"] == "流程 · 标题回退", "无 data-title 时应回退到 h1")
-        print("  ✓ 干净 deck：8 屏 6 骨架，data-arch/特征/标题回退正确，0 violation，--strict 退出 0")
+        print("  ✓ 干净 deck：10 屏 6 骨架 5 结构族，data-arch/特征/标题回退正确，0 violation，--strict 退出 0")
 
         # B. 构建后的单文件：嵌套 section 与 script 里的假标签都不许干扰切屏
         index_doc = (
@@ -721,28 +861,38 @@ def run_self_test():
         _write(index_file, index_doc)
         slides_i = collect_index(index_file)
         report_i = build_report(slides_i, min_kinds=6, max_repeat=3, check_adjacent=True)
-        _check(report_i["total"] == 8, "构建单文件切出了 %d 屏" % report_i["total"])
+        _check(report_i["total"] == 10, "构建单文件切出了 %d 屏" % report_i["total"])
         _check(
             [s["signature"] for s in slides_i] == [s["signature"] for s in slides_a],
             "构建单文件与 --src 的骨架签名不一致：%s vs %s" % (
                 [s["signature"] for s in slides_i], [s["signature"] for s in slides_a]),
         )
         _check(report_i["kinds"] == report_a["kinds"], "构建单文件与 --src 的骨架种数不一致")
-        print("  ✓ 构建单文件：嵌套 section / script 诱饵不干扰，切出 8 屏且骨架与 --src 一致")
+        print("  ✓ 构建单文件：嵌套 section / script 诱饵不干扰，切出 10 屏且骨架与 --src 一致")
 
         # C. 单调 deck：6 屏全同骨架
         report_b = build_report(collect_src(deck_b), min_kinds=6, max_repeat=3, check_adjacent=True)
         rules = {v["rule"] for v in report_b["violations"]}
         _check(report_b["total"] == 6, "单调 deck 屏数应为 6，实际 %d" % report_b["total"])
         _check(report_b["kinds"] == 1, "单调 deck 应只有 1 种骨架，实际 %d" % report_b["kinds"])
+        _check(report_b["family_kinds"] == 1, "单调 deck 应只有 1 种结构族，实际 %d" % report_b["family_kinds"])
         _check("single_skeleton" in rules, "单调 deck 应命中 single_skeleton：%s" % rules)
         _check("few_kinds" in rules, "单调 deck 应命中 few_kinds：%s" % rules)
         _check("adjacent" in rules, "单调 deck 应命中相邻重复：%s" % rules)
+        _check("family_repeat" in rules, "单调 deck 应命中结构族重复：%s" % rules)
+        _check("card_grid_run" in rules, "单调 deck 应命中连续卡片墙：%s" % rules)
         _check(report_b["max_repeat"] == 6, "单调 deck 单骨架最多重复应为 6")
         _check(report_b["adjacent_repeat"] == 5, "单调 deck 相邻重复对数应为 5")
         _check(decide_exit(report_b, True) == 1, "单调 deck 加 --strict 应退出 1")
         _check(decide_exit(report_b, False) == 0, "单调 deck 默认（建议级）应退出 0")
-        print("  ✓ 单调 deck：识别 1 种骨架，命中单一骨架/种数不足/相邻重复，--strict 退出 1")
+        print("  ✓ 单调 deck：1 种骨架 / 1 结构族，命中单一骨架/种数不足/相邻/结构族/卡片墙，--strict 退出 1")
+
+        # C2. 纯列表比例：6 屏里 2 屏纯列表（2/6 > 1/5）
+        report_c = build_report(collect_src(deck_c), min_kinds=6, max_repeat=3, check_adjacent=True)
+        rules_c = {v["rule"] for v in report_c["violations"]}
+        _check("pure_list_ratio" in rules_c, "2/6 纯列表应命中 pure_list_ratio：%s" % rules_c)
+        _check(decide_exit(report_c, False) == 0, "deck-c 默认（建议级）应退出 0")
+        print("  ✓ 纯列表比例：2/6 纯列表命中 pure_list_ratio（建议级退出 0）")
 
         # D. --no-adjacent：只关相邻检查，其它仍生效
         report_b2 = build_report(collect_src(deck_b), min_kinds=6, max_repeat=3, check_adjacent=False)
@@ -762,7 +912,7 @@ def run_self_test():
 
     print("  %s 临时目录已清理：%s" % ("✓" if ok else "✗", tmp))
     if ok:
-        print("self-test 通过（4/4）")
+        print("self-test 通过（5/5）")
         return 0
     print("self-test 失败")
     return 1

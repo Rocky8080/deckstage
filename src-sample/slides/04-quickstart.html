@@ -1,25 +1,42 @@
-<section class="slide" id="s04" data-title="快速开始" data-rail="上手">
-  <header class="head">
+<section class="slide" id="s04" data-title="快速开始" data-rail="上手" data-arch="chain">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">03 / QUICKSTART</p>
     <h1 class="title">五分钟，<em>跑通全流程</em></h1>
   </header>
 
   <div class="body">
-    <div class="card" style="padding: 20px 24px; max-width: 1000px;">
-      <pre style="margin:0; font: 12.5px/2.05 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">git clone … &amp;&amp; cd deckstage
-pip install -r requirements.txt          # python 工具链（PIL / fitz / numpy / python-pptx / playwright）
-
-node build.mjs --src src-sample --deck sample-deck   # 拼装示例 deck
-python3 tools/build_library.py                       # 展示台聚合 + 缩略图
-python3 tools/serve_deck.py                          # http://127.0.0.1:8899/  ← 展示台
-
-python3 tools/import_pptx.py 你的.pptx --slug my-deck --dry-run   # 只体检不动手
-python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导入（UI 入口在展示台右上角）</pre>
+    <div class="ax-chain">
+      <div class="ax-chain__node reveal" style="--d:80ms">
+        <p class="ax-chain__no">01</p>
+        <h3 class="ax-chain__h">装依赖</h3>
+        <p class="ax-chain__p"><code>git clone … &amp;&amp; cd deckstage</code><br><code>pip install -r requirements.txt</code></p>
+        <p class="ax-chain__out">产出：仓库与工具链就绪</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:180ms">
+        <p class="ax-chain__no">02</p>
+        <h3 class="ax-chain__h">拼示例</h3>
+        <p class="ax-chain__p"><code>node build.mjs --src src-sample --deck sample-deck</code></p>
+        <p class="ax-chain__out">产出：decks/sample-deck/</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:280ms">
+        <p class="ax-chain__no">03</p>
+        <h3 class="ax-chain__h">起服务</h3>
+        <p class="ax-chain__p"><code>python3 tools/serve_deck.py</code></p>
+        <p class="ax-chain__out">产出：127.0.0.1:8899 展示台</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:380ms">
+        <p class="ax-chain__no">04</p>
+        <h3 class="ax-chain__h">日常改</h3>
+        <p class="ax-chain__p">改 <code>slides/*.html</code>，重跑 build.mjs</p>
+        <p class="ax-chain__out">产出：刷新浏览器即放映</p>
+      </div>
     </div>
-    <p class="note" style="margin-top:16px; font-size:13px; color: var(--ink-3);">依赖分两档：纯创作与放映零依赖，浏览器打开即可；PPTX 导入需要 LibreOffice，缩略图 / QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
 
-    <p class="bridge reveal" style="--d:80ms">服务起来后，先鸟瞰这套系统的<strong>四层能力</strong>。</p>
+    <div class="ax-bottom reveal" style="--d:500ms">
+      <p class="ax-note">依赖两档：创作与放映零依赖，浏览器打开即可；PPTX 导入需要 LibreOffice，缩略图 / QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+      <p class="bridge" style="margin-top:16px">服务起来后，先鸟瞰这套系统的<strong>四层能力</strong>。</p>
+    </div>
   </div>
 
-  <aside class="notes">五分钟上手：装 python 依赖，拼装示例 deck，聚合展示台，起本地服务。导入是可选项，需要 LibreOffice。日常创作时只跑 build.mjs 就够，刷新浏览器即见。</aside>
+  <aside class="notes">五分钟上手：装 python 依赖，拼装示例 deck，起本地服务。导入是可选项，需要 LibreOffice。日常创作只跑 build.mjs 就够，刷新浏览器即见。</aside>
 </section>

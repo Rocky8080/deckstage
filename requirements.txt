@@ -2,8 +2,10 @@
 # 用系统 Python 3.9+ 安装：pip install -r requirements.txt
 #
 # PPTX 导入渲染另需 LibreOffice（非 pip 包）：
-#   macOS:  安装 https://www.libreoffice.org/（默认路径 /Applications/LibreOffice.app）
-# 缩略图 / QA 另需 Chrome（playwright 用 channel="chrome"，无需另下浏览器）。
+#   macOS:   安装 https://www.libreoffice.org/（默认路径 /Applications/LibreOffice.app）
+#   Windows: 默认识别 C:\Program Files\LibreOffice\program\soffice.exe；装在别处时设环境变量 SOFFICE
+# 缩略图 / QA 另需 Chrome（找不到时自动回退 Edge / playwright 自带 chromium，无需另下浏览器）。
+# Windows 上用 py -3 运行工具链；构建会自动在 python3 / python / py -3 里探测解释器。
 
 pillow>=10.0        # 版式预修的实测度量 / 逐页 JPEG
 pymupdf>=1.24       # 渲染 PDF 解析与补字层坐标

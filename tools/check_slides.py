@@ -10,6 +10,7 @@ check_slides.py — HTML 幻灯片体检（溢出 / 文字截断 / 重叠 / 图�
 
 退出码: 0 = 没问题, 1 = 有问题（终端会列出可操作的清单）
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import json
 import os
@@ -147,7 +148,7 @@ def main():
         url = index_path.as_uri() + "?export=1" + ("&ratio=4:3" if args.ratio == "4:3" else "")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel="chrome", headless=True)
+        browser = _platform.launch_chromium(p, headless=True)
         page = browser.new_context(viewport={"width": DES_W, "height": DES_H},
                                    device_scale_factor=1).new_page()
         errors = []

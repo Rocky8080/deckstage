@@ -7,6 +7,7 @@
 
 退出码：0 通过，1 校验失败（文件打不开 / 页数不符 / 空白页 / 尺寸不是 16:9）
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import json
 import os

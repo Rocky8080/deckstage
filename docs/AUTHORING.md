@@ -132,7 +132,7 @@ python3 tools/check_slides.py --shots   # 同时截图到 /tmp/qa/，可以 read
 
 ## 9. 版式骨架库（推荐首次使用先看）
 
-仓库自带 **12 个页面骨架**，源文件在 `capabilities/design-quality/archetypes/`，画廊 deck 用下面的命令构建：
+仓库自带 **17 个页面骨架**，源文件在 `capabilities/design-quality/archetypes/`，画廊 deck 用下面的命令构建：
 
 ```bash
 node build.mjs --src src-archetypes --deck archetypes

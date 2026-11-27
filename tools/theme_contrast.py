@@ -24,6 +24,7 @@
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import json
 import os
@@ -139,7 +140,7 @@ def main(argv=None) -> int:
     report = {}
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(channel="chrome", headless=True)
+            browser = _platform.launch_chromium(p, headless=True)
             page = browser.new_page(viewport={"width": 1680, "height": 1000})
             page.goto(f"http://127.0.0.1:{port}/{args.index}?export=1", wait_until="networkidle", timeout=60000)
             page.wait_for_timeout(600)

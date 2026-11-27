@@ -15,6 +15,7 @@
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import re
 import shutil
@@ -65,7 +66,7 @@ def main() -> None:
     tmp = Path(tempfile.mkdtemp(prefix='pptx-audit-')) / 'export.pptx'
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(channel='chrome', headless=True)
+            browser = _platform.launch_chromium(p, headless=True)
             page = browser.new_context(viewport={'width': 1600, 'height': 900}, accept_downloads=True).new_page()
             page.goto(url, wait_until='load', timeout=30000)
             page.wait_for_timeout(1200)

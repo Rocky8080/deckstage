@@ -10,6 +10,7 @@ admin_core.py — /admin 后台数据层：管理员会话、deck 门禁配置�
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import hashlib
 import hmac
 import json

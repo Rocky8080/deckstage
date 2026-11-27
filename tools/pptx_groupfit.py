@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """缩小组合（grpSp）内“短文本”的字号：这类卡片标题在字体变宽后容易折行。"""
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import re, shutil, sys, zipfile
 
 MAXLEN = 18

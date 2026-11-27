@@ -79,7 +79,7 @@ python3 tools/theme_contrast.py --index decks/sample-deck/index.html --warn-only
 
 - 一套 ≥10 屏的 deck 至少 **6 种骨架**，相邻两屏不同骨架，同一骨架最多 3 次。
 - 不要连续三屏「标题 + 三张卡」；每隔几屏换一次结构（对照 / 过程链 / 阶梯 / 数据 / 闭环）。
-- 选型信号与 12 个可抄骨架见 `capabilities/design-quality/LAYOUTS.md`；检查用 `layout_audit.py`。
+- 选型信号与 17 个可抄骨架见 `capabilities/design-quality/LAYOUTS.md`；检查用 `layout_audit.py`。
 
 ### 2.7 颜色纪律
 

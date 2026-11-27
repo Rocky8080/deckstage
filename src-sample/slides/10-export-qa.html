@@ -1,31 +1,42 @@
-<section class="slide" id="s10" data-title="导出与质检" data-rail="质检">
-  <header class="head">
+<section class="slide" id="s10" data-title="导出与质检" data-rail="质检" data-arch="chain">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">09 / EXPORT &amp; QA</p>
     <h1 class="title">能放出去，也<em>能带回来</em></h1>
   </header>
 
-  <div class="body" style="display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px; align-items: start;">
-    <div>
-      <ul class="list" style="margin-top: 0;">
-        <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
-          <p class="list__txt"><b>导出 PPTX</b>　放映外壳右下角「导出」按钮，页面内生成可编辑 PPTX（pptxgenjs）</p></li>
-        <li class="list__item reveal" style="--d:150ms"><i class="list__dot"></i>
-          <p class="list__txt"><b>单机版 HTML</b>　全内联一个文件，断网双击即放映，方便分发</p></li>
-        <li class="list__item reveal" style="--d:240ms"><i class="list__dot"></i>
-          <p class="list__txt"><b>离线优先</b>　第三方运行时落盘 vendor/，图片走本地相对路径</p></li>
-      </ul>
+  <div class="body">
+    <div class="ax-chain">
+      <div class="ax-chain__node reveal" style="--d:80ms">
+        <p class="ax-chain__no">01</p>
+        <h3 class="ax-chain__h">改</h3>
+        <p class="ax-chain__p">改 <code>slides/*.html</code> 源文件——源码即真源，改完重跑 build</p>
+        <p class="ax-chain__out">产出：最新版 deck</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:180ms">
+        <p class="ax-chain__no">02</p>
+        <h3 class="ax-chain__h">导</h3>
+        <p class="ax-chain__p">放映外壳右下角「导出」，页面内生成可编辑 PPTX（pptxgenjs）；<code>--inline</code> 产全内联单机版 HTML</p>
+        <p class="ax-chain__out">产出：可编辑 PPTX / 单机版</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:280ms">
+        <p class="ax-chain__no">03</p>
+        <h3 class="ax-chain__h">查</h3>
+        <p class="ax-chain__p"><code>check_slides.py</code> 体检溢出 / 截断 / 重叠；<code>test_deck.py</code> 自测放映交互</p>
+        <p class="ax-chain__out">产出：0 问题再分发</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:380ms">
+        <p class="ax-chain__no">04</p>
+        <h3 class="ax-chain__h">离线</h3>
+        <p class="ax-chain__p">第三方运行时落盘 <code>vendor/</code>，图片走本地相对路径</p>
+        <p class="ax-chain__out">产出：断网双击即放映</p>
+      </div>
     </div>
 
-    <div class="card" style="padding: 20px 24px;">
-      <p class="kv__k" style="margin-bottom: 12px;">质检命令</p>
-      <pre style="margin:0; font: 12.5px/2.1 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">python3 tools/check_slides.py            # 溢出/截断/重叠/图片体检
-python3 tools/check_slides.py --shots    # 同上 + 逐屏截图到 /tmp/qa
-python3 tools/test_deck.py               # 放映交互自测（点按/翻页/抽屉）</pre>
-      <p class="note" style="margin-top: 12px; color: var(--ink-3);">QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+    <div class="ax-bottom reveal" style="--d:500ms">
+      <p class="ax-note">导出与质检共用一条链：改 → 导 → 查 → 离线。QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+      <p class="bridge" style="margin-top:16px">分享出去之后呢？<strong>管理后台</strong>负责运营与门禁。</p>
     </div>
-
-    <p class="bridge reveal" style="--d:360ms">分享出去之后呢？<strong>管理后台</strong>负责运营与门禁。</p>
   </div>
 
-  <aside class="notes">导出两条路：页面内一键导出可编辑 PPTX；build 时可产出全内联单机版 HTML。质检两条命令：check_slides 体检版式溢出，test_deck 自测放映交互。</aside>
+  <aside class="notes">导出两条路：页面内一键导出可编辑 PPTX；build 时可产出全内联单机版 HTML。质检两条命令：check_slides 体检版式溢出，test_deck 自测放映交互。离线优先：vendor 落盘 + 相对路径，断网可用。</aside>
 </section>

@@ -14,6 +14,7 @@ build_library.py — 扫描 decks/ 里每一套 PPT，生成缩略图、decks.js
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import html
 import json
@@ -69,7 +70,7 @@ def ensure_thumb(folder: Path, force: bool) -> Path:
     file_url = index.resolve().as_uri() + "?export=1"
     url = http_url
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel="chrome", headless=True)
+        browser = _platform.launch_chromium(p, headless=True)
         page = browser.new_context(viewport={"width": 1600, "height": 900},
                                    device_scale_factor=1).new_page()
         try:

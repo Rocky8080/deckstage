@@ -4,6 +4,64 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.8.0] - 2026-11-28
+
+### 新增
+
+- **施工图流程（`plan.json` + `tools/plan.py`）**：先定全册主张（L0）、每页断言、骨架与模块认领，再写页面。
+  `<src>/plan.json` 存在时构建自动校验（P0 阻断：文件集不一致 / 骨架不在注册表 / 断言缺失 / 模块缺「主」），
+  并按施工图给缺 `data-arch` 的页面注入骨架；没有施工图的旧 deck 不受影响。`--no-plan` 可应急跳过。
+  示例 deck 已带施工图（`src-sample/plan.json`）。
+- **5 个图示型骨架（12 → 17）**：基准柱状图（`bars`，焦点柱 + 虚线基准线）、因果链桥（`bridge`，
+  现状 → 机制 → 结果 → 反事实四格）、2×2 象限（`quadrant`）、时间轴（`timeline`）、痛点 → 对策（`versus`）。
+  全部 DIV/CSS 实现（无 SVG，导出 PPTX 不栅格化），模板在 `capabilities/design-quality/archetypes/`，
+  画廊 deck 同步扩到 17 屏。
+- **口径槽位 `.source`**：带数字的页在结论区前写口径行（分子分母 / 时间窗 / 基准）；
+  `frame.py` 口径规则与 hierarchy H7 优先认这里的「口径」字样。
+- **token 角色别名**：`--accent-text`（文字用强调色）、`--chart-focal` / `--chart-neutral`（图表焦点 / 退后）、
+  `--on-accent`（强调色实心块上的文字），指向既有主题变量、随主题整套翻转。
+
+### 修复
+
+- **版式反单调规则补实现**（`layout_audit.py`）：LAYOUTS.md 写了两条但脚本从未检查——
+  新增结构族统计（`grid3+card` 与 `grid4+list+card` 归并成同一「卡片 + 网格」族，族超过 3 屏报
+  `family_repeat`）、连续 ≥5 屏卡片墙（`card_grid_run`）、纯列表页超 1/5（`pure_list_ratio`）；
+  自测扩到 5 组。
+- **对比度门禁闭环**：`design_audit.py` 不再跳过 12px 以下文字（新增 `font-too-small`，字号下限 11.5px），
+  并把 `pre` / `code` 纳入检查（此前代码块完全不受检）；纸色回退值与 token 对齐（`#F7F3EA`）。
+  由此暴露并修复：默认 `--ink-3/--ink-4` 加深一档（着色卡底上也 ≥4.5:1）、六套预设主题的 `--ink-4`
+  逐主题校准（此前 41 处不达标）、深色页低透明度文字（.34–.5 → .6）、示例 deck 内 4 处 11px 文字与
+  深色卡 `kv__k` 颜色。`theme_contrast.py` 对两套 deck 全主题 0 问题。
+- **引擎残留清理**：导出 PPTX 的 `company` 不再写死「AI learning report」（改读 `data-brand`）；
+  页脚 / 标题兜底改用 `DeckStage`；总览标题「全部 N 屏」由运行时写入实际屏数（此前写死 6）。
+- 文档口径统一：预设主题「七套 / 六套」统一为「默认 + 六套预设」；骨架数量 12 → 17 全量更新。
+
+### 变更
+
+- 示例 deck 按施工图重排：10/12 屏使用骨架库（cover / chain ×2 / arch / toc / contrast / board / closing），
+  07 / 11 保留卡片网格并如实计入结构族统计；`layout_audit` 骨架 10 种 / 结构族 10 种 / 相邻重复 0。
+- `archetypes` 画廊 deck 重新上架（此前后台下架）。
+
+### 平台
+
+- **Windows 支持**（macOS 行为不变——所有解析都是「原值优先，找不到才走新分支」）：
+  - 新增 `tools/_platform.py`：Python 解释器探测（`python3` → `python` → `py -3`）、LibreOffice 定位
+    （环境变量 `SOFFICE` → PATH → 各平台默认路径）、Playwright 启动 Chrome → Edge → 自带 chromium 回退、
+    stdout 强制 UTF-8（GBK 管道下 Python 打印 emoji 会 `UnicodeEncodeError`）。
+  - `build.mjs` 四处子进程改用探测到的解释器：Windows 上此前会因找不到 `python3` 而**静默跳过全部门禁**
+    （frame / hierarchy / plan fail-open + 缩略图不生成），现在门禁在 Windows 同样生效。
+  - PPTX 导出字体映射按导出端平台分支：Windows → `Segoe UI / Consolas`（此前 mac 专属字体名在
+    Windows PowerPoint 里全部缺失，会任意替代导致版式漂移）。
+  - `install.ps1` Windows 安装器；`frame` 全局命令在 Windows 装为 `%USERPROFILE%\.local\bin\frame.bat`
+    （符号链接在 Windows 需要开发者模式，改为复制 + 包装器）。
+  - 导入管线跨平台：LibreOffice 路径 / 预修度量字体 / 用户字体目录 / 依赖自愈的解释器候选逐项平台化；
+    `preview_pptx.py` 的替身字体候选表补 Windows 系统字体（msyh / simsun / consola / arial）。
+
+### 验证
+
+- 两套 deck：`design_audit` 16:9 / 4:3 全 0、`theme_contrast` 六主题全 0、`frame` / `hierarchy` / `plan` P0 全 0、
+  `export_audit` 12/12 页背景一致、`check_slides` 根实例 33 屏 0 问题、`layout_audit --self-test` 5/5。
+
 ## [1.7.1] - 2026-11-27
 
 ### 性能
@@ -267,6 +325,8 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.8.0]: https://github.com/Rocky8080/deckstage/compare/v1.7.1...v1.8.0
+[1.7.1]: https://github.com/Rocky8080/deckstage/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/Rocky8080/deckstage/compare/85691d1...v1.7.0
 [1.6.0]: https://github.com/Rocky8080/deckstage/compare/v1.5.1...85691d1
 [1.5.1]: https://github.com/Rocky8080/deckstage/compare/v1.5.0...v1.5.1

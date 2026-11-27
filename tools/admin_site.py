@@ -7,6 +7,7 @@ admin_site.py — /admin 后台的前端资产：管理页面、追踪脚本、�
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import html
 import re
 

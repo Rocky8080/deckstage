@@ -239,7 +239,7 @@
       foot.innerHTML = custom
         ? `<span>${custom}</span>`
         : `<span>${rail ? rail + ' · ' : ''}${title}</span><span class="foot__marks">
-             <span>${document.body.dataset.brand || 'AI 改变学习方式'}</span><span class="foot__dot"></span>
+             <span>${document.body.dataset.brand || 'DeckStage'}</span><span class="foot__dot"></span>
              <span class="num">${String(i + 1).padStart(2, '0')} / ${total}</span></span>`;
       slide.appendChild(foot);
     });
@@ -259,6 +259,8 @@
 
     const grid = document.querySelector('.overview__grid');
     if (grid) {
+      const ovCount = document.querySelector('.overview__head b');
+      if (ovCount) ovCount.textContent = `全部 ${slides.length} 屏`;
       grid.innerHTML = slides.map((s, i) => `
         <button class="ov-card" data-goto="${i}">
           <span class="ov-card__no">${String(i + 1).padStart(2, '0')}</span>
@@ -375,7 +377,7 @@
     if (location.hash !== hash) history.replaceState(null, '', hash);
 
     animateCounters(cur);
-    document.title = `${String(idx + 1).padStart(2, '0')} · ${cur.dataset.title || 'AI 改变学习方式'}`;
+    document.title = `${String(idx + 1).padStart(2, '0')} · ${cur.dataset.title || document.body.dataset.brand || 'DeckStage'}`;
   }
 
   function go(n, opts = {}) {

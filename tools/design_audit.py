@@ -10,6 +10,7 @@ design_audit.py — 视觉质量体检：文字对比度 / 大色块面积 / 低
 规则:
   · 正常文字 >= 4.5:1；大字（>=24px，或 >=18.66px 且粗体）>= 3:1
   · 承载信息的大字不能做低对比水印
+  · 字号下限 11.5px（标签档）；低于下限记 font-too-small，且小字同样查对比度
   · 单块高饱和强调色面积 > 8% 警告，> 12% 视为问题
   · 元素加 data-design-allow 可显式豁免；.notes 不检查
 
@@ -17,6 +18,7 @@ design_audit.py — 视觉质量体检：文字对比度 / 大色块面积 / 低
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import sys
 from pathlib import Path
@@ -26,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 JS_COLLECT = r"""
 () => {
   const slides = [...document.querySelectorAll('.slide')];
-  const PAPER = {r:244,g:239,b:228,a:1};
+  const PAPER = {r:247,g:243,b:234,a:1};
 
   const parse = (value) => {
     if (!value) return null;
@@ -72,14 +74,23 @@ JS_COLLECT = r"""
     const slideHasImage = getComputedStyle(slide).backgroundImage !== 'none';
 
     // 1) 文字对比度
-    const textEls = slide.querySelectorAll('h1,h2,h3,h4,p,li,span,div,strong,em,figcaption,td,th');
+    const textEls = slide.querySelectorAll('h1,h2,h3,h4,p,li,span,div,strong,em,figcaption,td,th,pre,code');
     for (const el of textEls) {
       if (skip(el) || !ownText(el) || !visible(el)) continue;
       const cs = getComputedStyle(el);
       if (String(el.textContent).trim().length < 2) continue;
       if (cs.mixBlendMode && cs.mixBlendMode !== 'normal') continue;
       const fs = parseFloat(cs.fontSize);
-      if (fs < 12) continue;
+      // 字号下限：标签档 11.5px。低于下限记一条；小字对比度照查（最容易不合格的就是它们）。
+      if (el.getAttribute('aria-hidden') !== 'true' && fs < 11.5) {
+        issues.push({
+          kind: 'font-too-small',
+          text: String(el.textContent).trim().slice(0, 24),
+          el: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\s+/).slice(0,2).join('.') : ''),
+          fs: +fs.toFixed(1),
+          need: '>=11.5'
+        });
+      }
       const fg0 = parse(cs.color);
       if (!fg0) continue;
 
@@ -170,7 +181,7 @@ def main() -> None:
 
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel="chrome", headless=True)
+        browser = _platform.launch_chromium(p, headless=True)
         page = browser.new_context(viewport={"width": 1600 if args.ratio == "16:9" else 1200, "height": 900},
                                    device_scale_factor=1).new_page()
         page.goto(url, wait_until="load", timeout=30000)

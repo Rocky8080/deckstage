@@ -13,6 +13,7 @@
   ...
   httpd.shutdown()
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import functools
 import http.server

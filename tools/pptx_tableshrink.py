@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """只缩小表格（a:tbl）内的字号：表格列宽固定，字体变宽就会折行。"""
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import re, shutil, sys, zipfile
 
 

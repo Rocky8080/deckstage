@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """对“短文本”文本框禁用自动换行（原稿里本来就是一行，因字体宽度差异被迫折行）。"""
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import re, shutil, sys, zipfile
 
 MAXLEN = 16

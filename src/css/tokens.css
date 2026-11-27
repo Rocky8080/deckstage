@@ -9,8 +9,8 @@
   --paper-3:      #F1EADA;
   --ink:          #14201B;
   --ink-2:        #3D4E47;
-  --ink-3:        #5F6E66;   /* 4.85:1 on paper */
-  --ink-4:        #6E7B73;   /* 4.0:1 on paper，仅用于微型标签 */
+  --ink-3:        #525F58;   /* 6.05:1 on paper；在着色卡底上也 ≥5.1 */
+  --ink-4:        #5D6A63;   /* 5.12:1 on paper，仅用于微型标签（≥4.5:1 门禁，着色卡底 ≥4.6） */
   --line:         #DCD2BF;
   --line-soft:    #E7E0D0;
 
@@ -41,6 +41,15 @@
   --dark-2:       #16221C;
   --dark-3:       #1E2C25;
   --dark-line:    #2C3B33;
+
+  /* --- 角色别名（图表 / 反白）：指向同一把尺子，随主题整套翻转 ---
+     accent-text  文字用强调色（每种底色上都要 ≥4.5:1，图形/文字分离）
+     chart-focal  图表唯一焦点色；chart-neutral 非焦点退后（装饰级对比即可）
+     on-accent    强调色实心块上的文字（主题翻转时跟随 --paper 反向） */
+  --accent-text:   var(--green);
+  --chart-focal:   var(--green);
+  --chart-neutral: var(--line);
+  --on-accent:     var(--paper);
 
   /* --- 字体 --- */
   --font-serif: "Songti SC", "Songti TC", "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", serif;

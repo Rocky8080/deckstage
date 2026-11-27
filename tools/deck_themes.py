@@ -19,7 +19,7 @@ THEMES = [
      "vars": {
          "--paper": "#FFFFFF", "--paper-2": "#FCFCFA", "--paper-3": "#F4F4F0",
          "--ink": "#14171A", "--ink-2": "#353C3A", "--ink-3": "#5B6561",
-         "--ink-4": "#6E7873", "--line": "#E2E3DD", "--line-soft": "#EFF0EB",
+         "--ink-4": "#5D6A63", "--line": "#E2E3DD", "--line-soft": "#EFF0EB",
          "--green": "#16533F", "--green-2": "#226B52", "--green-3": "#4C8B74",
          "--green-tint": "#E7EFEA", "--green-wash": "#F2F6F3",
          "--terra": "#A8481F", "--terra-2": "#C25C32", "--terra-tint": "#F8E8E0",
@@ -37,7 +37,7 @@ THEMES = [
      "vars": {
          "--paper": "#F3F5F9", "--paper-2": "#FBFCFE", "--paper-3": "#E8EDF4",
          "--ink": "#111A2B", "--ink-2": "#2E3D55", "--ink-3": "#4C5E7A",
-         "--ink-4": "#626F86", "--line": "#D3DAE5", "--line-soft": "#E1E7EF",
+         "--ink-4": "#59647C", "--line": "#D3DAE5", "--line-soft": "#E1E7EF",
          "--green": "#1D4E89", "--green-2": "#2F6BAD", "--green-3": "#729FD1",
          "--green-tint": "#E1EAF5", "--green-wash": "#EAF1F8",
          "--terra": "#A83A55", "--terra-2": "#C25871", "--terra-tint": "#F6E0E6",
@@ -55,7 +55,7 @@ THEMES = [
      "vars": {
          "--paper": "#F8F2EA", "--paper-2": "#FEFBF6", "--paper-3": "#F0E6DA",
          "--ink": "#231A12", "--ink-2": "#46392B", "--ink-3": "#655643",
-         "--ink-4": "#766A5B", "--line": "#DFD2C0", "--line-soft": "#EAE0D2",
+         "--ink-4": "#6C6152", "--line": "#DFD2C0", "--line-soft": "#EAE0D2",
          "--green": "#A65232", "--green-2": "#9E5636", "--green-3": "#D89270",
          "--green-tint": "#F3E2D6", "--green-wash": "#F8EBE1",
          "--terra": "#96351C", "--terra-2": "#B04F30", "--terra-tint": "#F6DFD4",
@@ -73,7 +73,7 @@ THEMES = [
      "vars": {
          "--paper": "#F5F3F8", "--paper-2": "#FCFAFE", "--paper-3": "#EAE6F1",
          "--ink": "#1B1528", "--ink-2": "#383050", "--ink-3": "#544B70",
-         "--ink-4": "#6D6680", "--line": "#D9D3E4", "--line-soft": "#E5E0EE",
+         "--ink-4": "#645D78", "--line": "#D9D3E4", "--line-soft": "#E5E0EE",
          "--green": "#5B4A8A", "--green-2": "#72619F", "--green-3": "#9C8FC4",
          "--green-tint": "#E8E3F4", "--green-wash": "#EFEAF8",
          "--terra": "#AE3A66", "--terra-2": "#C75C86", "--terra-tint": "#F6E0EB",
@@ -91,7 +91,7 @@ THEMES = [
      "vars": {
          "--paper": "#F1F5F2", "--paper-2": "#FAFCFA", "--paper-3": "#E2EBE5",
          "--ink": "#13221C", "--ink-2": "#2F443B", "--ink-3": "#4E635A",
-         "--ink-4": "#63716A", "--line": "#CFDDD5", "--line-soft": "#DFE9E3",
+         "--ink-4": "#59665F", "--line": "#CFDDD5", "--line-soft": "#DFE9E3",
          "--green": "#35766A", "--green-2": "#3D7367", "--green-3": "#8CC2B2",
          "--green-tint": "#DEECE6", "--green-wash": "#E8F1EC",
          "--terra": "#B2523B", "--terra-2": "#BD4E32", "--terra-tint": "#F7E1DA",
@@ -109,7 +109,7 @@ THEMES = [
      "vars": {
          "--paper": "#1B211F", "--paper-2": "#222926", "--paper-3": "#2A322E",
          "--ink": "#ECE8DF", "--ink-2": "#CBC6BB", "--ink-3": "#A39D91",
-         "--ink-4": "#8C867D", "--line": "#3C443F", "--line-soft": "#313834",
+         "--ink-4": "#A39A8E", "--line": "#3C443F", "--line-soft": "#313834",
          "--green": "#5BB08D", "--green-2": "#70C4A1", "--green-3": "#9AD6BA",
          "--green-tint": "#26342D", "--green-wash": "#202C26",
          "--terra": "#D9734B", "--terra-2": "#DE784B", "--terra-tint": "#38281F",
@@ -282,3 +282,4 @@ else buildUI();
 def theme_assets(slug: str) -> str:
     """deck 页注入资产：变量覆盖样式 + 切换器（含记忆）。"""
     return theme_style_block() + theme_picker_script(slug)
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）

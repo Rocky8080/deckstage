@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """所有“短文本”（≤8 字、无换行）一律禁止自动换行：数字、标题不应被拆成两行。"""
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import re, shutil, sys, zipfile
 
 

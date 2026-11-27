@@ -12,6 +12,7 @@
   python3 tools/preview_pptx.py out.pptx --out /tmp/preview
   python3 tools/preview_pptx.py out.pptx --slides 1,3,5
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import io
 import os
@@ -33,14 +34,19 @@ def px(emu):
 SERIF_CANDIDATES = [
     "/System/Library/Fonts/Supplemental/Songti.ttc",
     "/System/Library/Fonts/STHeiti Medium.ttc",
+    r"C:\Windows\Fonts\simsun.ttc",           # Windows 宋体（Songti 的替身）
+    "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",
 ]
 SANS_CANDIDATES = [
     "/System/Library/Fonts/Hiragino Sans GB.ttc",
     "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+    r"C:\Windows\Fonts\msyh.ttc",             # Windows 微软雅黑
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
 ]
 LATIN_CANDIDATES = [
     "/System/Library/Fonts/Supplemental/Arial.ttf",
     "/System/Library/Fonts/Helvetica.ttc",
+    r"C:\Windows\Fonts\arial.ttf",
 ]
 
 
@@ -68,7 +74,8 @@ def pick_font_path(font_face, text):
     if "song" in face or "serif" in face or "宋" in face:
         return _SERIF or _SANS
     if "mono" in face or "menlo" in face or "consolas" in face:
-        return _first_existing(["/System/Library/Fonts/Menlo.ttc"]) or _LATIN or _SANS
+        return _first_existing(["/System/Library/Fonts/Menlo.ttc",
+                                r"C:\Windows\Fonts\consola.ttf"]) or _LATIN or _SANS
     if cjk:
         return _SANS
     return _LATIN or _SANS

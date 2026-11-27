@@ -7,7 +7,9 @@
    构建前会跑「因果链 / 价值链」门禁（tools/frame.py audit）：
      P0 问题 → 构建失败；P1/P2 → 只提示。
    构建前还会跑「观点层级」结构门禁（tools/hierarchy.py）：P0 问题 → 构建失败。
-    跳过门禁：--no-frame / --no-hierarchy（不推荐；仅用于应急排查）
+   <src>/plan.json 施工图存在时还会跑「施工图门禁」（tools/plan.py）：P0 问题 → 构建失败，
+   并按施工图把骨架注入缺 data-arch 的页面。
+    跳过门禁：--no-frame / --no-hierarchy / --no-plan（不推荐；仅用于应急排查）
    ============================================================ */
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -22,6 +24,33 @@ const THEME = join(ROOT, 'src/css');   // 主题 token / base 永远共用主树
 
 const read = (p) => readFileSync(p, 'utf8');
 
+/* ---------- 跨平台解释器解析（Windows 支持）----------
+   Windows 常见只有 python.exe / py -3，没有 python3 别名；找不到就返回 null，
+   各门禁按 fail-open 打印提示。子进程统一注入 UTF-8 输出环境（GBK 管道下
+   Python 打印 emoji 会 UnicodeEncodeError）。 */
+let _pythonCmd = null;
+function resolvePython() {
+  if (_pythonCmd !== null) return _pythonCmd;
+  const isWin = process.platform === 'win32';
+  const tries = isWin
+    ? [['python3'], ['python'], ['py', '-3']]
+    : [['python3'], ['python']];
+  for (const cmd of tries) {
+    const probe = spawnSync(cmd[0], [...cmd.slice(1), '-c', 'print(1)'], { encoding: 'utf8' });
+    if (!probe.error && probe.status === 0) {
+      _pythonCmd = cmd;
+      return _pythonCmd;
+    }
+  }
+  return null;
+}
+const PY_SPAWN_ENV = Object.assign({}, process.env, { PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' });
+function spawnPy(args, opts = {}) {
+  const py = resolvePython();
+  if (!py) return { error: new Error('no python'), status: 127 };
+  return spawnSync(py[0], [...py.slice(1), ...args], Object.assign({ env: PY_SPAWN_ENV }, opts));
+}
+
 /* ---------- 0. 写作门禁：因果链 / 价值链 ----------
    P0（无基准倍数 / 表格无结论 / 量纲未统一）→ 直接失败，不允许产出 deck；
    P1/P2 → 打印提示，不阻断。任何 agent（Codex / ZCode / DSH）构建时都会撞上这道门。 */
@@ -30,10 +59,10 @@ function frameGate(slideGlob) {
     console.log('[frame] 已跳过写作门禁（--no-frame）');
     return;
   }
-  const r = spawnSync('python3', [join(ROOT, 'tools/frame.py'), 'audit', slideGlob, '--json'],
+  const r = spawnPy([join(ROOT, 'tools/frame.py'), 'audit', slideGlob, '--json'],
     { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
   if (r.error || r.status === 2) {
-    console.log('[frame] 检查器不可用，跳过门禁（可手动跑 python3 tools/frame.py audit）');
+    console.log('[frame] 检查器不可用（需要 python3 / python / py -3），跳过门禁（可手动跑 python3 tools/frame.py audit）');
     return;
   }
   let data = null;
@@ -71,10 +100,10 @@ function hierarchyGate(slideGlob) {
     console.log('[hierarchy] 未安装 tools/hierarchy.py，跳过结构门禁');
     return;
   }
-  const r = spawnSync('python3', [script, 'audit', slideGlob, '--json'],
+  const r = spawnPy([script, 'audit', slideGlob, '--json'],
     { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
   if (r.error || r.status === 2) {
-    console.log('[hierarchy] 检查器不可用，跳过门禁（可手动跑 python3 tools/hierarchy.py audit）');
+    console.log('[hierarchy] 检查器不可用（需要 python3 / python / py -3），跳过结构门禁');
     return;
   }
   let data = null;
@@ -99,6 +128,41 @@ function hierarchyGate(slideGlob) {
   console.log(`[hierarchy] 门禁通过（P0 0 · P1 ${P1} · P2 ${P2}）`);
 }
 
+/* ---------- 0c. 施工图门禁：plan.json（可选）----------
+   <src>/plan.json 存在时：先校验施工图与页面的一致性（tools/plan.py，P0 → 失败），
+   再把施工图里的骨架写进缺少 data-arch 的 <section>。没有 plan.json 的旧 deck 不受影响。 */
+function planGate(slideDir) {
+  const planPath = join(SRC, 'plan.json');
+  if (process.argv.includes('--no-plan')) return null;
+  if (!existsSync(planPath)) return null;
+  const r = spawnPy([join(ROOT, 'tools/plan.py'), 'audit', slideDir, '--plan', planPath, '--json'],
+    { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
+  if (r.error || r.status === 2) {
+    console.log('[plan] 检查器不可用（需要 python3 / python / py -3），跳过施工图门禁（可手动跑 python3 tools/plan.py audit）');
+    return null;
+  }
+  let data = null;
+  try { data = JSON.parse(r.stdout || '{}'); } catch { /* 忽略解析失败 */ }
+  if (!data || !data.total) {
+    console.warn('[plan] 未收到可用的施工图检查结果，跳过门禁');
+    return null;
+  }
+  const { P0 = 0, P1 = 0 } = data.total;
+  if (P0 > 0) {
+    console.error(`\n[plan] ✗ 施工图未通过：P0 ${P0} · P1 ${P1}`);
+    for (const slide of data.slides || []) {
+      for (const h of (slide.issues || []).filter(i => i.sev === 'P0')) {
+        console.error(`  · ${slide.file}  [P0] ${h.rule} — ${h.detail}`);
+      }
+    }
+    console.error('\n  修法见 capabilities/point-hierarchy/SKILL.md（先填两行）与 design-quality/LAYOUTS.md（骨架选型）');
+    console.error('  确需临时跳过：node build.mjs ... --no-plan\n');
+    process.exit(1);
+  }
+  console.log(`[plan] 施工图通过（P0 0 · P1 ${P1}）`);
+  return data.arch_map || {};
+}
+
 /* ---------- 1. 样式 ---------- */
 const cssFiles = ['tokens.css', 'base.css', 'deck.css']
   .map(f => join(THEME, f));
@@ -106,6 +170,9 @@ const cssFiles = ['tokens.css', 'base.css', 'deck.css']
 /* ---------- 2. 各屏文件 ---------- */
 const slideDir = join(SRC, 'slides');
 const files = readdirSync(slideDir).filter(f => f.endsWith('.html')).sort();
+
+// 施工图（可选）：存在即校验，并拿到「文件 → 骨架」映射用于注入 data-arch
+const archMap = planGate(slideDir);
 
 // 按屏懒加载：首屏（第 1 张）之外的图片先留 1×1 占位，真实地址放 data-src，
 // 翻到该屏时由 src/js/deck.js 的 hydrateWindow() 补回。--inline 单文件版不做。
@@ -144,6 +211,13 @@ for (const f of files) {
         .replace(m[0], ` src="${IMG_PLACEHOLDER}" data-src="${m[1]}"`)
         .replace(/\s*\/?>$/, ' decoding="async">');
     });
+  }
+
+  // 施工图里的骨架写到没有 data-arch 的 section 上；页面自己写了以页面为准
+  // （plan.py 会校验两边一致，不一致 P0）
+  const plannedArch = archMap && archMap[f];
+  if (plannedArch && !/<section[^>]*\bdata-arch=/.test(trimmed)) {
+    trimmed = trimmed.replace('<section', `<section data-arch="${plannedArch}"`);
   }
 
   // 给没有 id 的 section 补一个
@@ -320,7 +394,7 @@ let builtDeck = null;
 
 /* ---------- 8. 构建后自动刷新该 deck 的缩略图 / 展示台版本号 ---------- */
 if (builtDeck) {
-  const thumb = spawnSync('python3', ['tools/build_library.py', '--deck', builtDeck], {
+  const thumb = spawnPy(['tools/build_library.py', '--deck', builtDeck], {
     cwd: ROOT,
     stdio: 'inherit',
   });

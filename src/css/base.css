@@ -166,7 +166,7 @@ a { color: inherit; }
   color: var(--ink-4);
   margin: 0;
 }
-.label--light { color: rgba(247, 243, 234, .45); }
+.label--light { color: rgba(247, 243, 234, .6); }
 
 .rule { height: 1px; background: var(--line); border: 0; margin: 0; flex: none; }
 .rule--soft { background: var(--line-soft); }
@@ -221,9 +221,9 @@ a { color: inherit; }
   box-shadow: 0 24px 60px -34px rgba(0, 0, 0, .7);
 }
 .card--dark .txt { color: rgba(247, 243, 234, .76); }
-.card--dark .kv__k { color: rgba(247, 243, 234, .42); }
+.card--dark .kv__k { color: rgba(247, 243, 234, .6); }
 .card--dark .kv__v { color: rgba(247, 243, 234, .85); }
-.card--dark .label { color: rgba(247, 243, 234, .42); }
+.card--dark .label { color: rgba(247, 243, 234, .6); }
 .card--dark .h3 { color: var(--paper); }
 .card--no-pad { padding: 0; overflow: hidden; }
 
@@ -249,7 +249,7 @@ a { color: inherit; }
   left: 0; right: 0; bottom: 0;
   padding: 10px 14px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
   letter-spacing: .08em;
   color: rgba(255, 255, 255, .92);
   background: linear-gradient(to top, rgba(8, 14, 11, .78), rgba(8, 14, 11, 0));
@@ -272,7 +272,7 @@ a { color: inherit; }
 .stat__num--light { color: var(--paper); }
 .stat__unit { font-size: .42em; font-weight: 500; margin-left: 4px; letter-spacing: 0; color: var(--ink-3); }
 .stat__label { font-size: var(--fs-small); color: var(--ink-3); line-height: 1.5; }
-.stat__label--light { color: rgba(247, 243, 234, .5); }
+.stat__label--light { color: rgba(247, 243, 234, .6); }
 
 /* 标签 */
 .tag {
@@ -334,7 +334,17 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
   color: var(--ink-4);
   margin: 0;
 }
-.note--light { color: rgba(247, 243, 234, .4); }
+.note--light { color: rgba(247, 243, 234, .6); }
+
+/* 口径 / 来源槽位：带数字的页在结论区之前放这行，写清分子分母、时间窗与基准；
+   frame.py 的口径规则与 hierarchy H7 优先认这里的「口径」字样。 */
+.source {
+  margin: 18px 0 0;
+  font: 13px/1.6 var(--font-mono);
+  letter-spacing: .02em;
+  color: var(--ink-4);
+}
+.source--light { color: rgba(247, 243, 234, .6); }
 
 /* 过渡句 */
 .bridge {
@@ -355,7 +365,7 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
   flex: none;
 }
 .bridge strong { color: var(--green); font-weight: 600; }
-.bridge--light { color: rgba(247, 243, 234, .5); }
+.bridge--light { color: rgba(247, 243, 234, .6); }
 .bridge--light::before { background: rgba(156, 199, 180, .6); }
 .bridge--light strong { color: #A8CDBC; }
 
@@ -369,12 +379,12 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
   letter-spacing: .13em;
   text-transform: uppercase;
   color: var(--ink-4);
 }
-.slide--dark .foot { border-top-color: var(--dark-line); color: rgba(247, 243, 234, .34); }
+.slide--dark .foot { border-top-color: var(--dark-line); color: rgba(247, 243, 234, .6); }
 .foot__marks { display: flex; align-items: center; gap: 10px; }
 .foot__dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .5; }
 
@@ -498,7 +508,7 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
 
 /* 上下堆叠的 key-value */
 .kv { display: flex; flex-direction: column; gap: 3px; }
-.kv__k { font-family: var(--font-mono); font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-4); }
+.kv__k { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-4); }
 .kv__v { font-size: 17px; line-height: 1.5; color: var(--ink); }
 
 /* 徽标 / 序号圆点 */
@@ -998,6 +1008,77 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
 .ax-closing__q em { font-style: normal; color: var(--green); }
 .ax-closing__rule { width: 120px; height: 4px; background: var(--green); flex: none; }
 .ax-closing__meta { display: flex; gap: 40px; font-size: 14px; color: var(--ink-3); }
+
+/* ---------------------------------------------- 骨架 13 · 基准柱状图
+   适用：一组数字里只有一个是主角；容量：5–7 根柱，每根标签 ≤ 8 字。
+   非焦点柱一律退后（--chart-neutral），焦点柱用 --chart-focal；
+   基准线（--ref）用虚线 + 右上角小标签，写清「基准是什么」。 */
+.ax-bars { position: relative; display: flex; align-items: flex-end; gap: 26px; height: 300px; border-bottom: 2px solid var(--line); padding: 0 6px; }
+.ax-bars__col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 10px; height: 100%; }
+.ax-bars__num { margin: 0; font: 600 19px var(--font-num); color: var(--ink-3); }
+.ax-bars__bar { width: 100%; max-width: 88px; border-radius: 4px 4px 0 0; background: var(--chart-neutral); }
+.ax-bars__col--focal .ax-bars__bar { background: var(--chart-focal); }
+.ax-bars__col--focal .ax-bars__num { color: var(--accent-text); font-size: 22px; }
+.ax-bars__ref { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--terra); }
+.ax-bars__ref i { position: absolute; right: 4px; top: -24px; font: 12px/1 var(--font-mono); font-style: normal; color: var(--terra); background: var(--paper); padding: 2px 6px; border-radius: 3px; }
+.ax-bars__labels { display: flex; gap: 26px; padding: 0 6px; margin: 10px 0 0; }
+.ax-bars__labels span { flex: 1; text-align: center; font-size: 13.5px; line-height: 1.4; color: var(--ink-3); }
+
+/* ---------------------------------------------- 骨架 14 · 因果链桥
+   适用：现状（成本）→ 机制（动作）→ 结果（同尺）→ 反事实；容量：4 格。
+   前三格实心，反事实格虚线描边（--cf），数字用同一把尺子。 */
+.ax-bridge { display: grid; grid-template-columns: repeat(4, 1fr); }
+.ax-bridge__cell { position: relative; padding: 20px 22px 18px; border-left: 1px solid var(--line-soft); }
+.ax-bridge__cell:first-child { border-left: 0; padding-left: 0; }
+.ax-bridge__cell::after { content: "→"; position: absolute; right: -11px; top: 22px; z-index: 1; font-size: 20px; line-height: 1; color: var(--green-2); background: var(--paper); }
+.ax-bridge__cell:last-child::after { content: none; }
+.ax-bridge__cell--cf { border: 1.5px dashed var(--line); border-radius: var(--r-md); background: transparent; }
+.ax-bridge__k { margin: 0 0 10px; font: 11.5px var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-4); }
+.ax-bridge__v { margin: 0; font: 600 44px/1.05 var(--font-num); color: var(--ink); font-variant-numeric: tabular-nums; }
+.ax-bridge__v small { font-size: 19px; font-weight: 600; color: var(--ink-3); }
+.ax-bridge__v--accent { color: var(--accent-text); }
+.ax-bridge__d { margin: 10px 0 0; font-size: 14px; line-height: 1.6; color: var(--ink-3); }
+
+/* ---------------------------------------------- 骨架 15 · 2×2 象限
+   适用：两个维度定位多个对象；容量：4 格，每格 ≤ 3 个对象，焦点 1 格。
+   轴标签写「往哪边更好」，不给无刻度的图。 */
+.ax-quadrant { position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 16px; min-height: 400px; margin: 0 16px 30px 16px; }
+.ax-quadrant::before { content: ""; position: absolute; left: 50%; top: 4px; bottom: 4px; border-left: 1.5px dashed var(--line); }
+.ax-quadrant::after { content: ""; position: absolute; top: 50%; left: 4px; right: 4px; border-top: 1.5px dashed var(--line); }
+.ax-quadrant__cell { border: 1px solid var(--line-soft); border-radius: var(--r-md); padding: 16px 20px; background: var(--paper-2); }
+.ax-quadrant__cell--key { background: var(--green-wash); border-color: var(--green-3); }
+.ax-quadrant__tag { margin: 0 0 8px; font: 11.5px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); }
+.ax-quadrant__h { margin: 0; font-size: 19px; color: var(--ink); }
+.ax-quadrant__d { margin: 8px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-3); }
+.ax-quadrant__axis { position: absolute; font: 12.5px var(--font-mono); color: var(--ink-4); }
+.ax-quadrant__axis--x { left: 50%; transform: translateX(-50%); bottom: -30px; white-space: nowrap; }
+.ax-quadrant__axis--y { top: 44%; left: -22px; writing-mode: vertical-rl; white-space: nowrap; }
+
+/* ---------------------------------------------- 骨架 16 · 时间轴
+   适用：里程碑、分阶段推进；容量：3–5 个节点，焦点 1 个。 */
+.ax-timeline { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); padding-top: 30px; }
+.ax-timeline__item { position: relative; padding: 0 20px 0 0; }
+.ax-timeline__item::before { content: ""; position: absolute; top: -30px; left: 0; width: 11px; height: 11px; border-radius: 50%; background: var(--chart-neutral); }
+.ax-timeline__item::after { content: ""; position: absolute; top: -25.5px; left: 11px; right: -6px; border-top: 1.5px solid var(--line); }
+.ax-timeline__item:last-child::after { content: none; }
+.ax-timeline__item--key::before { background: var(--chart-focal); box-shadow: 0 0 0 4px var(--green-tint); }
+.ax-timeline__when { margin: 0; font: 12px var(--font-mono); letter-spacing: .08em; color: var(--ink-4); }
+.ax-timeline__h { margin: 6px 0 0; font-size: 17px; line-height: 1.45; color: var(--ink); }
+.ax-timeline__d { margin: 8px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-3); }
+
+/* ---------------------------------------------- 骨架 17 · 痛点 → 对策
+   适用：问题清单与整改措施一一对应；容量：≤ 4 行，左右必须成对。 */
+.ax-versus { display: flex; flex-direction: column; gap: 14px; }
+.ax-versus__head { display: grid; grid-template-columns: 1fr 46px 1.15fr; margin-bottom: 2px; }
+.ax-versus__head span { font: 11.5px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); }
+.ax-versus__head span:last-child { grid-column: 3; }
+.ax-versus__row { display: grid; grid-template-columns: 1fr 46px 1.15fr; align-items: stretch; }
+.ax-versus__issue { border: 1.5px dashed var(--line); border-radius: var(--r-md); padding: 13px 18px; }
+.ax-versus__mid { display: flex; align-items: center; justify-content: center; color: var(--green-2); font-size: 20px; }
+.ax-versus__fix { border-left: 3px solid var(--green); background: var(--green-wash); border-radius: 0 var(--r-md) var(--r-md) 0; padding: 13px 18px; }
+.ax-versus__k { margin: 0 0 4px; font: 11.5px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); }
+.ax-versus__h { margin: 0; font-size: 16.5px; line-height: 1.5; color: var(--ink); }
+.ax-versus__d { margin: 4px 0 0; font-size: 13px; line-height: 1.55; color: var(--ink-3); }
 
 /* 4:3 画幅（1200×900）补偿：只缩字号，不改骨架 */
 body.ratio-4x3 .ax-cover__title { font-size: 82px; }

@@ -78,6 +78,7 @@ H10 单页可见字数 > 520 → P2（细节过载：把不影响「相信」的
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import glob
 import html as html_lib

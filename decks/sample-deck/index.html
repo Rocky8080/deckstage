@@ -18,8 +18,8 @@
   --paper-3:      #F1EADA;
   --ink:          #14201B;
   --ink-2:        #3D4E47;
-  --ink-3:        #5F6E66;   /* 4.85:1 on paper */
-  --ink-4:        #6E7B73;   /* 4.0:1 on paper，仅用于微型标签 */
+  --ink-3:        #525F58;   /* 6.05:1 on paper；在着色卡底上也 ≥5.1 */
+  --ink-4:        #5D6A63;   /* 5.12:1 on paper，仅用于微型标签（≥4.5:1 门禁，着色卡底 ≥4.6） */
   --line:         #DCD2BF;
   --line-soft:    #E7E0D0;
 
@@ -50,6 +50,15 @@
   --dark-2:       #16221C;
   --dark-3:       #1E2C25;
   --dark-line:    #2C3B33;
+
+  /* --- 角色别名（图表 / 反白）：指向同一把尺子，随主题整套翻转 ---
+     accent-text  文字用强调色（每种底色上都要 ≥4.5:1，图形/文字分离）
+     chart-focal  图表唯一焦点色；chart-neutral 非焦点退后（装饰级对比即可）
+     on-accent    强调色实心块上的文字（主题翻转时跟随 --paper 反向） */
+  --accent-text:   var(--green);
+  --chart-focal:   var(--green);
+  --chart-neutral: var(--line);
+  --on-accent:     var(--paper);
 
   /* --- 字体 --- */
   --font-serif: "Songti SC", "Songti TC", "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", serif;
@@ -260,7 +269,7 @@ a { color: inherit; }
   color: var(--ink-4);
   margin: 0;
 }
-.label--light { color: rgba(247, 243, 234, .45); }
+.label--light { color: rgba(247, 243, 234, .6); }
 
 .rule { height: 1px; background: var(--line); border: 0; margin: 0; flex: none; }
 .rule--soft { background: var(--line-soft); }
@@ -315,9 +324,9 @@ a { color: inherit; }
   box-shadow: 0 24px 60px -34px rgba(0, 0, 0, .7);
 }
 .card--dark .txt { color: rgba(247, 243, 234, .76); }
-.card--dark .kv__k { color: rgba(247, 243, 234, .42); }
+.card--dark .kv__k { color: rgba(247, 243, 234, .6); }
 .card--dark .kv__v { color: rgba(247, 243, 234, .85); }
-.card--dark .label { color: rgba(247, 243, 234, .42); }
+.card--dark .label { color: rgba(247, 243, 234, .6); }
 .card--dark .h3 { color: var(--paper); }
 .card--no-pad { padding: 0; overflow: hidden; }
 
@@ -343,7 +352,7 @@ a { color: inherit; }
   left: 0; right: 0; bottom: 0;
   padding: 10px 14px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
   letter-spacing: .08em;
   color: rgba(255, 255, 255, .92);
   background: linear-gradient(to top, rgba(8, 14, 11, .78), rgba(8, 14, 11, 0));
@@ -366,7 +375,7 @@ a { color: inherit; }
 .stat__num--light { color: var(--paper); }
 .stat__unit { font-size: .42em; font-weight: 500; margin-left: 4px; letter-spacing: 0; color: var(--ink-3); }
 .stat__label { font-size: var(--fs-small); color: var(--ink-3); line-height: 1.5; }
-.stat__label--light { color: rgba(247, 243, 234, .5); }
+.stat__label--light { color: rgba(247, 243, 234, .6); }
 
 /* 标签 */
 .tag {
@@ -428,7 +437,17 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
   color: var(--ink-4);
   margin: 0;
 }
-.note--light { color: rgba(247, 243, 234, .4); }
+.note--light { color: rgba(247, 243, 234, .6); }
+
+/* 口径 / 来源槽位：带数字的页在结论区之前放这行，写清分子分母、时间窗与基准；
+   frame.py 的口径规则与 hierarchy H7 优先认这里的「口径」字样。 */
+.source {
+  margin: 18px 0 0;
+  font: 13px/1.6 var(--font-mono);
+  letter-spacing: .02em;
+  color: var(--ink-4);
+}
+.source--light { color: rgba(247, 243, 234, .6); }
 
 /* 过渡句 */
 .bridge {
@@ -449,7 +468,7 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
   flex: none;
 }
 .bridge strong { color: var(--green); font-weight: 600; }
-.bridge--light { color: rgba(247, 243, 234, .5); }
+.bridge--light { color: rgba(247, 243, 234, .6); }
 .bridge--light::before { background: rgba(156, 199, 180, .6); }
 .bridge--light strong { color: #A8CDBC; }
 
@@ -463,12 +482,12 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
   letter-spacing: .13em;
   text-transform: uppercase;
   color: var(--ink-4);
 }
-.slide--dark .foot { border-top-color: var(--dark-line); color: rgba(247, 243, 234, .34); }
+.slide--dark .foot { border-top-color: var(--dark-line); color: rgba(247, 243, 234, .6); }
 .foot__marks { display: flex; align-items: center; gap: 10px; }
 .foot__dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .5; }
 
@@ -592,7 +611,7 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
 
 /* 上下堆叠的 key-value */
 .kv { display: flex; flex-direction: column; gap: 3px; }
-.kv__k { font-family: var(--font-mono); font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-4); }
+.kv__k { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-4); }
 .kv__v { font-size: 17px; line-height: 1.5; color: var(--ink); }
 
 /* 徽标 / 序号圆点 */
@@ -1093,6 +1112,77 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
 .ax-closing__rule { width: 120px; height: 4px; background: var(--green); flex: none; }
 .ax-closing__meta { display: flex; gap: 40px; font-size: 14px; color: var(--ink-3); }
 
+/* ---------------------------------------------- 骨架 13 · 基准柱状图
+   适用：一组数字里只有一个是主角；容量：5–7 根柱，每根标签 ≤ 8 字。
+   非焦点柱一律退后（--chart-neutral），焦点柱用 --chart-focal；
+   基准线（--ref）用虚线 + 右上角小标签，写清「基准是什么」。 */
+.ax-bars { position: relative; display: flex; align-items: flex-end; gap: 26px; height: 300px; border-bottom: 2px solid var(--line); padding: 0 6px; }
+.ax-bars__col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 10px; height: 100%; }
+.ax-bars__num { margin: 0; font: 600 19px var(--font-num); color: var(--ink-3); }
+.ax-bars__bar { width: 100%; max-width: 88px; border-radius: 4px 4px 0 0; background: var(--chart-neutral); }
+.ax-bars__col--focal .ax-bars__bar { background: var(--chart-focal); }
+.ax-bars__col--focal .ax-bars__num { color: var(--accent-text); font-size: 22px; }
+.ax-bars__ref { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--terra); }
+.ax-bars__ref i { position: absolute; right: 4px; top: -24px; font: 12px/1 var(--font-mono); font-style: normal; color: var(--terra); background: var(--paper); padding: 2px 6px; border-radius: 3px; }
+.ax-bars__labels { display: flex; gap: 26px; padding: 0 6px; margin: 10px 0 0; }
+.ax-bars__labels span { flex: 1; text-align: center; font-size: 13.5px; line-height: 1.4; color: var(--ink-3); }
+
+/* ---------------------------------------------- 骨架 14 · 因果链桥
+   适用：现状（成本）→ 机制（动作）→ 结果（同尺）→ 反事实；容量：4 格。
+   前三格实心，反事实格虚线描边（--cf），数字用同一把尺子。 */
+.ax-bridge { display: grid; grid-template-columns: repeat(4, 1fr); }
+.ax-bridge__cell { position: relative; padding: 20px 22px 18px; border-left: 1px solid var(--line-soft); }
+.ax-bridge__cell:first-child { border-left: 0; padding-left: 0; }
+.ax-bridge__cell::after { content: "→"; position: absolute; right: -11px; top: 22px; z-index: 1; font-size: 20px; line-height: 1; color: var(--green-2); background: var(--paper); }
+.ax-bridge__cell:last-child::after { content: none; }
+.ax-bridge__cell--cf { border: 1.5px dashed var(--line); border-radius: var(--r-md); background: transparent; }
+.ax-bridge__k { margin: 0 0 10px; font: 11.5px var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-4); }
+.ax-bridge__v { margin: 0; font: 600 44px/1.05 var(--font-num); color: var(--ink); font-variant-numeric: tabular-nums; }
+.ax-bridge__v small { font-size: 19px; font-weight: 600; color: var(--ink-3); }
+.ax-bridge__v--accent { color: var(--accent-text); }
+.ax-bridge__d { margin: 10px 0 0; font-size: 14px; line-height: 1.6; color: var(--ink-3); }
+
+/* ---------------------------------------------- 骨架 15 · 2×2 象限
+   适用：两个维度定位多个对象；容量：4 格，每格 ≤ 3 个对象，焦点 1 格。
+   轴标签写「往哪边更好」，不给无刻度的图。 */
+.ax-quadrant { position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 16px; min-height: 400px; margin: 0 16px 30px 16px; }
+.ax-quadrant::before { content: ""; position: absolute; left: 50%; top: 4px; bottom: 4px; border-left: 1.5px dashed var(--line); }
+.ax-quadrant::after { content: ""; position: absolute; top: 50%; left: 4px; right: 4px; border-top: 1.5px dashed var(--line); }
+.ax-quadrant__cell { border: 1px solid var(--line-soft); border-radius: var(--r-md); padding: 16px 20px; background: var(--paper-2); }
+.ax-quadrant__cell--key { background: var(--green-wash); border-color: var(--green-3); }
+.ax-quadrant__tag { margin: 0 0 8px; font: 11.5px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); }
+.ax-quadrant__h { margin: 0; font-size: 19px; color: var(--ink); }
+.ax-quadrant__d { margin: 8px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-3); }
+.ax-quadrant__axis { position: absolute; font: 12.5px var(--font-mono); color: var(--ink-4); }
+.ax-quadrant__axis--x { left: 50%; transform: translateX(-50%); bottom: -30px; white-space: nowrap; }
+.ax-quadrant__axis--y { top: 44%; left: -22px; writing-mode: vertical-rl; white-space: nowrap; }
+
+/* ---------------------------------------------- 骨架 16 · 时间轴
+   适用：里程碑、分阶段推进；容量：3–5 个节点，焦点 1 个。 */
+.ax-timeline { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); padding-top: 30px; }
+.ax-timeline__item { position: relative; padding: 0 20px 0 0; }
+.ax-timeline__item::before { content: ""; position: absolute; top: -30px; left: 0; width: 11px; height: 11px; border-radius: 50%; background: var(--chart-neutral); }
+.ax-timeline__item::after { content: ""; position: absolute; top: -25.5px; left: 11px; right: -6px; border-top: 1.5px solid var(--line); }
+.ax-timeline__item:last-child::after { content: none; }
+.ax-timeline__item--key::before { background: var(--chart-focal); box-shadow: 0 0 0 4px var(--green-tint); }
+.ax-timeline__when { margin: 0; font: 12px var(--font-mono); letter-spacing: .08em; color: var(--ink-4); }
+.ax-timeline__h { margin: 6px 0 0; font-size: 17px; line-height: 1.45; color: var(--ink); }
+.ax-timeline__d { margin: 8px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-3); }
+
+/* ---------------------------------------------- 骨架 17 · 痛点 → 对策
+   适用：问题清单与整改措施一一对应；容量：≤ 4 行，左右必须成对。 */
+.ax-versus { display: flex; flex-direction: column; gap: 14px; }
+.ax-versus__head { display: grid; grid-template-columns: 1fr 46px 1.15fr; margin-bottom: 2px; }
+.ax-versus__head span { font: 11.5px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); }
+.ax-versus__head span:last-child { grid-column: 3; }
+.ax-versus__row { display: grid; grid-template-columns: 1fr 46px 1.15fr; align-items: stretch; }
+.ax-versus__issue { border: 1.5px dashed var(--line); border-radius: var(--r-md); padding: 13px 18px; }
+.ax-versus__mid { display: flex; align-items: center; justify-content: center; color: var(--green-2); font-size: 20px; }
+.ax-versus__fix { border-left: 3px solid var(--green); background: var(--green-wash); border-radius: 0 var(--r-md) var(--r-md) 0; padding: 13px 18px; }
+.ax-versus__k { margin: 0 0 4px; font: 11.5px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); }
+.ax-versus__h { margin: 0; font-size: 16.5px; line-height: 1.5; color: var(--ink); }
+.ax-versus__d { margin: 4px 0 0; font-size: 13px; line-height: 1.55; color: var(--ink-3); }
+
 /* 4:3 画幅（1200×900）补偿：只缩字号，不改骨架 */
 body.ratio-4x3 .ax-cover__title { font-size: 82px; }
 body.ratio-4x3 .ax-point__q { font-size: 58px; }
@@ -1164,12 +1254,13 @@ html[data-dtheme="ink-dark"] .ax-matrix__head { color: var(--ink-3); }
     .ins-chat { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; }
     .ins-msg { max-width: 94%; padding: 9px 12px; border-radius: 10px; font: 12.5px/1.62 var(--font-sans); }
     .ins-msg--user { align-self: flex-end; background: var(--green); color: var(--paper); border-bottom-right-radius: 3px; }
-    .ins-msg--user code { font-family: var(--font-mono); font-size: 11.5px; color: #fff;
+    .ins-msg--user code { font-family: var(--font-mono); font-size: 11.5px; color: inherit;
       background: rgba(255,255,255,.16); padding: 1px 6px; border-radius: 5px; }
     .ins-msg--ai { align-self: flex-start; background: var(--green-tint); color: var(--ink-2);
       border-bottom-left-radius: 3px; font-family: var(--font-mono); font-size: 11.5px; white-space: pre-wrap; }
-    .ins-msg--ai b { color: var(--green); }
+    .ins-msg--ai b { color: var(--ink-2); }   /* --green 在暖赭/青瓷主题下过不了着色底 4.5:1，强调改用深墨 */
     .ins-cmd { background: var(--dark-2); border-radius: var(--r-md); padding: 18px 22px; }
+    .ins-cmd .kv__k { color: rgba(247, 243, 234, .6); }   /* 深底上的微标签：默认 --ink-4 过不了 4.5:1 */
     .ins-cmd pre { margin: 0; font: 12px/1.95 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap; }
     .ins-detail { display: flex; flex-direction: column; gap: 18px; }
     body.ratio-4x3 .ins-grid { gap: 28px; }
@@ -1187,7 +1278,7 @@ html[data-dtheme="ink-dark"] .ax-matrix__head { color: var(--ink-3); }
       border-bottom: 1px solid var(--line-soft); background: var(--paper-3); }
     .bp-bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
     .bp-bar i:first-child { background: var(--terra-2); }
-    .bp-bar b { font: 11px/1 var(--font-mono); letter-spacing: .05em; color: var(--ink-3); margin-left: 4px; }
+    .bp-bar b { font: 11.5px/1 var(--font-mono); letter-spacing: .05em; color: var(--ink-3); margin-left: 4px; }
     .bp-body { flex: 1; padding: 14px 16px; overflow: hidden; }
     /* Word 纸面 */
     .bp-doc { background: #fff; border: 1px solid var(--line-soft); border-radius: 4px; height: 100%; padding: 14px 16px; }
@@ -1201,7 +1292,7 @@ html[data-dtheme="ink-dark"] .ax-matrix__head { color: var(--ink-3); }
     .bp-msg { max-width: 92%; padding: 9px 12px; border-radius: 10px; font: 12.5px/1.6 var(--font-sans); }
     .bp-msg--user { align-self: flex-end; background: var(--green); color: var(--paper); border-bottom-right-radius: 3px; }
     .bp-msg--user .file { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; margin-bottom: 6px;
-      background: rgba(255,255,255,.18); border-radius: 6px; font-family: var(--font-mono); font-size: 11px; }
+      background: rgba(255,255,255,.18); border-radius: 6px; font-family: var(--font-mono); font-size: 11.5px; }
     .bp-msg--ai { align-self: flex-start; background: var(--green-tint); color: var(--ink-2); border-bottom-left-radius: 3px; }
     .bp-input { margin-top: auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px;
       border: 1px solid var(--line); border-radius: 9px; color: var(--ink-3); font: 12px/1 var(--font-sans); }
@@ -1220,7 +1311,7 @@ html[data-dtheme="ink-dark"] .ax-matrix__head { color: var(--ink-3); }
     /* 箭头列 */
     .bp-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
     .bp-arrow svg { display: block; }
-    .bp-arrow span { font: 11px/1 var(--font-mono); letter-spacing: .1em; color: var(--ink-3); }
+    .bp-arrow span { font: 11.5px/1 var(--font-mono); letter-spacing: .1em; color: var(--ink-3); }
 
 /* ---- 12-closing.html ---- */
 .cover { flex: 1; display: flex; flex-direction: column; }
@@ -2038,7 +2129,7 @@ body.ratio-4x3 #s16 .body { zoom: .70; }
   <div class="stage">
     <div class="stage__bar"><i></i></div>
     <div class="slides">
-<section class="slide" id="s01" data-title="封面 · 使用说明" data-rail="概览" data-nofoot>
+<section class="slide" id="s01" data-title="封面 · 使用说明" data-rail="概览" data-arch="cover" data-nofoot>
   <header class="head">
     <p class="kicker">DECKSTAGE · 使用说明</p>
     <h1 class="title reveal reveal--blur" style="--d:60ms">一套幻灯片系统的<em>完整用法</em></h1>
@@ -2205,7 +2296,7 @@ python3 tools/serve_deck.py
             <div class="blocks"><i></i><i></i><i></i></div>
           </div>
           <div class="bp-prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
-          <p class="note" style="margin:10px 0 0; font: 11px/1.6 var(--font-mono); color: var(--ink-3);">sample-deck · 12 屏 · 质检 0 问题</p>
+          <p class="note" style="margin:10px 0 0; font: 11.5px/1.6 var(--font-mono); color: var(--ink-3);">sample-deck · 12 屏 · 质检 0 问题</p>
         </div>
       </div>
     </div>
@@ -2231,100 +2322,172 @@ python3 tools/serve_deck.py
   <aside class="notes">这是我自己的最佳实践，图上三步就是生成眼前这套说明的真实过程：左边是随手写的 Word 素材，文字加截图、不管排版；把它拖进 WorkBuddy，附一句话说明——屏数、slug、验收标准；右边 AI 调用本仓库工具链生成了你现在看的这套 deck。客户端不限 WorkBuddy，ZCode、DeepSeek Harness、Codex 都可以。关键：素材别管排版、委托说清验收、人只审效果。</aside>
 </section>
 
-<section class="slide" id="s04" data-title="快速开始" data-rail="上手">
-  <header class="head">
+<section class="slide" id="s04" data-title="快速开始" data-rail="上手" data-arch="chain">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">03 / QUICKSTART</p>
     <h1 class="title">五分钟，<em>跑通全流程</em></h1>
   </header>
 
   <div class="body">
-    <div class="card" style="padding: 20px 24px; max-width: 1000px;">
-      <pre style="margin:0; font: 12.5px/2.05 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">git clone … &amp;&amp; cd deckstage
-pip install -r requirements.txt          # python 工具链（PIL / fitz / numpy / python-pptx / playwright）
-
-node build.mjs --src src-sample --deck sample-deck   # 拼装示例 deck
-python3 tools/build_library.py                       # 展示台聚合 + 缩略图
-python3 tools/serve_deck.py                          # http://127.0.0.1:8899/  ← 展示台
-
-python3 tools/import_pptx.py 你的.pptx --slug my-deck --dry-run   # 只体检不动手
-python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导入（UI 入口在展示台右上角）</pre>
+    <div class="ax-chain">
+      <div class="ax-chain__node reveal" style="--d:80ms">
+        <p class="ax-chain__no">01</p>
+        <h3 class="ax-chain__h">装依赖</h3>
+        <p class="ax-chain__p"><code>git clone … &amp;&amp; cd deckstage</code><br><code>pip install -r requirements.txt</code></p>
+        <p class="ax-chain__out">产出：仓库与工具链就绪</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:180ms">
+        <p class="ax-chain__no">02</p>
+        <h3 class="ax-chain__h">拼示例</h3>
+        <p class="ax-chain__p"><code>node build.mjs --src src-sample --deck sample-deck</code></p>
+        <p class="ax-chain__out">产出：decks/sample-deck/</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:280ms">
+        <p class="ax-chain__no">03</p>
+        <h3 class="ax-chain__h">起服务</h3>
+        <p class="ax-chain__p"><code>python3 tools/serve_deck.py</code></p>
+        <p class="ax-chain__out">产出：127.0.0.1:8899 展示台</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:380ms">
+        <p class="ax-chain__no">04</p>
+        <h3 class="ax-chain__h">日常改</h3>
+        <p class="ax-chain__p">改 <code>slides/*.html</code>，重跑 build.mjs</p>
+        <p class="ax-chain__out">产出：刷新浏览器即放映</p>
+      </div>
     </div>
-    <p class="note" style="margin-top:16px; font-size:13px; color: var(--ink-3);">依赖分两档：纯创作与放映零依赖，浏览器打开即可；PPTX 导入需要 LibreOffice，缩略图 / QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
 
-    <p class="bridge reveal" style="--d:80ms">服务起来后，先鸟瞰这套系统的<strong>四层能力</strong>。</p>
+    <div class="ax-bottom reveal" style="--d:500ms">
+      <p class="ax-note">依赖两档：创作与放映零依赖，浏览器打开即可；PPTX 导入需要 LibreOffice，缩略图 / QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+      <p class="bridge" style="margin-top:16px">服务起来后，先鸟瞰这套系统的<strong>四层能力</strong>。</p>
+    </div>
   </div>
 
-  <aside class="notes">五分钟上手：装 python 依赖，拼装示例 deck，聚合展示台，起本地服务。导入是可选项，需要 LibreOffice。日常创作时只跑 build.mjs 就够，刷新浏览器即见。</aside>
+  <aside class="notes">五分钟上手：装 python 依赖，拼装示例 deck，起本地服务。导入是可选项，需要 LibreOffice。日常创作只跑 build.mjs 就够，刷新浏览器即见。</aside>
 </section>
 
-<section class="slide" id="s05" data-title="系统总览" data-rail="概览">
-  <header class="head">
+<section class="slide" id="s05" data-title="系统总览" data-rail="概览" data-arch="arch">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">04 / OVERVIEW</p>
     <h1 class="title">四个能力，<em>一条流水线</em></h1>
   </header>
 
   <div class="body">
-    <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
-      <div class="card reveal" style="--d:80ms">
-        <p class="kv__k">① 创作</p>
-        <p class="kv__v" style="margin-top:8px">一屏一个 HTML 文件<br>tokens.css 统一配色<br>reveal 类名做动效</p>
+    <div class="ax-arch">
+      <div class="ax-arch__layers">
+        <div class="ax-arch__layer reveal" style="--d:80ms">
+          <span class="ax-arch__k">创作层</span>
+          <div class="ax-arch__body">
+            <div class="ax-arch__chips">
+              <span class="ax-arch__chip">一屏一个 HTML</span>
+              <span class="ax-arch__chip">tokens.css 配色</span>
+              <span class="ax-arch__chip">reveal 动效</span>
+            </div>
+            <p class="ax-arch__d">源文件即真源：改 HTML 重跑 build，浏览器外无构建。</p>
+          </div>
+        </div>
+        <div class="ax-arch__layer ax-arch__layer--key reveal" style="--d:180ms">
+          <span class="ax-arch__k">放映层</span>
+          <div class="ax-arch__body">
+            <div class="ax-arch__chips">
+              <span class="ax-arch__chip">全屏</span>
+              <span class="ax-arch__chip">总览</span>
+              <span class="ax-arch__chip">备注</span>
+              <span class="ax-arch__chip">画幅 16:9 · 4:3</span>
+            </div>
+            <p class="ax-arch__d">交互与画幅自适应由引擎负责，配色主题随时整套切换。</p>
+          </div>
+        </div>
+        <div class="ax-arch__layer reveal" style="--d:280ms">
+          <span class="ax-arch__k">导入导出层</span>
+          <div class="ax-arch__body">
+            <div class="ax-arch__chips">
+              <span class="ax-arch__chip">PPTX → HTML</span>
+              <span class="ax-arch__chip">页内导出可编辑 PPTX</span>
+              <span class="ax-arch__chip">单机版 HTML</span>
+            </div>
+            <p class="ax-arch__d">与 PowerPoint 双向流通；单机版断网也能放映。</p>
+          </div>
+        </div>
+        <div class="ax-arch__layer reveal" style="--d:380ms">
+          <span class="ax-arch__k">管理层</span>
+          <div class="ax-arch__body">
+            <div class="ax-arch__chips">
+              <span class="ax-arch__chip">/admin 追踪</span>
+              <span class="ax-arch__chip">deck 门禁</span>
+              <span class="ax-arch__chip">上下架</span>
+            </div>
+            <p class="ax-arch__d">公开分享时的运营面：访问数据、密码门禁、即时上下架。</p>
+          </div>
+        </div>
       </div>
-      <div class="card card--tint reveal" style="--d:200ms">
-        <p class="kv__k">② 放映</p>
-        <p class="kv__v" style="margin-top:8px">全屏 / 总览 / 备注<br>画幅自适应 16:9·4:3<br>七套配色随时切换</p>
-      </div>
-      <div class="card card--tint reveal" style="--d:320ms">
-        <p class="kv__k">③ 导入导出</p>
-        <p class="kv__v" style="margin-top:8px">PPTX 一键转 HTML<br>页面内导出可编辑 PPTX<br>单机版 HTML 断网可用</p>
-      </div>
-      <div class="card card--dark reveal" style="--d:440ms">
-        <p class="kv__k">④ 管理</p>
-        <p class="kv__v" style="margin-top:8px">/admin 访问追踪<br>deck 密码门禁<br>上下架即时生效</p>
+
+      <div class="ax-arch__side reveal" style="--d:480ms">
+        <h3 class="h3">一条流水线</h3>
+        <p class="txt txt--sm" style="font-family: var(--font-mono); font-size: 13px; line-height: 1.9;">src-slides/*.html → <b>build.mjs</b> → decks/&lt;slug&gt;/ → <b>serve_deck.py</b> → library.html</p>
+        <p class="ax-note">四层共用同一条数据流：改源 → 拼装 → 起服务 → 点开放映。</p>
       </div>
     </div>
 
-    <div class="card card--flat reveal" style="--d:560ms; margin-top: 28px; padding: 16px 22px;">
-      <p class="kv__v" style="font: 13px/1.9 var(--font-mono); color: var(--ink-2);">src-slides/*.html → <b>build.mjs</b> 拼装 → decks/&lt;slug&gt;/ → <b>serve_deck.py</b> 起服务 → 展示台 library.html → 点开放映</p>
-    </div>
-
-    <p class="bridge reveal" style="--d:660ms">系统已经跑起来了，从每天最常用的<strong>放映操作</strong>练起。</p>
+    <p class="bridge ax-bottom reveal" style="--d:560ms">系统已经跑起来了，从每天最常用的<strong>放映操作</strong>练起。</p>
   </div>
 
   <aside class="notes">四层能力：创作是写 HTML 源文件；放映是引擎负责的浏览器体验；导入导出解决与 PowerPoint 的双向流通；管理后台面向公开分享时的运营。数据流一行：源文件拼装成单文件 deck，本地服务起展示台，浏览器点开即放映。</aside>
 </section>
 
-<section class="slide" id="s06" data-title="放映操作 · 键盘与鼠标" data-rail="放映">
-  <header class="head">
+<section class="slide" id="s06" data-title="放映操作 · 键盘与鼠标" data-rail="放映" data-arch="toc">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">05 / PRESENTING</p>
     <h1 class="title">放映，<em>全在指尖</em></h1>
   </header>
 
-  <div class="body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
-    <ul class="list" style="margin-top: 0;">
-      <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>→</code> <code>←</code> <code>空格</code> 翻页与分步；<code>Home</code>/<code>End</code> 首尾屏</p></li>
-      <li class="list__item reveal" style="--d:150ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>G</code> 总览缩略图墙 · <code>N</code> 演讲备注 · <code>F</code> 全屏放映</p></li>
-      <li class="list__item reveal" style="--d:240ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>R</code> 画幅 16:9 / 4:3 · <code>S</code> 填满或留边 · <code>H</code> 回展示台</p></li>
-      <li class="list__item reveal" style="--d:330ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>Esc</code> 逐层退出；网址带 <code>#s12</code> 直达第 12 屏</p></li>
-    </ul>
-    <ul class="list" style="margin-top: 0;">
-      <li class="list__item reveal" style="--d:120ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>鼠标</b>　点两侧边缘翻页；点进度条任意位置跳屏；悬停看屏标题</p></li>
-      <li class="list__item reveal" style="--d:210ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>触控</b>　左右滑动翻页；影院模式轻点屏幕唤回外壳</p></li>
-      <li class="list__item reveal" style="--d:300ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>深色放映</b>　外框 2.6 秒后自动隐去，动鼠标即重现</p></li>
-      <li class="list__item reveal" style="--d:390ms"><i class="list__dot"></i>
-        <p class="list__txt">按键不依赖焦点位置；总览 / 备注打开时依然生效</p></li>
-    </ul>
+  <div class="body body--tight">
+    <ol class="ax-toc">
+      <li class="ax-toc__row reveal" style="--d:80ms">
+        <span class="ax-toc__no">01</span>
+        <div>
+          <h3 class="ax-toc__h"><code>→</code> <code>←</code> <code>空格</code> 翻页与分步</h3>
+          <p class="ax-toc__d">Home / End 首尾屏；按键不依赖焦点位置</p>
+        </div>
+        <span class="ax-toc__pg">键盘</span>
+      </li>
+      <li class="ax-toc__row reveal" style="--d:160ms">
+        <span class="ax-toc__no">02</span>
+        <div>
+          <h3 class="ax-toc__h"><code>G</code> 总览 · <code>N</code> 备注 · <code>F</code> 全屏</h3>
+          <p class="ax-toc__d">总览点任意屏跳转；备注抽屉不占画面</p>
+        </div>
+        <span class="ax-toc__pg">键盘</span>
+      </li>
+      <li class="ax-toc__row reveal" style="--d:240ms">
+        <span class="ax-toc__no">03</span>
+        <div>
+          <h3 class="ax-toc__h"><code>R</code> 画幅 · <code>S</code> 留边 · <code>H</code> 回展示台</h3>
+          <p class="ax-toc__d">16:9 / 4:3 自适应投影与竖屏笔记本</p>
+        </div>
+        <span class="ax-toc__pg">键盘</span>
+      </li>
+      <li class="ax-toc__row reveal" style="--d:320ms">
+        <span class="ax-toc__no">04</span>
+        <div>
+          <h3 class="ax-toc__h">鼠标与触控</h3>
+          <p class="ax-toc__d">点两侧边缘翻页、进度条跳屏；滑动翻页</p>
+        </div>
+        <span class="ax-toc__pg">指针</span>
+      </li>
+      <li class="ax-toc__row reveal" style="--d:400ms">
+        <span class="ax-toc__no">05</span>
+        <div>
+          <h3 class="ax-toc__h">外壳与深链</h3>
+          <p class="ax-toc__d">Esc 逐层退出；#s12 直达第 12 屏；外框 2.6 秒自动隐去</p>
+        </div>
+        <span class="ax-toc__pg">通用</span>
+      </li>
+    </ol>
 
     <p class="bridge reveal" style="--d:480ms">画面之外还能换<strong>配色</strong>——按一下 <code>C</code> 试试。</p>
   </div>
 
-  <aside class="notes">放映操作分键盘与鼠标两栏。引擎键：方向键空格翻页，G 总览、N 备注、F 全屏、R 画幅、S 留边、H 回展示台、Esc 逐层退出。鼠标：两侧边缘翻页、进度条跳屏。所有按键在任何焦点位置都生效。</aside>
+  <aside class="notes">放映操作按键盘、指针、通用三类归组。引擎键：方向键空格翻页，G 总览、N 备注、F 全屏、R 画幅、S 留边、H 回展示台、Esc 逐层退出。所有按键在任何焦点位置都生效；总览 / 备注打开时依然生效。</aside>
 </section>
 
 <section class="slide" id="s07" data-title="配色主题 · 七套预设" data-rail="放映">
@@ -2380,106 +2543,122 @@ python3 tools/import_pptx.py 你的.pptx --slug my-deck             # 正式导�
   <aside class="notes">配色主题由本地服务注入，七套预设覆盖同一套 tokens 变量。C 键循环或右下角配色按钮点选。想让自己的 deck 完整支持主题，创作时只用变量、不写死颜色。</aside>
 </section>
 
-<section class="slide" id="s08" data-title="创作规范 · 亲手写一屏" data-rail="创作">
-  <header class="head">
+<section class="slide" id="s08" data-title="创作规范 · 亲手写一屏" data-rail="创作" data-arch="contrast">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">07 / AUTHORING</p>
     <h1 class="title">一屏 = <em>一个 HTML 文件</em></h1>
   </header>
 
-  <div class="body" style="display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: start;">
-    <div class="card card--dark" style="padding: 22px 24px;">
-      <p class="kv__k" style="margin-bottom: 12px;">src-sample/slides/06-authoring.html</p>
-      <pre style="margin:0; font: 12px/1.85 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" id="s08"
-         data-title="创作规范"
-         data-rail="创作"&gt;
-  &lt;header class="head"&gt;
-    &lt;p class="kicker"&gt;07 / AUTHORING&lt;/p&gt;
-    &lt;h1 class="title"&gt;一屏 =
-      &lt;em&gt;一个 HTML 文件&lt;/em&gt;&lt;/h1&gt;
-  &lt;/header&gt;
+  <div class="body">
+    <div class="ax-contrast">
+      <div class="ax-contrast__panel ax-contrast__panel--bad reveal" style="--d:80ms">
+        <p class="ax-contrast__k"><span>反例</span><span>换主题就漏</span></p>
+        <p class="ax-contrast__q">标题写「概述」；颜色写死 <code>#1E5B47</code>；一屏塞 400 字正文。</p>
+        <p class="ax-contrast__note">名词标题立不住观点；配色主题整套失效；放映时溢出截断。</p>
+      </div>
+      <div class="ax-contrast__panel ax-contrast__panel--good reveal" style="--d:220ms">
+        <p class="ax-contrast__k"><span>正例</span><span>左边这屏的源码</span></p>
+        <pre style="margin:0; padding: 12px 16px; border-radius: 10px; background: var(--dark-2); font: 12px/1.8 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap;">&lt;section class="slide" data-arch="contrast"
+         data-title="…" data-rail="创作"&gt;
+  &lt;h1 class="title"&gt;一屏 =
+    &lt;em&gt;一个 HTML 文件&lt;/em&gt;&lt;/h1&gt;
   &lt;div class="body"&gt; … &lt;/div&gt;
   &lt;aside class="notes"&gt;演讲备注&lt;/aside&gt;
 &lt;/section&gt;</pre>
+        <p class="ax-contrast__note">data-rail 分章、data-title 进度条悬停可见、aside.notes 备注不占画面；颜色只用 tokens.css 变量。</p>
+      </div>
     </div>
 
-    <ul class="list" style="margin-top: 6px;">
-      <li class="list__item reveal" style="--d:80ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>data-rail</code> 决定顶部导轨分章；<code>data-title</code> 进度条悬停可见</p></li>
-      <li class="list__item reveal" style="--d:180ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>reveal</code> + <code>--d</code> 控制逐步入场；<code>data-count</code> 数字滚动；<code>.frag</code> 空格分步</p></li>
-      <li class="list__item reveal" style="--d:280ms"><i class="list__dot"></i>
-        <p class="list__txt"><code>aside.notes</code> 是演讲备注，按 <b>N</b> 呼出，不占画面</p></li>
-      <li class="list__item reveal" style="--d:380ms"><i class="list__dot"></i>
-        <p class="list__txt">颜色只用 <code>tokens.css</code> 变量、不写死——配色主题才能整套生效</p></li>
-      <li class="list__item reveal" style="--d:480ms"><i class="list__dot"></i>
-        <p class="list__txt">写完跑 <code>python3 tools/check_slides.py</code> 自查溢出与截断</p></li>
-    </ul>
+    <div class="ax-bottom reveal" style="--d:420ms">
+      <p class="insight">所以规范就两条：标题是一句能被反驳的话，颜色只用变量。</p>
+      <p class="bridge" style="margin-top:16px">写完跑 <code>python3 tools/check_slides.py</code> 自查溢出——下一屏看外部 PPTX 怎么进来。</p>
+    </div>
   </div>
 
-  <aside class="notes">创作模型：一屏一个文件放 src-slides 目录，类名体系见 docs/AUTHORING.md。左侧深色卡片就是本屏的真实源码。最关键的两条：高度预算不要超、颜色只用变量。</aside>
+  <aside class="notes">创作模型：一屏一个文件放 slides 目录，类名体系见 docs/AUTHORING.md。正例面板就是本屏的真实源码（节选）。最关键的两条：高度预算不要超、颜色只用变量——其余规范都从这里推出来。</aside>
 </section>
 
-<section class="slide" id="s09" data-title="PPTX 导入 · 两条路径" data-rail="导入">
-  <header class="head">
+<section class="slide" id="s09" data-title="PPTX 导入 · 两条路径" data-rail="导入" data-arch="board">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">08 / IMPORT</p>
     <h1 class="title">外部 PPTX，<em>一条流水线</em>进展示台</h1>
   </header>
 
   <div class="body">
-    <ul class="list" style="max-width: 900px;">
+    <ul class="list" style="max-width: 1080px; margin-top: 0;">
       <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>入口</b>　展示台右上角「＋ 导入 PPTX」四步向导（体检 → 选项 → SSE 实时进度 → 入库）；CLI 同款能力：<code>import_pptx.py</code></p></li>
+        <p class="list__txt"><b>入口</b>　展示台右上角「＋ 导入 PPTX」四步向导（体检 → 选项 → SSE 实时进度 → 入库）；CLI 同款能力：<code>import_pptx.py</code>，可先 <code>--dry-run</code> 只体检不动手</p></li>
       <li class="list__item reveal" style="--d:150ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>流程</b>　体检 → 版式预修（禁折行 / 缩字）→ LibreOffice 渲染 → 补字层 → 组装入库</p></li>
-      <li class="list__item reveal" style="--d:240ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>保真</b>　每屏 = 原稿整页图 + 按 PDF 坐标补的可检索文字，视觉零偏差</p></li>
-      <li class="list__item reveal" style="--d:330ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>边界</b>　导入 API 仅限本机（Host 守卫），单文件 ≤ 300MB；改字要回源 PPTX 重导</p></li>
+        <p class="list__txt"><b>保真与边界</b>　每屏 = 原稿整页图 + 按 PDF 坐标补的可检索文字，视觉零偏差；导入 API 仅限本机（Host 守卫），改字要回源 PPTX 重导</p></li>
     </ul>
 
-    <div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 28px;">
-      <div class="stat reveal" style="--d:410ms"><b class="stat__num num stat__num--l" data-count="6">6</b><span class="stat__label">个阶段全自动</span></div>
-      <div class="stat reveal" style="--d:490ms"><b class="stat__num num stat__num--l" data-count="4">4</b><span class="stat__label">步 UI 向导</span></div>
-      <div class="stat reveal" style="--d:570ms"><b class="stat__num num stat__num--l">1600<i class="stat__unit">×</i>900</b><span class="stat__label">逐页渲染分辨率</span></div>
-      <div class="stat reveal" style="--d:650ms"><b class="stat__num num stat__num--l" data-count="300">300</b><span class="stat__unit">MB</span><span class="stat__label">上传体积上限</span></div>
+    <div class="ax-board" style="margin-top: 30px;">
+      <div class="ax-board__cell reveal" style="--d:230ms">
+        <p class="ax-board__num"><span data-count="6">6</span></p>
+        <p class="ax-board__k">个阶段全自动</p>
+        <p class="ax-board__d">体检 → 预修 → 渲染 → 补字 → 组装 → 入库</p>
+      </div>
+      <div class="ax-board__cell reveal" style="--d:330ms">
+        <p class="ax-board__num"><span data-count="4">4</span></p>
+        <p class="ax-board__k">步 UI 向导</p>
+        <p class="ax-board__d">与 CLI 同一条流水线，进度实时可见</p>
+      </div>
+      <div class="ax-board__cell reveal" style="--d:430ms">
+        <p class="ax-board__num ax-board__num--accent">1600<i class="ax-board__unit">×</i>900</p>
+        <p class="ax-board__k">逐页渲染分辨率</p>
+        <p class="ax-board__d">源分辨率固定，与设计坐标 1:1</p>
+      </div>
     </div>
 
-    <p class="bridge reveal" style="--d:730ms">导入是单向快照；日常更新走<strong>源码创作</strong>，也可以随时导出回 PPTX。</p>
+    <p class="source reveal" style="--d:530ms">口径：六阶段按 import_pptx.py 流水线计；1600×900 为 LibreOffice 渲染的固定源分辨率；上传上限为导入接口的单文件限制（≤300MB，仅限本机）。</p>
+
+    <p class="bridge reveal" style="--d:600ms">导入是单向快照；日常更新走<strong>源码创作</strong>，也可以随时导出回 PPTX。</p>
   </div>
 
   <aside class="notes">两条导入路径：UI 向导与 CLI。六阶段里最关键的是补字层——LibreOffice 漏画的文字按原坐标补回来，可检索可复制。注意导入 API 只在本机开放，公网隧道一律 403。</aside>
 </section>
 
-<section class="slide" id="s10" data-title="导出与质检" data-rail="质检">
-  <header class="head">
+<section class="slide" id="s10" data-title="导出与质检" data-rail="质检" data-arch="chain">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">09 / EXPORT &amp; QA</p>
     <h1 class="title">能放出去，也<em>能带回来</em></h1>
   </header>
 
-  <div class="body" style="display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px; align-items: start;">
-    <div>
-      <ul class="list" style="margin-top: 0;">
-        <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
-          <p class="list__txt"><b>导出 PPTX</b>　放映外壳右下角「导出」按钮，页面内生成可编辑 PPTX（pptxgenjs）</p></li>
-        <li class="list__item reveal" style="--d:150ms"><i class="list__dot"></i>
-          <p class="list__txt"><b>单机版 HTML</b>　全内联一个文件，断网双击即放映，方便分发</p></li>
-        <li class="list__item reveal" style="--d:240ms"><i class="list__dot"></i>
-          <p class="list__txt"><b>离线优先</b>　第三方运行时落盘 vendor/，图片走本地相对路径</p></li>
-      </ul>
+  <div class="body">
+    <div class="ax-chain">
+      <div class="ax-chain__node reveal" style="--d:80ms">
+        <p class="ax-chain__no">01</p>
+        <h3 class="ax-chain__h">改</h3>
+        <p class="ax-chain__p">改 <code>slides/*.html</code> 源文件——源码即真源，改完重跑 build</p>
+        <p class="ax-chain__out">产出：最新版 deck</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:180ms">
+        <p class="ax-chain__no">02</p>
+        <h3 class="ax-chain__h">导</h3>
+        <p class="ax-chain__p">放映外壳右下角「导出」，页面内生成可编辑 PPTX（pptxgenjs）；<code>--inline</code> 产全内联单机版 HTML</p>
+        <p class="ax-chain__out">产出：可编辑 PPTX / 单机版</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:280ms">
+        <p class="ax-chain__no">03</p>
+        <h3 class="ax-chain__h">查</h3>
+        <p class="ax-chain__p"><code>check_slides.py</code> 体检溢出 / 截断 / 重叠；<code>test_deck.py</code> 自测放映交互</p>
+        <p class="ax-chain__out">产出：0 问题再分发</p>
+      </div>
+      <div class="ax-chain__node reveal" style="--d:380ms">
+        <p class="ax-chain__no">04</p>
+        <h3 class="ax-chain__h">离线</h3>
+        <p class="ax-chain__p">第三方运行时落盘 <code>vendor/</code>，图片走本地相对路径</p>
+        <p class="ax-chain__out">产出：断网双击即放映</p>
+      </div>
     </div>
 
-    <div class="card" style="padding: 20px 24px;">
-      <p class="kv__k" style="margin-bottom: 12px;">质检命令</p>
-      <pre style="margin:0; font: 12.5px/2.1 var(--font-mono); color: var(--ink-2); white-space: pre-wrap;">python3 tools/check_slides.py            # 溢出/截断/重叠/图片体检
-python3 tools/check_slides.py --shots    # 同上 + 逐屏截图到 /tmp/qa
-python3 tools/test_deck.py               # 放映交互自测（点按/翻页/抽屉）</pre>
-      <p class="note" style="margin-top: 12px; color: var(--ink-3);">QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+    <div class="ax-bottom reveal" style="--d:500ms">
+      <p class="ax-note">导出与质检共用一条链：改 → 导 → 查 → 离线。QA 需要 Chrome（Playwright 走 channel="chrome"）。</p>
+      <p class="bridge" style="margin-top:16px">分享出去之后呢？<strong>管理后台</strong>负责运营与门禁。</p>
     </div>
-
-    <p class="bridge reveal" style="--d:360ms">分享出去之后呢？<strong>管理后台</strong>负责运营与门禁。</p>
   </div>
 
-  <aside class="notes">导出两条路：页面内一键导出可编辑 PPTX；build 时可产出全内联单机版 HTML。质检两条命令：check_slides 体检版式溢出，test_deck 自测放映交互。</aside>
+  <aside class="notes">导出两条路：页面内一键导出可编辑 PPTX；build 时可产出全内联单机版 HTML。质检两条命令：check_slides 体检版式溢出，test_deck 自测放映交互。离线优先：vendor 落盘 + 相对路径，断网可用。</aside>
 </section>
 
 <section class="slide" id="s11" data-title="管理后台 /admin" data-rail="管理">
@@ -2521,7 +2700,7 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
   <aside class="notes">管理后台四块：访问追踪（内容与时长的逐屏统计）、密码门禁、上下架、安全边界。首次启动会打印一次初始管理密码，之后可在面板里改。追踪数据匿名，只记随机访客号。</aside>
 </section>
 
-<section class="slide slide--flush" id="s12" data-title="结尾 · 文档索引" data-rail="" data-nofoot>
+<section class="slide slide--flush" id="s12" data-title="结尾 · 文档索引" data-rail="" data-arch="closing" data-nofoot>
   
   <div class="cover">
     <div class="cover__main" style="margin-top: 110px; max-width: 980px;">
@@ -2632,7 +2811,7 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
 <!-- ---------------- 总览 ---------------- -->
 <div class="overview">
   <div class="overview__head">
-    <b>全部 6 屏</b>
+    <b>全部 N 屏</b>
     <span>点击任意一屏跳转 · Esc 关闭</span>
   </div>
   <div class="overview__grid"></div>
@@ -2893,7 +3072,7 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
       foot.innerHTML = custom
         ? `<span>${custom}</span>`
         : `<span>${rail ? rail + ' · ' : ''}${title}</span><span class="foot__marks">
-             <span>${document.body.dataset.brand || 'AI 改变学习方式'}</span><span class="foot__dot"></span>
+             <span>${document.body.dataset.brand || 'DeckStage'}</span><span class="foot__dot"></span>
              <span class="num">${String(i + 1).padStart(2, '0')} / ${total}</span></span>`;
       slide.appendChild(foot);
     });
@@ -2913,6 +3092,8 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
 
     const grid = document.querySelector('.overview__grid');
     if (grid) {
+      const ovCount = document.querySelector('.overview__head b');
+      if (ovCount) ovCount.textContent = `全部 ${slides.length} 屏`;
       grid.innerHTML = slides.map((s, i) => `
         <button class="ov-card" data-goto="${i}">
           <span class="ov-card__no">${String(i + 1).padStart(2, '0')}</span>
@@ -3029,7 +3210,7 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
     if (location.hash !== hash) history.replaceState(null, '', hash);
 
     animateCounters(cur);
-    document.title = `${String(idx + 1).padStart(2, '0')} · ${cur.dataset.title || 'AI 改变学习方式'}`;
+    document.title = `${String(idx + 1).padStart(2, '0')} · ${cur.dataset.title || document.body.dataset.brand || 'DeckStage'}`;
   }
 
   function go(n, opts = {}) {
@@ -3352,20 +3533,41 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
     author: docMeta('author')
   };
 
+  /* 导出端平台：同一套字体栈在不同 OS 上解析到不同字体。PPTX 里写死的字体名
+     在打开端不一定存在，Windows PowerPoint 会任意替代导致版式漂移——
+     mac 专属名映射到本机等价字体，Windows 端映射到 Segoe UI / Consolas。 */
+  var EXPORT_PLATFORM = (function () {
+    var uad = (navigator.userAgentData && navigator.userAgentData.platform) || '';
+    var p = String(uad || navigator.platform || '').toLowerCase();
+    if (p.indexOf('win') >= 0) return 'windows';
+    if (p.indexOf('mac') >= 0 || p.indexOf('iphone') >= 0 || p.indexOf('ipad') >= 0) return 'mac';
+    return 'other';
+  })();
+
+  var FONT_MAP_MAC = {
+    'Inter': 'Helvetica Neue',
+    'SF Pro Display': 'Helvetica Neue',
+    'SF Pro Text': 'Helvetica Neue',
+    'SF Pro': 'Helvetica Neue',
+    'SF Mono': 'Menlo',
+    'ui-monospace': 'Menlo'
+  };
+  var FONT_MAP_WIN = {
+    'Inter': 'Segoe UI',
+    'SF Pro Display': 'Segoe UI',
+    'SF Pro Text': 'Segoe UI',
+    'SF Pro': 'Segoe UI',
+    'SF Mono': 'Consolas',
+    'ui-monospace': 'Consolas'
+  };
+
   var DEFAULTS = Object.assign({}, _docDefaults, global.DECK_EXPORT_DEFAULTS || {}, {
     slideSelector: 'section.slide',
     scriptPath: null,             // 不填则自动探测
     skipSelector: '[data-pptx-skip], .no-export, .pptx-skip',
-    // 本机没装 Inter / SF 系列，浏览器实际用系统回退渲染；
-    // 这里映射到 macOS 自带、Windows 会回退到 Arial 的等价字体，避免 PowerPoint 各自猜。
-    fontMap: {
-      'Inter': 'Helvetica Neue',
-      'SF Pro Display': 'Helvetica Neue',
-      'SF Pro Text': 'Helvetica Neue',
-      'SF Pro': 'Helvetica Neue',
-      'SF Mono': 'Menlo',
-      'ui-monospace': 'Menlo'
-    },
+    // mac: 本机没装 Inter / SF 系列，浏览器实际用系统回退渲染，映射到 macOS 自带字体；
+    // windows: 映射到 Windows 自带字体。避免 PowerPoint 各自猜。
+    fontMap: Object.assign({}, FONT_MAP_MAC, EXPORT_PLATFORM === 'windows' ? FONT_MAP_WIN : {}),
     fallbackFont: 'Microsoft YaHei',
     minShapeArea: 600,            // 小于该面积(设计px²)的色块不导出
     minRuleLen: 16,               // 细线/分隔线最短长度
@@ -4783,7 +4985,7 @@ python3 tools/test_deck.py               # 放映交互自测（点按/翻页/�
     pptx.title = c.title;
     pptx.author = c.author;
     pptx.subject = c.title;
-    pptx.company = 'AI learning report';
+    pptx.company = (document.body && document.body.dataset.brand) || '';
 
     var SHAPE = pptx.ShapeType || {};
     var report = [];

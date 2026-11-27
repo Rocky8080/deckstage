@@ -16,6 +16,7 @@ serve_deck.py — 静态服务这份 HTML 幻灯片（默认只绑 127.0.0.1，�
       访问追踪（/api/track/*，前端脚本由本服务注入 HTML）、deck 门禁（密码 / 下架，
       library.html 服务端实时过滤）、访问统计面板。运行时数据在 <root>/data/。
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import gzip
 import json
@@ -796,14 +797,19 @@ class DeckHandler(SimpleHTTPRequestHandler):
             force = bool(json.loads(body.decode("utf-8") or "{}").get("force"))
         except Exception:
             force = False
-        py = sys.executable
-        for cand in ("/usr/bin/python3", "/opt/homebrew/bin/python3"):
-            r = subprocess.run([cand, "-c", "import playwright"], capture_output=True)
+        # 优先找一台装了 playwright 的解释器（Windows 上 py -3 / python 都可能是候选）；
+        # 都没有就退回当前解释器。cand 是 [exe, arg...] 形式，直接拼进 argv。
+        py_cand = [sys.executable]
+        for cand in _platform.python_candidates():
+            try:
+                r = subprocess.run(cand + ["-c", "import playwright"], capture_output=True)
+            except OSError:
+                continue
             if r.returncode == 0:
-                py = cand
+                py_cand = cand
                 break
-        argv = [py, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                 "build_library.py")] + (["--force"] if force else [])
+        argv = [*py_cand, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                       "build_library.py")] + (["--force"] if force else [])
         self._sse_start()
         self._sse({"type": "log", "line": f"$ {shlex.join(argv)}"})
         try:

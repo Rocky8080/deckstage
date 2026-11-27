@@ -1,0 +1,32 @@
+<!-- 骨架 13 · 基准柱状图｜适用：一组数字里只有一个是主角｜容量：5–7 根柱，每根标签 ≤ 8 字 -->
+<section class="slide" id="s13" data-title="基准柱状 · 一根主角柱" data-rail="结构" data-arch="bars">
+  <header class="head reveal" style="--d:40ms">
+    <p class="kicker">12 / 数字 · BARS</p>
+    <h1 class="title">五处优化里，只有<em>分层缓存</em>值得先做</h1>
+  </header>
+
+  <div class="body">
+    <div class="ax-bars reveal" style="--d:80ms">
+      <div class="ax-bars__col"><p class="ax-bars__num">52</p><div class="ax-bars__bar" style="height:100%"></div><span style="display:none"></span></div>
+      <div class="ax-bars__col"><p class="ax-bars__num">41</p><div class="ax-bars__bar" style="height:79%"></div></div>
+      <div class="ax-bars__col"><p class="ax-bars__num">33</p><div class="ax-bars__bar" style="height:63%"></div></div>
+      <div class="ax-bars__col ax-bars__col--focal"><p class="ax-bars__num">17</p><div class="ax-bars__bar" style="height:33%"></div></div>
+      <div class="ax-bars__col"><p class="ax-bars__num">24</p><div class="ax-bars__bar" style="height:46%"></div></div>
+      <div class="ax-bars__ref" style="bottom: 100%;">
+        <i>迁移前基线 · 构建分钟</i>
+      </div>
+    </div>
+    <div class="ax-bars__labels reveal" style="--d:180ms">
+      <span>直接迁移</span><span>依赖瘦身</span><span>并行编译</span><span><b>分层缓存</b></span><span>增量脚本</span>
+    </div>
+
+    <p class="ax-note reveal" style="--d:280ms">示例数据（请替换为真实数据）｜口径：CI 构建 wall-clock 分钟；柱高按 52 分钟基线归一；虚线即迁移前基线 52 分钟，看深绿柱相对虚线的位置。</p>
+
+    <div class="ax-bottom reveal" style="--d:360ms">
+      <p class="insight">所以先做分层缓存：17 分钟，是唯一低于基线三成的单项。</p>
+      <p class="bridge" style="margin-top:16px">数字怎么读成因果？下一屏给因果链桥。</p>
+    </div>
+  </div>
+
+  <aside class="notes">基准柱状图的关键不是柱子，是那根虚线基准与唯一的焦点柱：非焦点柱全部退成灰绿，焦点柱用主色并放大数字。柱子 5–7 根；超过 7 根先合并同类项。图注必须带口径行，虚线标签写明基准是什么。</aside>
+</section>

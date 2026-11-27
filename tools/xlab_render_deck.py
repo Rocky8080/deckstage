@@ -4,6 +4,7 @@
 流程：soffice → PDF → 每页 JPEG(1600×900) → src-xlab/slides/NN-slide.html
 每屏 = 渲染图（懒加载）+ 原文文本层（讲稿面板可检索/复制）
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import io, pathlib, subprocess
 import numpy as np
 import fitz
@@ -14,7 +15,7 @@ SRC = pathlib.Path("/tmp/xlab.pptx")
 PDF = pathlib.Path("/tmp/lo_out/xlab.pdf")
 ASSETS = pathlib.Path("assets/xlab3")
 SLIDES = pathlib.Path("src-xlab/slides")
-SOFFICE = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
+SOFFICE = _platform.find_soffice()
 W, H = 1600, 900
 
 # 章节归属（按原稿结构）

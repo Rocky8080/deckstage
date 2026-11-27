@@ -10,6 +10,7 @@
 输出一行 JSON（导航时序、paint、LCP、长任务、每个资源的字节与耗时）。
 方法说明见 docs/PERFORMANCE.md。
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import json
 import sys

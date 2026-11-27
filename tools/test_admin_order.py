@@ -9,6 +9,7 @@ test_admin_order.py — 后台「首页排序」集成自测（API → library.h
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import http.cookiejar
 import json
 import os

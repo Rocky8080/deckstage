@@ -9,6 +9,7 @@ test_library_columns.py — 展示台首页 2 / 3 / 4 列切换自测
 """
 from __future__ import annotations
 
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import os
 import shutil
 import socket
@@ -87,7 +88,7 @@ def main() -> int:
         print(f"\n临时站点 {site}  ·  {base}\n")
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(channel="chrome", headless=True)
+            browser = _platform.launch_chromium(p, headless=True)
             page = browser.new_context(viewport={"width": 1440, "height": 1000}).new_page()
             errors = []
             page.on("pageerror", lambda e: errors.append(str(e)))

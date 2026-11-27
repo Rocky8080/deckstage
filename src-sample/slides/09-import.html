@@ -1,29 +1,38 @@
-<section class="slide" id="s09" data-title="PPTX 导入 · 两条路径" data-rail="导入">
-  <header class="head">
+<section class="slide" id="s09" data-title="PPTX 导入 · 两条路径" data-rail="导入" data-arch="board">
+  <header class="head reveal" style="--d:40ms">
     <p class="kicker">08 / IMPORT</p>
     <h1 class="title">外部 PPTX，<em>一条流水线</em>进展示台</h1>
   </header>
 
   <div class="body">
-    <ul class="list" style="max-width: 900px;">
+    <ul class="list" style="max-width: 1080px; margin-top: 0;">
       <li class="list__item reveal" style="--d:60ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>入口</b>　展示台右上角「＋ 导入 PPTX」四步向导（体检 → 选项 → SSE 实时进度 → 入库）；CLI 同款能力：<code>import_pptx.py</code></p></li>
+        <p class="list__txt"><b>入口</b>　展示台右上角「＋ 导入 PPTX」四步向导（体检 → 选项 → SSE 实时进度 → 入库）；CLI 同款能力：<code>import_pptx.py</code>，可先 <code>--dry-run</code> 只体检不动手</p></li>
       <li class="list__item reveal" style="--d:150ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>流程</b>　体检 → 版式预修（禁折行 / 缩字）→ LibreOffice 渲染 → 补字层 → 组装入库</p></li>
-      <li class="list__item reveal" style="--d:240ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>保真</b>　每屏 = 原稿整页图 + 按 PDF 坐标补的可检索文字，视觉零偏差</p></li>
-      <li class="list__item reveal" style="--d:330ms"><i class="list__dot"></i>
-        <p class="list__txt"><b>边界</b>　导入 API 仅限本机（Host 守卫），单文件 ≤ 300MB；改字要回源 PPTX 重导</p></li>
+        <p class="list__txt"><b>保真与边界</b>　每屏 = 原稿整页图 + 按 PDF 坐标补的可检索文字，视觉零偏差；导入 API 仅限本机（Host 守卫），改字要回源 PPTX 重导</p></li>
     </ul>
 
-    <div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 28px;">
-      <div class="stat reveal" style="--d:410ms"><b class="stat__num num stat__num--l" data-count="6">6</b><span class="stat__label">个阶段全自动</span></div>
-      <div class="stat reveal" style="--d:490ms"><b class="stat__num num stat__num--l" data-count="4">4</b><span class="stat__label">步 UI 向导</span></div>
-      <div class="stat reveal" style="--d:570ms"><b class="stat__num num stat__num--l">1600<i class="stat__unit">×</i>900</b><span class="stat__label">逐页渲染分辨率</span></div>
-      <div class="stat reveal" style="--d:650ms"><b class="stat__num num stat__num--l" data-count="300">300</b><span class="stat__unit">MB</span><span class="stat__label">上传体积上限</span></div>
+    <div class="ax-board" style="margin-top: 30px;">
+      <div class="ax-board__cell reveal" style="--d:230ms">
+        <p class="ax-board__num"><span data-count="6">6</span></p>
+        <p class="ax-board__k">个阶段全自动</p>
+        <p class="ax-board__d">体检 → 预修 → 渲染 → 补字 → 组装 → 入库</p>
+      </div>
+      <div class="ax-board__cell reveal" style="--d:330ms">
+        <p class="ax-board__num"><span data-count="4">4</span></p>
+        <p class="ax-board__k">步 UI 向导</p>
+        <p class="ax-board__d">与 CLI 同一条流水线，进度实时可见</p>
+      </div>
+      <div class="ax-board__cell reveal" style="--d:430ms">
+        <p class="ax-board__num ax-board__num--accent">1600<i class="ax-board__unit">×</i>900</p>
+        <p class="ax-board__k">逐页渲染分辨率</p>
+        <p class="ax-board__d">源分辨率固定，与设计坐标 1:1</p>
+      </div>
     </div>
 
-    <p class="bridge reveal" style="--d:730ms">导入是单向快照；日常更新走<strong>源码创作</strong>，也可以随时导出回 PPTX。</p>
+    <p class="source reveal" style="--d:530ms">口径：六阶段按 import_pptx.py 流水线计；1600×900 为 LibreOffice 渲染的固定源分辨率；上传上限为导入接口的单文件限制（≤300MB，仅限本机）。</p>
+
+    <p class="bridge reveal" style="--d:600ms">导入是单向快照；日常更新走<strong>源码创作</strong>，也可以随时导出回 PPTX。</p>
   </div>
 
   <aside class="notes">两条导入路径：UI 向导与 CLI。六阶段里最关键的是补字层——LibreOffice 漏画的文字按原坐标补回来，可检索可复制。注意导入 API 只在本机开放，公网隧道一律 403。</aside>

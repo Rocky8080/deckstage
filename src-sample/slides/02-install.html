@@ -11,12 +11,13 @@
     .ins-chat { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; }
     .ins-msg { max-width: 94%; padding: 9px 12px; border-radius: 10px; font: 12.5px/1.62 var(--font-sans); }
     .ins-msg--user { align-self: flex-end; background: var(--green); color: var(--paper); border-bottom-right-radius: 3px; }
-    .ins-msg--user code { font-family: var(--font-mono); font-size: 11.5px; color: #fff;
+    .ins-msg--user code { font-family: var(--font-mono); font-size: 11.5px; color: inherit;
       background: rgba(255,255,255,.16); padding: 1px 6px; border-radius: 5px; }
     .ins-msg--ai { align-self: flex-start; background: var(--green-tint); color: var(--ink-2);
       border-bottom-left-radius: 3px; font-family: var(--font-mono); font-size: 11.5px; white-space: pre-wrap; }
-    .ins-msg--ai b { color: var(--green); }
+    .ins-msg--ai b { color: var(--ink-2); }   /* --green 在暖赭/青瓷主题下过不了着色底 4.5:1，强调改用深墨 */
     .ins-cmd { background: var(--dark-2); border-radius: var(--r-md); padding: 18px 22px; }
+    .ins-cmd .kv__k { color: rgba(247, 243, 234, .6); }   /* 深底上的微标签：默认 --ink-4 过不了 4.5:1 */
     .ins-cmd pre { margin: 0; font: 12px/1.95 var(--font-mono); color: rgba(247,243,234,.85); white-space: pre-wrap; }
     .ins-detail { display: flex; flex-direction: column; gap: 18px; }
     body.ratio-4x3 .ins-grid { gap: 28px; }

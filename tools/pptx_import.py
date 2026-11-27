@@ -5,13 +5,14 @@
   python3 tools/pptx_import.py --pptx /tmp/x.pptx --slug my-deck --src src-my
 流程：soffice → PDF（缓存）→ 逐页 1600×900 JPEG → 检测未渲染文字 → 生成 slides/*.html
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse, io, pathlib, re, subprocess
 import numpy as np
 import fitz
 from PIL import Image
 from pptx import Presentation
 
-SOFFICE = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
+SOFFICE = _platform.find_soffice()
 W, H = 1600, 900
 
 FONT_MAP = {

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """把 PPTX 里本机没有的字体名替换为本机可用字体（只用于渲染，不改原文件）。"""
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import re, shutil, sys, zipfile
 
 SHRINK = 1.0   # 由命令行第二参数控制（如 0.96）

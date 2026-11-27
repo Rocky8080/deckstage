@@ -4,6 +4,7 @@ extract_notes.py — 从各屏的 <aside class="notes"> 汇总成讲稿 docs/本
 
 用法: python3 tools/extract_notes.py
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import re
 import sys
 from pathlib import Path

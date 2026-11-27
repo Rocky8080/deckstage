@@ -158,7 +158,7 @@ decks/<slug>/
 外部 PPTX 转进来时，**不要重排版式**——用真实渲染器把每页渲染成图，视觉 1:1：
 
 ```bash
-# 依赖：LibreOffice（brew install --cask libreoffice）
+# 依赖：LibreOffice（macOS: brew install --cask libreoffice；Windows: 装 LibreOffice 自动识别，或设 SOFFICE 环境变量）
 python3 tools/xlab_render_deck.py     # pptx → pdf → 逐页 1600×900 JPEG → src-xlab/slides/
 node build.mjs --deck tsinghua-xlab --src src-xlab
 ```

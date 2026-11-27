@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """把 PPTX 里的文字统一指向某个中文字体（只用于渲染），并可给自动缩放留余量。"""
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import re, shutil, sys, zipfile
 
 TARGET = "Hiragino Sans GB"

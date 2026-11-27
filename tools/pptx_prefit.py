@@ -3,10 +3,16 @@
 
 目的：PowerPoint 里刚好一行的标题，在 LibreOffice 里用回退字体时不要多折一行。
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import re, shutil, sys, zipfile
 from PIL import ImageFont
 
-FONT_PATH = "/Applications/LibreOffice.app/Contents/Resources/fonts/truetype/Arial Unicode.ttf"
+FONT_PATH = _platform.first_existing(
+    "/Applications/LibreOffice.app/Contents/Resources/fonts/truetype/Arial Unicode.ttf",
+    r"C:\Windows\Fonts\msyh.ttc",
+    r"C:\Windows\Fonts\arialuni.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+)
 CACHE = {}
 
 

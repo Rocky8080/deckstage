@@ -8,6 +8,7 @@
 退出码: 0 = 每页背景都命中；1 = 有缺失/不一致。
 """
 from __future__ import annotations
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse, re, sys, zipfile
 from pathlib import Path
 

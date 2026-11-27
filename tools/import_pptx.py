@@ -27,11 +27,13 @@ import_pptx.py — 一条命令把外部 PPTX 自动导入为展示台 deck（�
   · 默认不动 library 页；--publish 才重拍全部缩略图并刷新 decks.json / library.html
   · --rounds N（默认 1）：第 1 轮用给定参数渲染；若补字过多则自动加码（缩字逐轮 ×0.97）重渲，取补字最少的一轮
 """
+import _platform  # noqa: F401  — Windows GBK 管道下的 stdout UTF-8 兜底（见 _platform.py）
 import argparse
 import contextlib
 import datetime
 import io
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -44,8 +46,13 @@ ROOT = Path(__file__).resolve().parent.parent
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 
-SOFFICE = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
-PREFIT_FONT = Path("/Applications/LibreOffice.app/Contents/Resources/fonts/truetype/Arial Unicode.ttf")
+SOFFICE = _platform.find_soffice()
+PREFIT_FONT = Path(_platform.first_existing(
+    "/Applications/LibreOffice.app/Contents/Resources/fonts/truetype/Arial Unicode.ttf",
+    r"C:\Windows\Fonts\msyh.ttc",
+    r"C:\Windows\Fonts\arialuni.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+) or "")
 W, H = 1600, 900
 RAILS = ["About", "Programs", "Tournaments", "Global"]
 
@@ -80,21 +87,21 @@ def ensure_deps():
             missing.append(m)
     if not missing:
         return
-    import os, shutil
     probe = "import PIL, fitz, numpy, pptx"
-    seen = {sys.executable}
-    cands = ["/usr/bin/python3", "/opt/homebrew/bin/python3"] + \
-            sorted(map(str, Path("/opt/homebrew/bin").glob("python3.*"))) + \
-            [shutil.which("python3") or ""]
-    for c in cands:
-        if not c or c in seen or not Path(c).exists():
+    seen = {sys.executable.lower()}
+    homebrew = sorted(Path("/opt/homebrew/bin").glob("python3.*")) if Path("/opt/homebrew/bin").is_dir() else []
+    cands = [[str(p)] for p in homebrew] + _platform.python_candidates()
+    for cand in cands:
+        exe = cand[0]
+        if not exe or exe.lower() in seen:
             continue
-        seen.add(c)
-        if subprocess.run([c, "-c", probe], capture_output=True).returncode == 0:
-            print(f"[deps] 当前解释器缺 {'/'.join(missing)}，改用 {c} 重跑……")
-            os.execv(c, [c, str(Path(__file__).resolve()), *sys.argv[1:]])
-    sys.exit(f"当前 python3 缺依赖（{'/'.join(missing)}），且没找到装齐的解释器。"
-             "试：/usr/bin/python3 tools/import_pptx.py …")
+        seen.add(exe.lower())
+        if subprocess.run(cand + ["-c", probe], capture_output=True).returncode == 0:
+            print(f"[deps] 当前解释器缺 {'/'.join(missing)}，改用 {' '.join(cand)} 重跑……")
+            os.execv(exe, [*cand, str(Path(__file__).resolve()), *sys.argv[1:]])
+    sys.exit(f"当前解释器缺依赖（{'/'.join(missing)}），且没找到装齐的解释器。"
+             "先 pip install -r requirements.txt，或用装齐的解释器运行："
+             "python3 tools/import_pptx.py …")
 
 
 # ---------------------------------------------------------------- [0] 体检
@@ -445,6 +452,10 @@ def main():
         print("[dry-run] 未写任何文件。")
         return
 
+    if not SOFFICE:
+        sys.exit("未找到 LibreOffice：请安装 https://www.libreoffice.org/"
+                 "（Windows 默认识别 C:\\Program Files\\LibreOffice），"
+                 "或设环境变量 SOFFICE 指向 soffice 可执行文件")
     if not Path(SOFFICE).exists():
         sys.exit(f"未找到 LibreOffice：{SOFFICE}")
     work = ROOT / "build" / "import" / slug
@@ -457,12 +468,15 @@ def main():
         "fonts": dict(inv["fonts"])}, "lang": lang, "targets": {"latin": latin, "cjk": cjk},
         "rounds": []}
 
-    # ---- [1/6] 字体规整（--install-font 先装入 ~/Library/Fonts）
+    # ---- [1/6] 字体规整（--install-font 先装入用户字体目录）
     print("[1/6] 字体规整")
     user_map = {}
     for s in opts.map:
         user_map.update(parse_kv(s))
-    fonts_dir = Path.home() / "Library" / "Fonts"
+    if sys.platform == "win32":
+        fonts_dir = Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "Microsoft" / "Windows" / "Fonts"
+    else:
+        fonts_dir = Path.home() / "Library" / "Fonts"
     for s in opts.install_font:
         for fam, font_path in parse_kv(s).items():
             font_path = Path(font_path).expanduser()
@@ -473,7 +487,11 @@ def main():
             shutil.copyfile(font_path, target)
             user_map[fam] = fam
             log("1/6", f"已安装 {font_path.name} → {target}（映射 {fam} → 自身）")
-            if subprocess.run(["pgrep", "-f", "soffice"], capture_output=True).returncode == 0:
+            try:
+                soffice_running = subprocess.run(["pgrep", "-f", "soffice"], capture_output=True).returncode == 0
+            except (FileNotFoundError, OSError):
+                soffice_running = False   # Windows 没有 pgrep；跳过这项提示
+            if soffice_running:
                 log("1/6", "⚠ LibreOffice 正在运行，新装的字体可能要等它退出后才生效")
     # 默认不改字体（m3 配方：LibreOffice 原生回退已验证可用）；仅 --rewrite-fonts / --map / --install-font 时改写
     if opts.rewrite_fonts or user_map:
