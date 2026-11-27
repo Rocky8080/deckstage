@@ -1220,7 +1220,8 @@
     var box = toDesign(rect, ctx);
     if (box.w < 2 || box.h < 2) return;
 
-    var src = el.currentSrc || el.getAttribute('src') || '';
+    // 懒加载的图片此时 src 还是 1×1 占位，真实地址在 data-src
+    var src = el.getAttribute('data-src') || el.currentSrc || el.getAttribute('src') || '';
     if (!src) return;
     var fit = (cs.objectFit || 'fill').toLowerCase();
     var payload = await prepareImage(src, box.w, box.h, fit, cs.objectPosition,

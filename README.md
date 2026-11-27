@@ -24,11 +24,12 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 | **管理后台** | `/admin/` 支持访客分析、首页与 deck 门禁、内容上下架、首页排序、分享链接与二维码卡片。详见 [管理后台](docs/ADMIN.md) |
 | **放映** | `F` 全屏、`→/←` 翻页、`G` 总览、`N` 备注、`R` 画幅切换、`C` 配色主题（七套预设含素白与深色，见 [docs/DECK_SPEC.md](docs/DECK_SPEC.md)）、`#s12` 深链 |
 | **导出** | 页面内导出可编辑 PPTX，保留纯色背景与内联 SVG 的透明度。构建也可产出全内联的单机版 HTML。详见 [PPTX 导出](docs/PPTX.md) |
-| **质检** | 检查结构、表达、版面、视觉对比度（含六套预设主题）、PPTX 导出，支持放映交互自测和逐屏截图 |
+| **性能** | 首屏只下 HTML：PPTX 导出包按需注入（468 KB 不进首屏）、截图按 2× 压成 Web 版、第 2 屏起图片按屏懒加载。16 屏 deck 首屏 ≈83 KB（brotli），详见 [性能](docs/PERFORMANCE.md) |
+| **质检** | 检查结构、表达、版面、视觉对比度（含六套预设主题）、PPTX 导出，支持放映交互自测和逐屏截图；`tools/perf_probe.py` 量首屏 FCP / LCP / DCL |
 
 `build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
 
-v1.7.0 的变更详见 [发布日志](CHANGELOG.md#170---2026-11-25)。
+v1.7.1 的变更详见 [发布日志](CHANGELOG.md#171---2026-11-27)。
 
 ## 二、快速开始
 

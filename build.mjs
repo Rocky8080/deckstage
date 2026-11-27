@@ -107,6 +107,11 @@ const cssFiles = ['tokens.css', 'base.css', 'deck.css']
 const slideDir = join(SRC, 'slides');
 const files = readdirSync(slideDir).filter(f => f.endsWith('.html')).sort();
 
+// 按屏懒加载：首屏（第 1 张）之外的图片先留 1×1 占位，真实地址放 data-src，
+// 翻到该屏时由 src/js/deck.js 的 hydrateWindow() 补回。--inline 单文件版不做。
+const LAZY_IMAGES = process.argv.includes('--deck') && !process.argv.includes('--inline');
+const IMG_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 const slideStyles = [];
 const slideScripts = [];
 const slideMarkup = [];
@@ -126,8 +131,20 @@ for (const f of files) {
     return '';
   });
 
-  const trimmed = rest.trim();
+  let trimmed = rest.trim();
   if (!trimmed) continue;
+
+  // 第 2 屏起把 <img src> 换成占位 + data-src（PPTX 导出读 data-src，见 src/js/pptx-export.js）。
+  // 只换 src 这一个属性，alt / class / style 等一律保留。
+  if (LAZY_IMAGES && slideMarkup.length >= 1) {
+    trimmed = trimmed.replace(/<img\b[^>]*>/g, (tag) => {
+      const m = tag.match(/\ssrc="([^"]+)"/);
+      if (!m) return tag;
+      return tag
+        .replace(m[0], ` src="${IMG_PLACEHOLDER}" data-src="${m[1]}"`)
+        .replace(/\s*\/?>$/, ' decoding="async">');
+    });
+  }
 
   // 给没有 id 的 section 补一个
   const idMatch = /<section[^>]*\bid="([^"]+)"/.exec(trimmed);
@@ -162,7 +179,12 @@ const scripts = slideScripts.length
 const shell = read(join(SRC, 'shell.html'))
   .replace('/*@STYLES*/', () => styles)
   .replace('<!--@SLIDES-->', () => slideMarkup.join('\n\n'))
-  .replace('<!--@SCRIPTS-->', () => scripts);
+  .replace('<!--@SCRIPTS-->', () => scripts)
+  // 导出包与导出脚本只在点「导出 PPTX」时才需要 → defer，别挡住首屏
+  .replace('<script src="vendor/pptxgen.bundle.js"></script>',
+           '<script defer src="vendor/pptxgen.bundle.js"></script>')
+  .replace('<script src="src/js/pptx-export.js"></script>',
+           '<script defer src="src/js/pptx-export.js"></script>');
 
 writeFileSync(join(ROOT, 'index.html'), shell, 'utf8');
 
@@ -259,7 +281,13 @@ let builtDeck = null;
     html = html.replace(/href="assets\//g, 'href="/assets/');
     html = html.replace(/data-src="assets\//g, 'data-src="/assets/');
 
-    // (4) 其余脚本照旧内联（pptx 导出等）
+    // (3.5) 导出包 468 KB 不进首屏：pptx-export.js 的 ensurePptxGenJS() 会在第一次点「导出 PPTX」
+    //       时注入 /vendor/pptxgen.bundle.js（绝对路径，站点根部署即可命中）。
+    //       实测：4× CPU + Slow 4G 下 DCL 4756ms → 639ms。
+    html = html.replace('<script src="vendor/pptxgen.bundle.js"></script>',
+      '<!-- pptxgen 按需加载：点「导出 PPTX」时由 pptx-export.js 注入 /vendor/pptxgen.bundle.js -->');
+
+    // (4) 其余脚本照旧内联（pptx 导出脚本本身只有 70 KB，保留内联让按钮即时可用）
     html = html.replace(/<script src="([^"]+)"><\/script>/g, (_m, rel) => {
       try {
         const js = readFileSync(join(ROOT, rel), 'utf8').replace(/<\/script>/gi, '<\\/script>');
@@ -267,6 +295,11 @@ let builtDeck = null;
       } catch { return _m; }
     });
 
+    // 回归护栏：导出包（468 KB）不允许再被内联回首屏——它只在点「导出 PPTX」时才需要
+    if (/inlined: vendor\/pptxgen\.bundle\.js/.test(html)) {
+      console.error('[build] ✗ 导出包被内联进首屏了：vendor/pptxgen.bundle.js 应保持外部、按需加载');
+      process.exit(1);
+    }
     writeFileSync(join(outDir, 'index.html'), html, 'utf8');
     console.log(`[build] decks/${slug}/index.html  ${(Buffer.byteLength(html)/1024).toFixed(0)} KB  共享运行时 /_shared/`);
     builtDeck = slug;

@@ -4,6 +4,43 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.7.1] - 2026-11-27
+
+### 性能
+
+- **deck 首屏不再内联 PPTX 导出包**（`vendor/pptxgen.bundle.js`，468 KB）：改由 `src/js/pptx-export.js` 的
+  `ensurePptxGenJS()` 在第一次点「导出 PPTX」时按需注入 `/vendor/pptxgen.bundle.js`（边缘缓存已命中，第二次起 0 请求）。
+  单套 deck 的 HTML 763 KB → 297 KB（线上 brotli 244 KB → 83 KB）。
+  实测（4× CPU + Slow 4G）：DCL 4756 → 822 ms、LCP 5324 → 1380 ms、load 8540 → 3434 ms。
+- 根构建（`node build.mjs`）把两个导出脚本改成 `defer`，不再阻塞首屏。
+- 新增回归护栏：deck 构建若检测到导出包又被内联进首屏，直接失败。
+
+### 资源
+
+- 部门 deck 的 6 张截图生成 2× 显示尺寸的 Web 压缩版（`assets/web/xlab-ai-practice/`，构建自动优先使用）：
+  图片总量 1460 KB → 543 KB，最慢一张 8.1 s → 3.5 s；线上首屏传输 1461 KB → 544 KB。
+- 线上实测（同一台机器、同一条隧道）：FCP 2352 → 1620 ms、LCP 8108 → 3936 ms、DCL 7558 → 3346 ms。
+
+### 上线
+
+- 8 套 deck 全部重建、`library.html` 重新生成。
+  `xlab-2026-10` 原本卡在写作门禁 P0（讲稿里「1 年内估值增长 15 倍」缺口径），本次补成
+  「口径：2022-06 种子轮投后 → 2023-06 preA 轮投后，12 个月」后重建通过，636 KB → 188 KB。
+- 线上验收：8 套 deck 均 200（`archetypes` 为后台下架状态，404 属预期）、可翻页 / 总览 / 备注；
+  导出按钮触发按需拉取导出包；两套 deck 的端到端导出各 16 / 33 页，媒体文件齐全。
+
+### 按屏懒加载图片（复用引擎已有机制，不另写一套）
+
+- 引擎本来就支持按屏懒加载：`deck.js` 的 `hydrateImages(from, to)` 只加载当前屏 ±2 屏，导出时补满全册，
+  但此前**只对 `<img data-src>` 生效**（PPTX 导入的 deck 是这个写法），普通 `<img src>` 的 deck 仍然首屏全量拉图；
+  而 `.slide { position:absolute; inset:0 }` 把 16 屏叠在同一位置，`loading="lazy"` 无效（实测 11 张图仍在同一时刻发起）。
+- 本次只在构建期把首屏之外的普通 `<img src>` 换成 1×1 占位 + `data-src`（`build.mjs`，只换 src，
+  alt / class / style 保留；`--inline` 单文件版不启用），即可直接复用引擎原机制。
+- 配套：PPTX 导出取图增加 `data-src` 兜底（`pptx-export.js`）；`check_slides.py` / `make_pptx.py`
+  在测量前调用 `window.__deckHydrate(0, 999)`，QA 截图与测量不受懒加载影响。
+- 效果：首屏图片请求 11 张 / 544 KB → **0 张**；翻到有图的屏才拉 ~143 KB（≈0.5 s，此前首屏抢带宽要 4.7 s）。
+  线上三次取样：FCP 1060–1632 ms、LCP 2424–2996 ms、DCL 1870–2439 ms、首屏传输 **1 KB**。
+
 ## [1.7.0] - 2026-11-25
 
 ### 新增

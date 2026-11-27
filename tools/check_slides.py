@@ -159,6 +159,8 @@ def main():
 
         # 让所有 reveal 立即就位（导出模式下 CSS 已处理），等字体与图片
         page.evaluate("() => document.fonts ? document.fonts.ready : null")
+        # 按屏懒加载的 deck：先把当前屏/全屏图片水合回来，再等图片与字体
+        page.evaluate("() => window.__deckHydrate && window.__deckHydrate(0, 999)")
         page.evaluate("""() => Promise.all([...document.images].map(i => i.complete ? 1 :
             new Promise(r => { i.onload = i.onerror = r; })))""")
         page.wait_for_timeout(300)
