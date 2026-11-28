@@ -18,6 +18,8 @@ whenToUse: 写或改幻灯片、封面、Q&A、收尾页、图表页；用户反
 - 骨架只解决版式；结论、证据、口径仍归 `tools/frame.py` 和写作能力包。
 - 骨架默认带动效（`.reveal` / `data-count` / `.grow-x`）；不要另写 JS 动画。
 - 字号下限：解释性正文 18–20px，标签 11.5–13.5px；13.5px 以下不做解释性文字。
+- 补充说明不上屏：口径 / 折算 / 脚注长段一律写进当页备注（aside.notes），页面只留主证据；
+  唯一例外是一句话级的 `.source` 槽位。`design_audit` 以 fine-print-overload 提示（warn 级）。
 
 ```bash
 node build.mjs --src src-archetypes --deck archetypes   # 先看 17 个骨架长什么样

@@ -4,6 +4,38 @@
 [语义化版本](https://semver.org/lang/zh-CN/)。deck 引擎与工具链整体作为版本单元，
 deck 内容（`decks/<slug>/`）不在版本范围内。
 
+## [1.8.1] - 2026-11-28
+
+### 新增
+
+- **「补充说明进备注」固化为系统能力**（口径、基准、折算、估算细节、题外解释一律进当页备注
+  `aside.notes`，放映页只留主证据；唯一例外是一句话级的 `.source` 槽位）：
+  - `frame.py` 新增「口径上屏」（P1）：页面正文出现口径/折算/基准类补充说明即提示移入备注
+    （`.source` 一句话级豁免、insight/takeaway/bridge 结论槽位排除）；
+    新增「备注倍数无基准」（P2）：备注是讲稿，口述倍数同样要带基准词。
+  - `frame.py` 扫描范围修正：aside.notes 是讲稿不是页面——先剥离再查页面级规则，
+    备注内倍数单独降为 P2（此前备注文本会参与页面级 P0 判定）。
+  - `design_audit.py` 新增 `fine-print-overload` 提示（**warn 级，不计入退出码**）：
+    小字号（<15.5px）长段落（≥50 字）且含口径/折算/基准类信号词 → 建议移入备注；`.source` 豁免。
+  - 能力包同步：causal-value-chain 新增「补充说明进备注」纪律（SKILL + 用户级 AGENTS 规则块），
+    point-hierarchy H10 修法明确「下沉到当页备注」，design-quality 补充说明不上屏，
+    工作区 AGENTS.md 硬性规则第 8 条。
+- 规则口径与 hierarchy 对齐：封面/收尾页（data-nofoot）不参与「缺结论」；
+  「反事实」标签计入反事实信号；空 alt 图（头像 / 图标）不要求指认锚点。
+
+### 修复
+
+- sample-deck s09 桥接句压到页脚（text-overlap ×3，v1.8.0 看板重排时引入；
+  此前 check_slides 只跑过根实例，未覆盖 sample）——收正文间距与看板字号。
+- sample-deck s09 的 `.source` 超一句话，被新规则拦下后按纪律收敛为一行，细节下沉备注；
+  ai-learning-report s06 口径脚注同样下沉备注。
+
+### 验证
+
+- frame：sample P0 0 · P1 7（说明型页「缺结论」，既有建议项）；ai-learning-report P0 0 · P1 0 · P2 1。
+- design_audit 双 deck 0 问题 0 提示（16:9）；theme_contrast 六主题 0；check_slides 双 deck 0；
+  layout_audit self-test 5/5。
+
 ## [1.8.0] - 2026-11-28
 
 ### 新增
@@ -325,6 +357,7 @@ deck 内容（`decks/<slug>/`）不在版本范围内。
 - 质检：`check_slides.py` 溢出/截断/重叠体检、`test_deck.py` 放映交互自测。
 - 匿名示例 deck（`sample-deck`）与文档（AUTHORING / DECK_SPEC / IMPORT）。
 
+[1.8.1]: https://github.com/Rocky8080/deckstage/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/Rocky8080/deckstage/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/Rocky8080/deckstage/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/Rocky8080/deckstage/compare/85691d1...v1.7.0

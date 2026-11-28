@@ -11,10 +11,12 @@ design_audit.py — 视觉质量体检：文字对比度 / 大色块面积 / 低
   · 正常文字 >= 4.5:1；大字（>=24px，或 >=18.66px 且粗体）>= 3:1
   · 承载信息的大字不能做低对比水印
   · 字号下限 11.5px（标签档）；低于下限记 font-too-small，且小字同样查对比度
+  · 小字号（<15.5px）长段落（>=50 字）记 fine-print-overload 提示（warn 级，
+    不计入退出码）——口径/折算/脚注类补充说明应移入当页备注 aside.notes
   · 单块高饱和强调色面积 > 8% 警告，> 12% 视为问题
   · 元素加 data-design-allow 可显式豁免；.notes 不检查
 
-退出码: 0 = 通过；1 = 有问题；--warn-only 只报告不失败。
+退出码: 0 = 通过（warn 级提示不影响）；1 = 有问题；--warn-only 只报告不失败。
 """
 from __future__ import annotations
 
@@ -90,6 +92,24 @@ JS_COLLECT = r"""
           fs: +fs.toFixed(1),
           need: '>=11.5'
         });
+      }
+      // 小字长文：小字号长段落若含口径 / 折算 / 基准类信号词，多半是补充说明——
+      // 放映时应移入当页备注，页面只留主证据。warn 级，不计入退出码。
+      // .source 槽位豁免（一句话级口径是合法落点；超长的 .source 由 frame.py 的「口径上屏」规则提示）。
+      {
+        const t = String(el.textContent).trim();
+        const inSource = el.classList.contains('source') || el.closest('.source');
+        const FINEPRINT_RE = /口径|折算|基准|估算|体感|不合并/;
+        if (!inSource && el.getAttribute('aria-hidden') !== 'true' && fs < 15.5 && t.length >= 50 && FINEPRINT_RE.test(t)) {
+          issues.push({
+            kind: 'fine-print-overload',
+            warn: true,
+            text: t.slice(0, 24),
+            el: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\s+/).slice(0,2).join('.') : ''),
+            fs: +fs.toFixed(1),
+            len: t.length
+          });
+        }
       }
       const fg0 = parse(cs.color);
       if (!fg0) continue;
@@ -194,27 +214,36 @@ def main() -> None:
         data = [d for d in data if d["id"] in only]
 
     total = sum(len(d["issues"]) for d in data)
+    hard = sum(1 for d in data for i in d["issues"] if not i.get("warn"))
+    warns = total - hard
     kinds = {}
     for d in data:
         for i in d["issues"]:
             kinds[i["kind"]] = kinds.get(i["kind"], 0) + 1
 
     print("=" * 74)
-    print(f"design_audit · {len(data)} 屏 · 问题 {total} 个" + (f" · {kinds}" if kinds else ""))
+    print(f"design_audit · {len(data)} 屏 · 问题 {hard} 个"
+          + (f" · 提示 {warns} 条（不计入退出）" if warns else "")
+          + (f" · {kinds}" if kinds else ""))
     print("=" * 74)
     for d in data:
         if not d["issues"]:
             print(f"  ✓ {d['id']}  {d['title']}")
             continue
-        print(f"  ✗ {d['id']}  {d['title']}   {len(d['issues'])} 个问题")
+        hard_n = sum(1 for i in d["issues"] if not i.get("warn"))
+        warn_n = len(d["issues"]) - hard_n
+        mark = "✗" if hard_n else "✓"
+        extra = f"（另有 {warn_n} 条提示）" if warn_n else ""
+        print(f"  {mark} {d['id']}  {d['title']}   {hard_n} 个问题{extra}")
         for i in d["issues"][:args.max_report]:
-            detail = " ".join(f"{k}={v}" for k, v in i.items() if k != "kind")
-            print(f"      · {i['kind']}: {detail}")
+            detail = " ".join(f"{k}={v}" for k, v in i.items() if k not in ("kind", "warn"))
+            tag = "提示" if i.get("warn") else "·"
+            print(f"      {tag} {i['kind']}: {detail}")
         if len(d["issues"]) > args.max_report:
             print(f"      … 还有 {len(d['issues']) - args.max_report} 条")
 
     print()
-    if total and not args.warn_only:
+    if hard and not args.warn_only:
         sys.exit(1)
 
 

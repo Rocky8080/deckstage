@@ -29,7 +29,7 @@ PPTX export. Chinese UI, zero frontend build dependencies. License: Apache-2.0.
 
 `build.mjs` 使用 Node 标准库拼装，通过 Python 运行写作检查和缩略图工具。浏览器端依赖随仓库提供。
 
-v1.8.0 的变更详见 [发布日志](CHANGELOG.md#180---2026-11-28)。
+v1.8.1 的变更详见 [发布日志](CHANGELOG.md#181---2026-11-28)。
 
 ## 二、快速开始
 

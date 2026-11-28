@@ -29,13 +29,32 @@ BANNED = [
 
 MULTIPLE = re.compile(r"(\d+(?:\.\d+)?)\s*(?:倍|×)")
 BASELINE = re.compile(r"(相比|对比|基准|口径|vs|VS|相对|同一|同期|相当于|人月|传统做法|原来|聚宽)")
-COUNTERFACTUAL = re.compile(r"(如果|否则|相当于|折合|需要约?\s*\d|不这么做)")
+COUNTERFACTUAL = re.compile(r"(如果|否则|相当于|折合|需要约?\s*\d|不这么做|反事实)")
 CONCLUSION = re.compile(r"(所以|因此|结论|意味着|说明|这才是|证明|核心判断|一句话|主张|换来|变成)")
 ANCHOR = re.compile(r"(看(图|这|那|左|右|上|到)?|图中|图为首|图为|左上|右下|这一行|那一块|见右栏|注意|指那里)")
 PERSON_MONTH = re.compile(r"(人月|人\s*[×x*]\s*月|人数\s*[×x*]|\d+\s*人\s*[×x*]\s*\d+)")
-IMAGES = re.compile(r"<img[^>]*alt=\"([^\"]*)\"")
+# 只统计带 alt 文本的图（空 alt = 装饰图 / 头像 / 图标，不该要求指认锚点）
+IMAGES = re.compile(r"<img[^>]*alt=\"([^\"]+)\"")
 TABLE = re.compile(r"<table|class=\"[^\"]*cmp[^\"]*\"")
 TEXT = re.compile(r">([^<>]{2,})<")
+
+# 备注是讲稿不是页面：剥离后单独做宽松检查（倍数降为 P2）
+NOTES_BLOCK = re.compile(
+    r"<(aside|div)\b[^>]*class=\"[^\"]*\bnotes\b[^\"]*\"[^>]*>[\s\S]*?</\1\s*>", re.I)
+# 页面上「口径 / 折算」类补充说明的信号词；结论槽位（insight/takeaway/bridge）里
+# 出现这些词是内容表达，不算补充说明
+FINEPRINT = re.compile(r"(口径|折算|体感类比|不合并|被问再答|估算细节|基准)")
+CONCLUSION_SLOT = re.compile(
+    r"<p[^>]*class=\"[^\"]*\b(insight|takeaway|take|bridge)\b[^\"]*\"[^>]*>[\s\S]*?</p>", re.I)
+# 一句话级的 .source 槽位是页面上唯一合法的口径落点（超长照样提示）
+SOURCE_SHORT = re.compile(r"<(?:p|div|span)[^>]*class=\"[^\"]*\bsource\b[^\"]*\"[^>]*>[^<]{0,80}</", re.I)
+
+
+def strip_notes(html: str) -> tuple[str, str]:
+    """返回 (页面正文, 备注全文)。正文用 layout_audit 的深度配对剥离（防嵌套 div 截断）。"""
+    from layout_audit import _strip_notes
+    page = _strip_notes(html)
+    return page, " ".join(NOTES_BLOCK.findall(html))
 
 
 def framework_text() -> str:
@@ -91,7 +110,9 @@ QUOTED = re.compile(r"[「『“\"][^」』”\"]{0,80}[」』”\"]")
 
 def audit_slide(text: str, title: str) -> list[dict]:
     issues = []
-    plain = strip_tags(text)
+    page, notes = strip_notes(text)
+    plain = strip_tags(page)
+    notes_plain = strip_tags(notes)
     # 引号内的文字是被讨论/被否定的对象，不参与禁用表达检查
     plain_for_banned = QUOTED.sub(" ", plain)
     for pat, label in BANNED:
@@ -110,8 +131,8 @@ def audit_slide(text: str, title: str) -> list[dict]:
         issues.append({"sev": "P1", "rule": "缺反事实",
                        "detail": "出现倍数，但没有换算成“相当于/需要 X 年/否则…”"})
 
-    # 表格无结论
-    if TABLE.search(text) and not CONCLUSION.search(plain) and 'class="insight' not in text:
+    # 表格无结论（含 class 含 cmp 的对照块；只看页面正文）
+    if TABLE.search(page) and not CONCLUSION.search(plain) and 'class="insight' not in page:
         issues.append({"sev": "P0", "rule": "表格无结论",
                        "detail": "有表格/对照，但全屏没有“所以/意味着/说明”"})
 
@@ -121,7 +142,7 @@ def audit_slide(text: str, title: str) -> list[dict]:
                        "detail": "同屏出现“N 人”和“N 个月”，但没有折成人月"})
 
     # 图像无锚点
-    imgs = IMAGES.findall(text)
+    imgs = IMAGES.findall(page)
     if imgs:
         if not ANCHOR.search(plain):
             issues.append({"sev": "P1", "rule": "图无指认锚点",
@@ -131,9 +152,23 @@ def audit_slide(text: str, title: str) -> list[dict]:
                            "detail": "图注可能在描述“是什么”，而不是“证明了什么”"})
 
     # 结论句（页面里的 .insight 元素视为已有结论位）
-    has_insight = 'class="insight' in text or 'class="takeaway' in text
-    if len(plain) > 80 and not has_insight and not CONCLUSION.search(plain):
+    has_insight = 'class="insight' in page or 'class="takeaway' in page
+    # 封面 / 收尾页（data-nofoot）是导览，不参与「缺结论」——与 hierarchy 的豁免一致
+    is_nav_page = 'data-nofoot' in page
+    if len(plain) > 80 and not has_insight and not is_nav_page and not CONCLUSION.search(plain):
         issues.append({"sev": "P1", "rule": "缺结论", "detail": "整屏没有结论性措辞"})
+
+    # 口径 / 折算类补充说明上屏：应移入当页备注（aside.notes）；.source 只限一句话
+    if FINEPRINT.search(SOURCE_SHORT.sub(" ", CONCLUSION_SLOT.sub(" ", page))):
+        issues.append({"sev": "P1", "rule": "口径上屏",
+                       "detail": "页面上有口径/折算类补充说明——移入当页备注 aside.notes，页面只留主证据（.source 只限一句话）"})
+
+    # 备注里的倍数：讲稿同样要口径，但它是口述素材，降为 P2 提示
+    for m in MULTIPLE.finditer(notes_plain):
+        seg = notes_plain[max(0, m.start() - 60): m.end() + 60]
+        if not BASELINE.search(seg):
+            issues.append({"sev": "P2", "rule": "备注倍数无基准",
+                           "detail": f"备注里『{m.group(0)}』周边无对比口径——口头表述也要带（相当于/和谁比）"})
 
     return issues
 
@@ -153,7 +188,8 @@ def do_audit(target: str, as_json: bool) -> int:
         slides = []
         for i, m in enumerate(marks):
             end = marks[i + 1].start() if i + 1 < len(marks) else len(html)
-            body = html[m.end():end]
+            # body 含开标签：data-nofoot（封面/收尾豁免）等属性参与判定
+            body = html[m.start():end]
             t = re.search(r'data-title="([^"]*)"', m.group(0))
             slides.append((t.group(1) if t else Path(f).stem, body))
         if not slides:

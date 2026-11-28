@@ -1,4 +1,12 @@
 <section class="slide" id="s09" data-title="PPTX 导入 · 两条路径" data-rail="导入" data-arch="board">
+  <style>
+    /* 本屏三个块都偏高：收正文块间距与看板字号，让桥接句离开页脚（check_slides 的 text-overlap 门禁） */
+    #s09 .body { gap: 18px; }
+    #s09 .ax-board { margin-top: 10px; }
+    #s09 .ax-board__num { font-size: 92px; }
+    #s09 .ax-board__k { margin-top: 6px; }
+    #s09 .source { margin-top: 10px; }
+  </style>
   <header class="head reveal" style="--d:40ms">
     <p class="kicker">08 / IMPORT</p>
     <h1 class="title">外部 PPTX，<em>一条流水线</em>进展示台</h1>
@@ -30,10 +38,11 @@
       </div>
     </div>
 
-    <p class="source reveal" style="--d:530ms">口径：六阶段按 import_pptx.py 流水线计；1600×900 为 LibreOffice 渲染的固定源分辨率；上传上限为导入接口的单文件限制（≤300MB，仅限本机）。</p>
+    <p class="source reveal" style="--d:530ms">口径：六阶段按 import_pptx.py 流水线计；单文件 ≤300MB、仅限本机。</p>
 
     <p class="bridge reveal" style="--d:600ms">导入是单向快照；日常更新走<strong>源码创作</strong>，也可以随时导出回 PPTX。</p>
   </div>
 
-  <aside class="notes">两条导入路径：UI 向导与 CLI。六阶段里最关键的是补字层——LibreOffice 漏画的文字按原坐标补回来，可检索可复制。注意导入 API 只在本机开放，公网隧道一律 403。</aside>
+  <aside class="notes">两条导入路径：UI 向导与 CLI。六阶段里最关键的是补字层——LibreOffice 漏画的文字按原坐标补回来，可检索可复制。注意导入 API 只在本机开放，公网隧道一律 403。
+  口径与折算（页上不展开，被问再答）：1600×900 为 LibreOffice 渲染的固定源分辨率，与设计坐标 1:1；六阶段 = 体检 → 预修 → 渲染 → 补字 → 组装 → 入库；渲染底图相当于每页一张 1:1 设计稿。</aside>
 </section>

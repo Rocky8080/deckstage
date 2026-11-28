@@ -384,7 +384,7 @@ html[data-dtheme="ink-dark"] .tag--gold { color: var(--gold); }
   text-transform: uppercase;
   color: var(--ink-4);
 }
-.slide--dark .foot { border-top-color: var(--dark-line); color: rgba(247, 243, 234, .6); }
+.slide--dark .foot { border-top-color: var(--dark-line); color: #9C9A96; } /* 实色代替 rgba：导出 PPTX 时透明字体会触发渲染右溢 */
 .foot__marks { display: flex; align-items: center; gap: 10px; }
 .foot__dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .5; }
 
